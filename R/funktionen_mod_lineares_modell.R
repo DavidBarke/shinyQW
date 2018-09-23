@@ -247,6 +247,7 @@ lineares_modell <- function(input, output, session, user_data_storage, permanent
                                  label = c("Im neuen Tab anzeigen", "Im gegenwärtigen Tab anzeigen")
                                ),
                                grid_select = grid_select,
+                               widgets_per_row = 3,
                                parent = self)
   call_formula_interface <- callModule(module = formula_interface,
                               id = "id_formula_interface",

@@ -6,27 +6,27 @@
 \usage{
 select_data(input, output, session, data_rvs = list(user_data_storage =
   user_data_storage, permanent_data_storage = permanent_data_storage),
-  values, tabset_data = NULL, select_column = TRUE,
-  grid_select = tibble(type = "select", position = 1, label =
-  "Select column"), block = 2, parent, ...)
+  values, grid_select = tibble(type = "select", position = 1, label =
+  "Select column"), widgets_per_row = 2, tabset_data = NULL, parent,
+  ...)
 }
 \arguments{
-\item{values}{\code{\link[shiny]{reactiveValues}} storing data imported by the user, predefined
-by the app author and other values.}
-
-\item{tabset_data}{A tibble passed as \code{tabset_data} to
-\code{\link{interact_with_tabset_panel}}.}
-
-\item{select_column}{Deprecated. TODO: Remove}
+\item{data_rvs}{Either a single \code{\link[shiny]{reactiveValues}} or a named list with multiple
+\code{\link[shiny]{reactiveValues}}.}
 
 \item{grid_select}{A \code{\link[tibble]{tibble}} specifying the displayed input
 widgets for selecting the data. See 'Details'}
 
-\item{block}{Number of input widgets displayed in a horizontal block.}
+\item{widgets_per_row}{Number of input widgets displayed in a horizontal block.}
+
+\item{tabset_data}{A tibble passed as \code{tabset_data} to
+\code{\link{interact_with_tabset_panel}}.}
 
 \item{parent}{A \code{\link{node}} object.}
 
 \item{...}{Currently not used.}
+
+\item{select_column}{Deprecated. TODO: Remove}
 }
 \value{
 A \code{\link[shiny]{reactiveValues}} containing information about the selection.

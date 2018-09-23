@@ -41,13 +41,14 @@ select_data_ui <- function(id) {
 #'
 #' Select data stored in one or multiple \code{\link[shiny]{reactiveValues}}.
 #'
-#' @inheritParams interact_with_tabset_panel
+#' @param data_rvs Either a single \code{\link[shiny]{reactiveValues}} or a named list with multiple
+#' \code{\link[shiny]{reactiveValues}}.
 #' @param tabset_data A tibble passed as \code{tabset_data} to
 #' \code{\link{interact_with_tabset_panel}}.
 #' @param select_column Deprecated. TODO: Remove
 #' @param grid_select A \code{\link[tibble]{tibble}} specifying the displayed input
 #' widgets for selecting the data. See 'Details'
-#' @param block Number of input widgets displayed in a horizontal block.
+#' @param widgets_per_row Number of input widgets displayed in a horizontal block.
 #' @param parent A \code{\link{node}} object.
 #' @param ... Currently not used.
 #'
@@ -74,9 +75,9 @@ select_data <- function(input, output, session,
                         data_rvs = list(user_data_storage = user_data_storage,
                                     permanent_data_storage = permanent_data_storage),
                         values,
-                        tabset_data = NULL, select_column = TRUE,
                         grid_select = tibble(type = "select", position = 1, label = "Select column"),
-                        block = 2,
+                        widgets_per_row = 2,
+                        tabset_data = NULL,
                         parent,
                         ...
                         )
@@ -90,7 +91,7 @@ select_data <- function(input, output, session,
   output$ui_select_data <- renderUI({
     ui_element <- selectInput(
       inputId = ns("select_data"),
-      label = "Wähle Datensatz",
+      label = "Select dataset",
       choices = names(data_storage())
     )
     return(ui_element)
@@ -108,7 +109,7 @@ select_data <- function(input, output, session,
   output$ui_select_data_type <- renderUI({
     selectInput(
       inputId = ns("data_type"),
-      label = "Datentyp",
+      label = "Data type",
       choices = names_data_rvs()
     )
   })
@@ -137,8 +138,11 @@ select_data <- function(input, output, session,
     uiDivId_skeleton <- "div_select_data_column"
     inputId_skeleton <- "select_data_column"
     ui_list <- list()
+    # Erzeuge einen selectInput bzw. selectizeInput für jede Zeile in grid_select (grid)
     for (i in 1:nrow(grid)) {
       uiDivId <- uiDivId_skeleton %_% grid$type[[i]] %_% grid$count[[i]]
+      # Unique inputId, die Id braucht der User nicht zu kennen, da er auf die Werte der input widgets
+      # über die return values zugreifen kann
       inputId <- inputId_skeleton %_% i
       if (grid$type[[i]] == "select") {
         ui_element <- div(
@@ -160,42 +164,40 @@ select_data <- function(input, output, session,
           )
         )
       }
-      if (i %% 2 != 0) {
+      # Erstelle horizontalen Block der Länge widgets_per_row, append(ui_fluid_row, ui_element) funktioniert
+      # nicht, ich habe keine Ahnung warum.
+      # Erstes Element des horizontalen Blockes
+      if (i %% widgets_per_row == 1) {
         ui_fluid_row <- list()
         ui_fluid_row[[1]] <- ui_element
-        if (i == nrow(grid)) {
-          ui_list[[(i + 1) / 2]] <- fluidRow(
-            column(
-              width = 6,
-              ui_fluid_row[[1]]
-            )
-          )
-        }
-      } else {
-        ui_fluid_row[[2]] <- ui_element
-        ui_list[[i / 2]] <- fluidRow(
-          column(
-            width = 6,
-            ui_fluid_row[[1]]
-          ),
-          column(
-            width = 6,
-            ui_fluid_row[[2]]
-          )
+      # Letztes Element des horizontalen Blockes
+      } else if (i %% widgets_per_row == 0) {
+        ui_fluid_row[[length(ui_fluid_row) + 1]] <- ui_element
+        ui_list[[i / widgets_per_row]] <- make_fluid_row(
+          ui_fluid_row = ui_fluid_row,
+          widgets_per_row = widgets_per_row
         )
+      # Alle Elemente dazwischen
+      } else {
+        ui_fluid_row[[length(ui_fluid_row) + 1]] <- ui_element
       }
-      if (select_column == FALSE) {
-        hide(
-          selector = paste("#", ns(uiDivId))
+      # Erzeuge fluidRow vorzeitig, falls horizontaler Block nicht komplett aufgefüllt wird
+      if (i == nrow(grid) && i %%  widgets_per_row != 0) {
+        ui_list[[length(ui_list) + 1]] <- make_fluid_row(
+          ui_fluid_row = ui_fluid_row,
+          widgets_per_row = widgets_per_row
         )
       }
     }
+    # Modul gibt erst etwas zurück, nachdem dieser Ausdruck das erste Mal durchlaufen wurde
     rvs$return_values$start <- 1
     return(ui_list)
   })
 
   # CALL MODULES -------------------------------------------------------------
 
+  # Gibt dem User die Möglichkeit mithilfe von actionButtons den gewählten Datensatz in einem tabPanel
+  # anzuzeigen
   call_interact_with_tabset_panel <- callModule(
     module = interact_with_tabset_panel,
     id = "id_interact_with_tabset_panel",
@@ -243,6 +245,30 @@ select_data <- function(input, output, session,
   })
 
   return(return_list)
+}
+
+#' Create a fluidRow out of a list
+#'
+#' @param ui_fluid_row A list of html fragments
+#' @param widgets_per_row Number of widgets per row. Has to be a divisor of 12.
+#'
+#' @examples
+#' a <- tags$div("content")
+#' make_fluid_row(list(a, a, a, a), 4)
+#' make_fluid_row(list(a, a, a), 4)
+make_fluid_row <- function(ui_fluid_row, widgets_per_row) {
+  stopifnot(is.numeric(widgets_per_row),
+            length(ui_fluid_row) > widgets_per_row,
+            widgets_per_row %in% c(1, 2, 3, 4, 6, 12))
+  ui_list <- list()
+  # seq_along(ui_fluid_row) für den Fall, dass der Block nicht komplett gefüllt ist
+  for (i in seq_along(ui_fluid_row)) {
+    ui_list[[i]] <- shiny::column(
+      width = 12 / widgets_per_row,
+      ui_fluid_row[[i]]
+    )
+  }
+  return(shiny::fluidRow(ui_list))
 }
 
 #' @export

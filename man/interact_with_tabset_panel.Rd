@@ -4,18 +4,18 @@
 \alias{interact_with_tabset_panel}
 \title{Interact with a shiny tabset panel}
 \usage{
-interact_with_tabset_panel(input, output, session, user_data_storage,
-  permanent_data_storage, values, tabset_data, select_data, parent, ...)
+interact_with_tabset_panel(input, output, session, data_rvs, values,
+  tabset_data, select_data, parent, ...)
 }
 \arguments{
-\item{user_data_storage, permanent_data_storage, values}{\code{\link[shiny]{reactiveValues}} storing data imported by the user, predefined
-by the app author and other values.}
-
 \item{tabset_data}{A tibble containing information about the involved tabsets and
 actions. See 'Details'.}
 
 \item{select_data}{\code{\link[shiny]{reactiveValues}} for example returned by
 \code{\link{select_data}}.}
+
+\item{user_data_storage, permanent_data_storage, values}{\code{\link[shiny]{reactiveValues}} storing data imported by the user, predefined
+by the app author and other values.}
 }
 \description{
 Insert data into tabsetPanels accross different sessions within a modularized
