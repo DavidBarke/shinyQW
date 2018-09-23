@@ -4,10 +4,10 @@
 #' run_app()
 #'
 #' @export
-run_app <- function() {
-  appDir <- system.file("app", package = "shinyQW")
+run_app <- function(app_directory = "app") {
+  appDir <- system.file(app_directory, package = "shinyQW")
   if (appDir == "") {
-    stop("Could not find myapp. Try reinstalling `shinyQW`.", call. = FALSE)
+    stop(paste0("Could not find ", app_directory, ". Try reinstalling `shinyQW`."), call. = FALSE)
   }
 
   shiny::runApp(appDir, display.mode = "normal")
