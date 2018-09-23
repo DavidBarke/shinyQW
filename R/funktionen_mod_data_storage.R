@@ -1,6 +1,7 @@
 # TODO: observe der ActionButtons vernünftig implementieren
+# TODO: 80 Zeichen pro Zeile einhalten
 
-# MODUL: SELECT DATA ------------------------------------------------------------------------
+# MODUL: SELECT DATA -----------------------------------------------------------
 #' @export
 select_data_ui <- function(id) {
   ns <- NS(id)
@@ -41,27 +42,28 @@ select_data_ui <- function(id) {
 #'
 #' Select data stored in one or multiple \code{\link[shiny]{reactiveValues}}.
 #'
-#' @param data_rvs Either a single \code{\link[shiny]{reactiveValues}} or a named list with multiple
-#' \code{\link[shiny]{reactiveValues}}.
+#' @param data_rvs Either a single \code{\link[shiny]{reactiveValues}} or a
+#' named list with multiple \code{\link[shiny]{reactiveValues}}.
 #' @param tabset_data A tibble passed as \code{tabset_data} to
 #' \code{\link{interact_with_tabset_panel}}.
 #' @param select_column Deprecated. TODO: Remove
-#' @param grid_select A \code{\link[tibble]{tibble}} specifying the displayed input
-#' widgets for selecting the data. See 'Details'
-#' @param widgets_per_row Number of input widgets displayed in a horizontal block.
+#' @param grid_select A \code{\link[tibble]{tibble}} specifying the displayed
+#' input widgets for selecting the data. See 'Details'
+#' @param widgets_per_row Number of input widgets displayed in a horizontal
+#' block.
 #' @param parent A \code{\link{node}} object.
 #' @param ... Currently not used.
 #'
 #' @return
-#' A \code{\link[shiny]{reactiveValues}} containing information about the selection.
-#' See 'Examples'.
+#' A \code{\link[shiny]{reactiveValues}} containing information about the
+#' selection. See 'Examples'.
 #'
 #' @details
-#' \code{grid_select} has to be a \code{\link[tibble]{tibble}} with the following
-#' columns:
+#' \code{grid_select} has to be a \code{\link[tibble]{tibble}} with the
+#' following columns:
 #' \describe{
-#'   \item{type}{A character specifing the type of the input widget. Either "select"
-#'   for \code{\link[shiny]{selectInput}} or "selectize" for
+#'   \item{type}{A character specifing the type of the input widget. Either
+#'   "select" for \code{\link[shiny]{selectInput}} or "selectize" for
 #'   \code{\link[shiny]{selectizeInput}}}.
 #'   \item{position}{A numeric. All input widgets are arranged by this in blocks
 #'   of \code{block}.}
@@ -75,7 +77,9 @@ select_data <- function(input, output, session,
                         data_rvs = list(user_data_storage = user_data_storage,
                                     permanent_data_storage = permanent_data_storage),
                         values,
-                        grid_select = tibble(type = "select", position = 1, label = "Select column"),
+                        grid_select = tibble(type = "select",
+                                             position = 1,
+                                             label = "Select column"),
                         widgets_per_row = 2,
                         tabset_data = NULL,
                         parent,
@@ -138,11 +142,12 @@ select_data <- function(input, output, session,
     uiDivId_skeleton <- "div_select_data_column"
     inputId_skeleton <- "select_data_column"
     ui_list <- list()
-    # Erzeuge einen selectInput bzw. selectizeInput für jede Zeile in grid_select (grid)
+    # Erzeuge einen selectInput bzw. selectizeInput für jede Zeile in
+    # grid_select (grid)
     for (i in 1:nrow(grid)) {
       uiDivId <- uiDivId_skeleton %_% grid$type[[i]] %_% grid$count[[i]]
-      # Unique inputId, die Id braucht der User nicht zu kennen, da er auf die Werte der input widgets
-      # über die return values zugreifen kann
+      # Unique inputId, die Id braucht der User nicht zu kennen, da er auf
+      # die Werte der input widgets über die return values zugreifen kann
       inputId <- inputId_skeleton %_% i
       if (grid$type[[i]] == "select") {
         ui_element <- div(
@@ -164,8 +169,7 @@ select_data <- function(input, output, session,
           )
         )
       }
-      # Erstelle horizontalen Block der Länge widgets_per_row, append(ui_fluid_row, ui_element) funktioniert
-      # nicht, ich habe keine Ahnung warum.
+      ## Erstelle horizontalen Block der Länge widgets_per_row
       # Erstes Element des horizontalen Blockes
       if (i %% widgets_per_row == 1) {
         ui_fluid_row <- list()
@@ -181,7 +185,8 @@ select_data <- function(input, output, session,
       } else {
         ui_fluid_row[[length(ui_fluid_row) + 1]] <- ui_element
       }
-      # Erzeuge fluidRow vorzeitig, falls horizontaler Block nicht komplett aufgefüllt wird
+      # Erzeuge fluidRow vorzeitig, falls horizontaler Block nicht komplett
+      # aufgefüllt wird
       if (i == nrow(grid) && i %%  widgets_per_row != 0) {
         ui_list[[length(ui_list) + 1]] <- make_fluid_row(
           ui_fluid_row = ui_fluid_row,
@@ -189,15 +194,16 @@ select_data <- function(input, output, session,
         )
       }
     }
-    # Modul gibt erst etwas zurück, nachdem dieser Ausdruck das erste Mal durchlaufen wurde
+    # Modul gibt erst etwas zurück, nachdem dieser Ausdruck das erste Mal
+    # durchlaufen wurde
     rvs$return_values$start <- 1
     return(ui_list)
   })
 
-  # CALL MODULES -------------------------------------------------------------
+  # CALL MODULES ---------------------------------------------------------------
 
-  # Gibt dem User die Möglichkeit mithilfe von actionButtons den gewählten Datensatz in einem tabPanel
-  # anzuzeigen
+  # Gibt dem User die Möglichkeit mithilfe von actionButtons den gewählten
+  # Datensatz in einem tabPanel anzuzeigen
   call_interact_with_tabset_panel <- callModule(
     module = interact_with_tabset_panel,
     id = "id_interact_with_tabset_panel",

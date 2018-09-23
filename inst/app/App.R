@@ -1,7 +1,7 @@
-# TODO: values überarbeiten, observeEvents sind überflüssig, gleiches gilt für die
-# observeEvents vom Import-Modul
+# TODO: values überarbeiten, observeEvents sind überflüssig, gleiches gilt für
+# die observeEvents vom Import-Modul
 
-# PACKAGES ----------------------------------------------------------------------
+# PACKAGES ---------------------------------------------------------------------
 if (!require(githubinstall)) {
   install.packages("githubinstall")
   require(githubinstall)
@@ -72,7 +72,7 @@ if (!require(shinyQW)) {
   require(shinyQW)
 }
 
-# Globals ------------------------------------------------------------------------------
+# Globals ----------------------------------------------------------------------
 
 lehrveranstaltungen <- list(
   ida = c(
@@ -94,9 +94,9 @@ lehrveranstaltungen <- list(
   )
 )
 
-# UI -----------------------------------------------------------------------------------
-# Für alle Lehrveranstaltungen wird jeweils ein navbarMenu erstellt, dass die einzelnen Themen
-# in tabPaneln enthält
+# UI ---------------------------------------------------------------------------
+# Für alle Lehrveranstaltungen wird jeweils ein navbarMenu erstellt, dass die
+# einzelnen Theme in tabPaneln enthält
 for (lehrveranstaltung in names(lehrveranstaltungen)) {
   assign(lehrveranstaltung %_% "navbarMenu_args", list(
     title = toupper(lehrveranstaltung)
@@ -206,7 +206,7 @@ server <- function(input, output, session) {
                           values = values,
                           parent = self)
 
-  # Funktionsmodule -----------------------------------------------------------------
+  # Funktionsmodule ------------------------------------------------------------
   # Aufrufen der Module für alle Module
   call_import <- callModule(module = tab_import,
                             id = "id_import",
@@ -215,7 +215,7 @@ server <- function(input, output, session) {
                             values = values,
                             parent = self)
 
-  # Observer ------------------------------------------------------------------------
+  # Observer -------------------------------------------------------------------
   ## Befüllen von user_data_storage durch Import
   observeEvent(call_import(), {
     import <- call_import()
