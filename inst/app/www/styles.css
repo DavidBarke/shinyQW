@@ -1,0 +1,21 @@
+.div_x {
+	background-color: rgb(255, 0, 0);
+}
+
+.testclass {
+	background-color: rgb(255, 0, 0);
+}
+
+.navbar-static-top {
+	background-color: transparent;
+}
+
+
+/* Anpassen von z-index, damit Dropdown-Menus dashboardPages überlappen.*/
+.wrapper {
+	z-index: 1
+}
+
+.dropdown-menu {
+	z-index: 2
+}
