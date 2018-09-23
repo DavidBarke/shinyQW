@@ -4,30 +4,29 @@
 \alias{select_data}
 \title{Select data for later use in other shiny modules.}
 \usage{
-select_data(input, output, session, user_data_storage,
-  permanent_data_storage, values, tabset_data = NULL,
-  select_column = TRUE, grid_select = tibble(type = "select", position
-  = 1, label = "WÃ¤hle Spalte"), block = 2, parent, ...)
+select_data(input, output, session, data_rvs = list(user_data_storage =
+  user_data_storage, permanent_data_storage = permanent_data_storage),
+  values, tabset_data = NULL, select_column = TRUE,
+  grid_select = tibble(type = "select", position = 1, label =
+  "Select column"), block = 2, parent, ...)
 }
 \arguments{
-\item{user_data_storage}{\code{\link[shiny]{reactiveValues}} storing data imported by the user, predefined
-by the app author and other values.}
-
-\item{permanent_data_storage}{\code{\link[shiny]{reactiveValues}} storing data imported by the user, predefined
-by the app author and other values.}
-
 \item{values}{\code{\link[shiny]{reactiveValues}} storing data imported by the user, predefined
 by the app author and other values.}
 
 \item{tabset_data}{A tibble passed as \code{tabset_data} to
-\code{\link{interact_with_tabset_data}}.}
+\code{\link{interact_with_tabset_panel}}.}
 
 \item{select_column}{Deprecated. TODO: Remove}
 
-\item{grid_select}{A \code{\link[dplyr]{tibble}} specifying the displayed input
+\item{grid_select}{A \code{\link[tibble]{tibble}} specifying the displayed input
 widgets for selecting the data. See 'Details'}
 
 \item{block}{Number of input widgets displayed in a horizontal block.}
+
+\item{parent}{A \code{\link{node}} object.}
+
+\item{...}{Currently not used.}
 }
 \value{
 A \code{\link[shiny]{reactiveValues}} containing information about the selection.
@@ -37,7 +36,7 @@ See 'Examples'.
 Select data stored in one or multiple \code{\link[shiny]{reactiveValues}}.
 }
 \details{
-\code{grid_select} has to be a \code{\link[dplyr]{tibble}} with the following
+\code{grid_select} has to be a \code{\link[tibble]{tibble}} with the following
 columns:
 \describe{
   \item{type}{A character specifing the type of the input widget. Either "select"

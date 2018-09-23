@@ -94,7 +94,11 @@ filter_ui <- function(input, output, session,
   call_select_data <- callModule(
     module = select_data,
     id = "id_select_data",
-    user_data_storage, permanent_data_storage, values,
+    data_rvs = list(
+      user_data_storage = user_data_storage,
+      permanent_data_storage = permanent_data_storage
+    ),
+    values,
     parent = self,
     tabset_data = tibble(
       id = c("tabset", "tabset"),

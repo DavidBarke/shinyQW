@@ -4,7 +4,7 @@
 \alias{run_app}
 \title{Run the QW-App}
 \usage{
-run_app()
+run_app(app_directory = "app")
 }
 \description{
 Run the QW-App

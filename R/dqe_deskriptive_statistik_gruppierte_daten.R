@@ -281,8 +281,10 @@ dqe_deskriptive_statistik_gruppierte_daten <- function(input, output, session, u
 
   call_select_data <- callModule(module = select_data,
                                  id = "id_gruppierte_daten_select_data",
-                                 user_data_storage = user_data_storage,
-                                 permanent_data_storage = permanent_data_storage,
+                                 data_rvs = list(
+                                   user_data_storage = user_data_storage,
+                                   permanent_data_storage = permanent_data_storage
+                                 ),
                                  values = values,
                                  parent = self,
                                  tabset_data = tibble(

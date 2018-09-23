@@ -24,8 +24,8 @@ function_dialog <- function(input, output, session,
     user_data_storage = user_data_storage,
     permanent_data_storage = permanent_data_storage,
     values = values,
-    session_tree = session_tree,
-    selected_data = selected_data
+    selected_data = selected_data,
+    parent = self
   )
 
   output$ui_output <- renderUI({

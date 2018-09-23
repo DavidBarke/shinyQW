@@ -234,8 +234,10 @@ lineares_modell <- function(input, output, session, user_data_storage, permanent
 
   call_select_data <- callModule(module = select_data,
                                id = "id_select_data",
-                               user_data_storage = user_data_storage,
-                               permanent_data_storage = permanent_data_storage,
+                               data_rvs = list(
+                                 user_data_storage = user_data_storage,
+                                 permanent_data_storage = permanent_data_storage
+                               ),
                                values = values,
                                tabset_data = tibble(
                                  id = c("tabset", "tabset"),

@@ -12,10 +12,8 @@ select_data_ui <- function(id) {
     fluidRow(
       column(
         width = 6,
-        selectInput(
-          inputId = ns("data_type"),
-          label = "Datentyp",
-          choices = c("Permanent" = "permanent", "User" = "user")
+        uiOutput(
+          outputId = ns("ui_select_data_type")
         )
       ),
       column(
@@ -45,9 +43,9 @@ select_data_ui <- function(id) {
 #'
 #' @inheritParams interact_with_tabset_panel
 #' @param tabset_data A tibble passed as \code{tabset_data} to
-#' \code{\link{interact_with_tabset_data}}.
+#' \code{\link{interact_with_tabset_panel}}.
 #' @param select_column Deprecated. TODO: Remove
-#' @param grid_select A \code{\link[dplyr]{tibble}} specifying the displayed input
+#' @param grid_select A \code{\link[tibble]{tibble}} specifying the displayed input
 #' widgets for selecting the data. See 'Details'
 #' @param block Number of input widgets displayed in a horizontal block.
 #' @param parent A \code{\link{node}} object.
@@ -58,7 +56,7 @@ select_data_ui <- function(id) {
 #' See 'Examples'.
 #'
 #' @details
-#' \code{grid_select} has to be a \code{\link[dplyr]{tibble}} with the following
+#' \code{grid_select} has to be a \code{\link[tibble]{tibble}} with the following
 #' columns:
 #' \describe{
 #'   \item{type}{A character specifing the type of the input widget. Either "select"
@@ -73,7 +71,9 @@ select_data_ui <- function(id) {
 #'
 #' @export
 select_data <- function(input, output, session,
-                        user_data_storage, permanent_data_storage, values,
+                        data_rvs = list(user_data_storage = user_data_storage,
+                                    permanent_data_storage = permanent_data_storage),
+                        values,
                         tabset_data = NULL, select_column = TRUE,
                         grid_select = tibble(type = "select", position = 1, label = "Select column"),
                         block = 2,
@@ -96,11 +96,28 @@ select_data <- function(input, output, session,
     return(ui_element)
   })
 
+  names_data_rvs <- reactive({
+    if (is.list(data_rvs)) {
+      stopifnot(!is.null(names(data_rvs)))
+      return(names(data_rvs))
+    } else {
+      return(NULL)
+    }
+  })
+
+  output$ui_select_data_type <- renderUI({
+    selectInput(
+      inputId = ns("data_type"),
+      label = "Datentyp",
+      choices = names_data_rvs()
+    )
+  })
+
   data_storage <- reactive({
-    if (input$data_type == "user") {
-      return(user_data_storage)
-    } else if (input$data_type == "permanent") {
-      return(permanent_data_storage)
+    if (is.list(data_rvs)) {
+      return(get(req(input$data_type), envir = list2env(data_rvs)))
+    } else {
+      return(data_rvs)
     }
   })
 
@@ -182,7 +199,7 @@ select_data <- function(input, output, session,
   call_interact_with_tabset_panel <- callModule(
     module = interact_with_tabset_panel,
     id = "id_interact_with_tabset_panel",
-    user_data_storage, permanent_data_storage, values,
+    data_rvs, values,
     tabset_data = tabset_data,
     parent = self,
     select_data = return_list
@@ -252,7 +269,7 @@ interact_with_tabset_panel_ui <- function(id) {
 #'
 #' @export
 interact_with_tabset_panel <- function(input, output, session,
-                                       user_data_storage, permanent_data_storage, values,
+                                       data_rvs, values,
                                        tabset_data, select_data,
                                        parent,
                                        ...) {
@@ -268,7 +285,11 @@ interact_with_tabset_panel <- function(input, output, session,
   })
 
   selected_data_storage <- reactive({
-    get(select_data()$values$data_type %_% "data_storage")
+    if (is.list(data_rvs)) {
+      get(select_data()$values$data_type, envir = list2env(data_rvs))
+    } else {
+      data_rvs
+    }
   })
 
   sort_tabset_data <- reactive({

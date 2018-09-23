@@ -103,7 +103,7 @@ condition_maker <- function(input, output, session,
   data <- reactive({
     selected_data <- selected_data()$values
     data_type <- selected_data$data_type
-    data_storage <- get(data_type %_% "data_storage")
+    data_storage <- get(data_type)
     data <- data_storage[[selected_data$data$selected]]
   })
 

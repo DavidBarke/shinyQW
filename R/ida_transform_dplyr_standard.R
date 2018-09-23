@@ -73,8 +73,10 @@ ida_transform_dplyr_standard <- function(input, output, session, user_data_stora
 
   call_select_data <- callModule(module = select_data,
                                  id = "id_select_data",
-                                 user_data_storage = user_data_storage,
-                                 permanent_data_storage = permanent_data_storage,
+                                 data_rvs = list(
+                                   user_data_storage = user_data_storage,
+                                   permanent_data_storage = permanent_data_storage
+                                 ),
                                  values = values,
                                  parent = self,
                                  tabset_data = tibble(
