@@ -6,22 +6,13 @@ library(colourpicker)
 library(shinyQW)
 library(tidyverse)
 library(plotly)
+library(R6)
+library(R.utils)
 
-full_box <- function(..., title = NULL, footer = NULL, status = NULL,
-                     solidHeader = FALSE, background = NULL, width = 6,
-                     height = NULL, collapsible = FALSE, collapsed = FALSE) {
-  h <- box(..., title = title, footer = footer, status = status,
-           solidHeader = solidHeader, background = background, width = width,
-           height = height, collapsible = collapsible, collapsed = collapsed)
-  h$attribs$style <- "padding: 0px"
-  h
-}
-
-full_dashboardBody <- function(...) {
-  h <- dashboardBody(...)
-  h$children[[1]]$attribs$style <- "padding: 0px"
-  h
-}
+# SOURCE -----------------------------------------------------------------------
+# Damit nicht nach jeder Veränderung shinyQW neu gebuilded werden muss
+# SCHEINT HIER NICHT ZU FUNKTIONIEREN
+sourceDirectory(path = "../../../../R", encoding = "UTF-8")
 
 # Globals ----------------------------------------------------------------------
 
@@ -61,69 +52,156 @@ ui <- dashboardPage(
         "IDA",
         menuSubItem(
           "Import",
-          tabName = "tab_import"
+          "tab_import"
         ),
         menuSubItem(
           "Tidy",
-          tabName = "tab_tidy"
+          "tab_tidy"
         ),
         menuSubItem(
           "Transform",
-          tabName = "tab_transform"
+          "tab_transform"
+        ),
+        menuSubItem(
+          "Programming",
+          "tab_programming"
+        ),
+        menuSubItem(
+          "Regular Expressions",
+          "tab_regular_expressions"
+        ),
+        menuSubItem(
+          "Visualize",
+          "tab_visualize"
         )
       ),
       menuItem(
         "DQE",
         menuSubItem(
           "Deskriptive Statistik",
-          tabName = "tab_deskriptive_statistik"
+          "tab_deskriptive_statistik"
+        ),
+        menuSubItem(
+          "Wahrscheinlichkeitsrechnung",
+          "tab_wahrscheinlichkeitsrechnung"
         ),
         menuSubItem(
           "Verteilungsmodelle",
-          tabName = "tab_verteilungsmodelle"
+          "tab_verteilungsmodelle"
+        ),
+        menuSubItem(
+          "Statistische Prozesskontrolle",
+          "tab_statistische_prozesskontrolle"
+        ),
+        menuSubItem(
+          "Modellstrukturen",
+          "tab_modellstrukturen"
+        ),
+        menuSubItem(
+          "Design of Experiments",
+          "tab_design_of_experiments"
         )
       ),
       menuItem(
         "Einstellungen",
         menuSubItem(
           "Allgemein",
-          tabName = "tab_allgemein"
+          "tab_allgemein"
         ),
         menuSubItem(
           "ggplot2",
-          tabName = "tab_ggplot2"
+          "tab_ggplot2"
         ),
         menuSubItem(
           "plotly",
-          tabName = "tab_plotly"
+          "tab_plotly"
         )
       )
     )
   ),
-  full_dashboardBody(
-    full_box(
-      title = "Menuleiste",
-      collapsible = TRUE,
-      width = 12,
-      solidHeader = TRUE,
-      box("Box_1"),
-      box("Box_2")
+  shinyQW::full_dashboardBody(
+    shinyQW::menubar_ui(
+      id = "id_menubar",
+      title = "Menu"
     ),
     tabItems(
       tabItem(
-        tabName = "tab_import"
+        tabName = "tab_import",
+        shinyQW::ida_import_ui(
+          id = "id_import"
+        )
       ),
       tabItem(
-        tabName = "tab_tidy"
+        tabName = "tab_tidy",
+        shinyQW::ida_tidy_ui(
+          id = "id_tidy"
+        )
       ),
       tabItem(
-        tabName = "tab_transform"
+        tabName = "tab_transform",
+        shinyQW::ida_transform_ui(
+          id = "id_transform"
+        )
       ),
       tabItem(
-        tabName = "tab_deskriptive_statistik"
+        tabName = "tab_programming",
+        shinyQW::ida_programming_ui(
+          id = "id_programming"
+        )
       ),
       tabItem(
-        tabName = "tab_verteilungsmodelle"
+        tabName = "tab_regular_expressions",
+        shinyQW::ida_regular_expressions_ui(
+          id = "id_regular_expressions"
+        )
+      ),
+      tabItem(
+        tabName = "tab_visualize",
+        shinyQW::ida_visualize_ui(
+          id = "id_visualize"
+        )
+      ),
+      tabItem(
+        tabName = "tab_design_of_experiments",
+        shinyQW::dqe_design_of_experiments_ui(
+          id = "id_design_of_experiments"
+        )
+      ),
+      tabItem(
+        tabName = "tab_deskriptive_statistik",
+        shinyQW::dqe_deskriptive_statistik_ui(
+          id = "id_deskriptive_statistik"
+        )
+      ),
+      tabItem(
+        tabName = "tab_modellstrukturen",
+        shinyQW::dqe_modellstrukturen_ui(
+          id = "id_modellstrukturen"
+        )
+      ),
+      tabItem(
+        tabName = "tab_statistische_prozesskontrolle",
+        shinyQW::dqe_statistische_prozesskontrolle_ui(
+          id = "id_statistische_prozesskontrolle"
+        )
+      ),
+      tabItem(
+        tabName = "tab_testtheorie",
+        shinyQW::dqe_testtheorie_ui(
+          id = "id_testtheorie"
+        )
+      ),
+      tabItem(
+        tabName = "tab_verteilungsmodelle",
+        shinyQW::dqe_verteilungsmodelle_ui(
+          id = "id_verteilungsmodelle"
+        )
+      ),
+      tabItem(
+        tabName = "tab_wahrscheinlichkeitsrechnung",
+        shinyQW::dqe_wahrscheinlichkeitsrechnung_ui(
+          id = "id_wahrscheinlichkeitsrechnung"
+        )
       ),
       tabItem(
         tabName = "tab_allgemein",
@@ -138,7 +216,10 @@ ui <- dashboardPage(
         )
       ),
       tabItem(
-        tabName = "tab_plotly"
+        tabName = "tab_plotly",
+        shinyQW::einstellungen_plotly_ui(
+          id = "id_plotly"
+        )
       )
     )
   )
@@ -166,7 +247,7 @@ server <- function(input, output, session) {
     themen <- lehrveranstaltungen[[lehrveranstaltung]]
     shinyQW::call_multiple_modules_2(module_templates = themen,
                             glue_module = list(x1 = lehrveranstaltung, x2 = "{template}"),
-                            glue_id = list(x1 = "id", x2 = lehrveranstaltung, x3 = "{template}"),
+                            glue_id = list(x1 = "id", x2 = "{template}"),
                             glue_reactive = list(x1 = "call", x2 = lehrveranstaltung, x3 = "{template}"),
                             user_data_storage = user_data_storage,
                             permanent_data_storage = permanent_data_storage,

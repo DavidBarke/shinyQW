@@ -78,12 +78,12 @@ call_multiple_modules <- function(module_vector, prefix = "call", infix = NULL,
 # TODO: Als Standardfunktion etablieren, bzw. shinyUtils-Package nutzen
 # ACHTUNG: Das ist die aktuelle Funktion und nicht die in shinyUtils
 #' @export
-call_multiple_modules_2 <- function(templates,
+call_multiple_modules_2 <- function(module_templates,
                                     glue_module = list(x1 = "{template}"),
                                     glue_id = list(x1 = "id", x2 = "{template}"),
                                     glue_reactive = list(x1 = "call", x2 = "{template}"),
                                     ..., glue_list = NULL) {
-  for (template in templates) {
+  for (template in module_templates) {
     # Objektnamen erstellen
     for (type in c("reactive", "module", "id")) {
       glue_x <- get("glue" %_% type)
@@ -139,17 +139,18 @@ multiple_menuItem <- function(struct, menuItem_args = NULL,
   for (i in seq_along(struct)) {
     item <- struct[[i]]
     if (is.list(item) && length(item) != 0){
-      ui_sub <- purrr::pmap(.l = list(text = item, tabName = names(item)),
+      ui_sub <- purrr::pmap(.l = list(text = names(item), tabName = item),
                             .f = create_subItems)
       ui_item[[i]] <- do.call(shinydashboard::menuItem, list(
         text = names(struct[i]),
         ui_sub
       ))
     } else {
-      stopifnot(is.character(struct))
-      ui_item[[i]] <- do.call(shinydashboard::menuItem, list(
-        text = names(struct[i])
-      ))
+      # NOCH NICHT GETESTET
+      # stopifnot(is.character(struct))
+      # ui_item[[i]] <- do.call(shinydashboard::menuItem, list(
+      #   text = names(struct[i])
+      # ))
     }
   }
   return(ui_item)
