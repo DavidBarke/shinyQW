@@ -19,14 +19,3 @@ full_dashboardBody <- function(...) {
   # h$children[[1]]$attribs$style <- "padding: 0px"
   # h
 }
-
-#' @export
-viewer <- R6Class(
-  "viewer",
-  public = list(
-
-  ),
-  private = list(
-    ui = NULL
-  )
-)

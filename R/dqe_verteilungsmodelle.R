@@ -104,6 +104,7 @@ dqe_verteilungsmodelle_ui <- function(id) {
   )
 }
 
+#' @export
 dqe_verteilungsmodelle_box <- function(id) {
   ns <- NS(id)
 

@@ -162,6 +162,7 @@ viewer <- R6::R6Class(
         select = select,
         session = private$session
       )
+      private$createActionButton(tab)
     },
     get = function(what) {
       private[[what]]
@@ -176,6 +177,7 @@ viewer <- R6::R6Class(
         select = select,
         session = private$session
       )
+      private$createActionButton(tab)
     },
     prependTab = function(tab, select = FALSE) {
       shiny::prependTab(
@@ -185,6 +187,7 @@ viewer <- R6::R6Class(
         select = select,
         session = private$session
       )
+      private$createActionButton(tab)
     },
     removeTab = function(target) {
       shiny::removeTab(
@@ -210,25 +213,6 @@ viewer <- R6::R6Class(
         return(ui)
       }
       else print("tabBox has been already created.")
-    },
-    tabPanel = function(title, ..., value = title, icon = NULL) {
-      private$tabCounter <- private$tabCounter + 1
-      closeId <- private$id %_% private$tabCounter
-      ui <- tagList(
-        div(
-          class = "div-btn-close",
-          shiny::actionButton(
-            inputId = closeId,
-            label = NULL,
-            icon = icon("window-close")
-          )
-        )
-      )
-      if (!missing(...)) ui[[2]] <- ...
-      observeEvent(private$session$input[[closeId]], {
-        self$removeTab(target = value)
-      }, domain = private$session)
-      shiny::tabPanel(title = title, ui, value = value, icon = icon)
     }
   ),
   private = list(
@@ -240,6 +224,28 @@ viewer <- R6::R6Class(
     side = "left",
     once = FALSE,
     session = NULL,
-    tabCounter = 0
+    tabCounter = 0,
+    createActionButton = function(tab) {
+      data_value <- tab$attribs[["data-value"]]
+      private$tabCounter <- private$tabCounter + 1
+      closeId <- private$id %_% private$tabCounter
+      div_button <- div(
+        class = "div-btn-close",
+        shiny::actionButton(
+          inputId = closeId,
+          label = NULL,
+          icon = icon("window-close")
+        )
+      )
+      selector <- paste0("#", private$id, " li a[data-value=\"", data_value, "\"]")
+      shiny::insertUI(
+        selector = selector,
+        where = "beforeEnd",
+        ui = div_button
+      )
+      observeEvent(private$session$input[[closeId]], {
+        self$removeTab(target = data_value)
+      }, domain = private$session)
+    }
   )
 )

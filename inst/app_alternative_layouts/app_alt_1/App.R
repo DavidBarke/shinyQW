@@ -11,7 +11,7 @@ library(R.utils)
 
 # SOURCE -----------------------------------------------------------------------
 # Damit nicht nach jeder Veränderung shinyQW neu gebuilded werden muss
-sourceDirectory(path = "../../../R", encoding = "UTF-8")
+x <- sourceDirectory(path = "../../../R", encoding = "UTF-8")
 
 # Globals ----------------------------------------------------------------------
 
@@ -122,6 +122,13 @@ ui <- dashboardPage(
   ),
   shinyQW::full_dashboardBody(
     useShinyjs(),
+    tags$head(
+      tags$link(
+        rel = "stylesheet",
+        type = "text/css",
+        href = "styles.css"
+      )
+    ),
     shinyQW::menubar_ui(
       id = "id_menubar",
       title = "Menu"
@@ -275,7 +282,7 @@ server <- function(input, output, session) {
 
   observeEvent(input$append, {
     viewer_box$appendTab(
-      viewer_box$tabPanel("Appended"),
+      tabPanel("Appended"),
       select = TRUE
     )
   })
