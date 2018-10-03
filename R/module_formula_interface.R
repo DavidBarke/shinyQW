@@ -83,10 +83,10 @@ formula_interface_ui <- function(id) {
 }
 
 #' @export
-formula_interface <- function(input, output, session, user_data_storage, permanent_data_storage, values,
-                              parent,
-                              data, erklaert, zielgroesse,
-                              ...) {
+formula_interface <- function(
+  input, output, session, data, values, parent, erklaert, zielgroesse,
+  ...
+) {
   self <- node$new("formula_interface", parent, session)
 
   ns <- session$ns

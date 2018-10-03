@@ -55,8 +55,11 @@ dqe_design_of_experiments_projekt_standardisierung_ui <- function(id) {
 }
 
 #' @export
-dqe_design_of_experiments_projekt_standardisierung <- function(input, output, session, user_data_storage, permanent_data_storage, values,
-                                                               parent, ...) {
+dqe_design_of_experiments_projekt_standardisierung <- function(
+  input, output, session, data, values, parent, ...
+) {
+
+  user_data_storage <- data$user_data_storage
 
   self <- node$new("standardisierung", parent, session)
 

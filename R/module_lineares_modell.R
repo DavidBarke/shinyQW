@@ -57,8 +57,9 @@ lineares_modell_ui <- function(id) {
 }
 
 #' @export
-lineares_modell <- function(input, output, session, user_data_storage, permanent_data_storage, values,
-                            parent, ...) {
+lineares_modell <- function(
+  input, output, session, data, values, parent, ...
+) {
   self <- node$new("lineares_modell", parent, session)
 
   ns <- session$ns
@@ -73,8 +74,8 @@ lineares_modell <- function(input, output, session, user_data_storage, permanent
     isolate({
       formula <- call_formula_interface()$values$formula
       selected_data <- selected_data()
-      name_data_storage <- paste(selected_data$data_type, "data_storage", sep = "_")
-      data_storage <- get(name_data_storage)
+      name_data_storage <- selected_data$data_type
+      data_storage <- get(name_data_storage, data)
       data <- data_storage[[selected_data$data]]
       lm_ <- lm(formula = formula, data = data)
     })

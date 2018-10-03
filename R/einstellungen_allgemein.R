@@ -27,8 +27,9 @@ einstellungen_allgemein_ui <- function(id) {
 }
 
 #' @export
-einstellungen_allgemein <- function(input, output, session, user_data_storage, permanent_data_storage, values,
-                                    parent, ...) {
+einstellungen_allgemein <- function(
+  input, output, session, data, values, parent, ...
+) {
   self <- node$new("einstellungen_allgemein", parent, session)
 
   ns <- session$ns

@@ -112,8 +112,9 @@ dqe_verteilungsmodelle_box <- function(id) {
 }
 
 #' @export
-dqe_verteilungsmodelle <- function(input, output, session, user_data_storage, permanent_data_storage, values,
-                                   parent, ...) {
+dqe_verteilungsmodelle <- function(
+  input, output, session, data, values, parent, ...
+) {
   self <- node$new("verteilungsmodelle", parent, session)
 
   ns <- session$ns
@@ -149,7 +150,9 @@ dqe_verteilungsmodelle <- function(input, output, session, user_data_storage, pe
           selectInput(
             inputId = ns(selectTypePlotId),
             label = "Art des Plots",
-            choices = list("Dichtefunktion" = "density", "Verteilungsfunktion" = "probability", "Quantilsfunktion" = "quantile")
+            choices = list("Dichtefunktion" = "density",
+                           "Verteilungsfunktion" = "probability",
+                           "Quantilsfunktion" = "quantile")
           )
         )
       )

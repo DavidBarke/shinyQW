@@ -13,8 +13,9 @@ einstellungen_plotly_ui <- function(id) {
 }
 
 #' @export
-einstellungen_plotly <- function(input, output, session, user_data_storage, permanent_data_storage, values,
-                                 parent, ...) {
+einstellungen_plotly <- function(
+  input, output, session, data, values, parent, ...
+) {
   self <- node$new("einstellungen_plotly", parent, session)
 
   ns <- session$ns

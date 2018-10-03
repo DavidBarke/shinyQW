@@ -15,7 +15,7 @@ x <- sourceDirectory(path = "../../../R", encoding = "UTF-8")
 
 # Globals ----------------------------------------------------------------------
 
-viewer_box <- shinyQW::viewer$new(id = "viewer")
+viewer_box <- tabBox_R6$new(id = "viewer")
 
 lehrveranstaltungen <- list(
   ida = c(
@@ -120,7 +120,7 @@ ui <- dashboardPage(
       )
     )
   ),
-  shinyQW::full_dashboardBody(
+  full_dashboardBody(
     useShinyjs(),
     tags$head(
       tags$link(
@@ -129,7 +129,7 @@ ui <- dashboardPage(
         href = "styles.css"
       )
     ),
-    shinyQW::menubar_ui(
+    menubar_ui(
       id = "id_menubar",
       title = "Menu"
     ),
@@ -141,67 +141,67 @@ ui <- dashboardPage(
     tabItems(
       tabItem(
         tabName = "tab_import",
-        shinyQW::ida_import_ui(
+        ida_import_ui(
           id = "id_import"
         )
       ),
       tabItem(
         tabName = "tab_tidy",
-        shinyQW::ida_tidy_ui(
+        ida_tidy_ui(
           id = "id_tidy"
         )
       ),
       tabItem(
         tabName = "tab_transform",
-        shinyQW::ida_transform_ui(
+        ida_transform_ui(
           id = "id_transform"
         )
       ),
       tabItem(
         tabName = "tab_programming",
-        shinyQW::ida_programming_ui(
+        ida_programming_ui(
           id = "id_programming"
         )
       ),
       tabItem(
         tabName = "tab_regular_expressions",
-        shinyQW::ida_regular_expressions_ui(
+        ida_regular_expressions_ui(
           id = "id_regular_expressions"
         )
       ),
       tabItem(
         tabName = "tab_visualize",
-        shinyQW::ida_visualize_ui(
+        ida_visualize_ui(
           id = "id_visualize"
         )
       ),
       tabItem(
         tabName = "tab_design_of_experiments",
-        shinyQW::dqe_design_of_experiments_ui(
+        dqe_design_of_experiments_ui(
           id = "id_design_of_experiments"
         )
       ),
       tabItem(
         tabName = "tab_deskriptive_statistik",
-        shinyQW::dqe_deskriptive_statistik_ui(
+        dqe_deskriptive_statistik_ui(
           id = "id_deskriptive_statistik"
         )
       ),
       tabItem(
         tabName = "tab_modellstrukturen",
-        shinyQW::dqe_modellstrukturen_ui(
+        dqe_modellstrukturen_ui(
           id = "id_modellstrukturen"
         )
       ),
       tabItem(
         tabName = "tab_statistische_prozesskontrolle",
-        shinyQW::dqe_statistische_prozesskontrolle_ui(
+        dqe_statistische_prozesskontrolle_ui(
           id = "id_statistische_prozesskontrolle"
         )
       ),
       tabItem(
         tabName = "tab_testtheorie",
-        shinyQW::dqe_testtheorie_ui(
+        dqe_testtheorie_ui(
           id = "id_testtheorie"
         )
       ),
@@ -213,25 +213,25 @@ ui <- dashboardPage(
       ),
       tabItem(
         tabName = "tab_wahrscheinlichkeitsrechnung",
-        shinyQW::dqe_wahrscheinlichkeitsrechnung_ui(
+        dqe_wahrscheinlichkeitsrechnung_ui(
           id = "id_wahrscheinlichkeitsrechnung"
         )
       ),
       tabItem(
         tabName = "tab_allgemein",
-        shinyQW::einstellungen_allgemein_ui(
+        einstellungen_allgemein_ui(
           id = "id_allgemein"
         )
       ),
       tabItem(
         tabName = "tab_ggplot2",
-        shinyQW::einstellungen_ggplot2_ui(
+        einstellungen_ggplot2_ui(
           id = "id_ggplot2"
         )
       ),
       tabItem(
         tabName = "tab_plotly",
-        shinyQW::einstellungen_plotly_ui(
+        einstellungen_plotly_ui(
           id = "id_plotly"
         )
       )
@@ -261,22 +261,26 @@ server <- function(input, output, session) {
 
   for (lehrveranstaltung in names(lehrveranstaltungen)) {
     themen <- lehrveranstaltungen[[lehrveranstaltung]]
-    shinyQW::call_multiple_modules_2(module_templates = themen,
+    call_multiple_modules_2(module_templates = themen,
                             glue_module = list(x1 = lehrveranstaltung, x2 = "{template}"),
                             glue_id = list(x1 = "id", x2 = "{template}"),
                             glue_reactive = list(x1 = "call", x2 = lehrveranstaltung, x3 = "{template}"),
-                            user_data_storage = user_data_storage,
-                            permanent_data_storage = permanent_data_storage,
+                            data = list(
+                              user_data_storage = user_data_storage,
+                              permanent_data_storage = permanent_data_storage
+                            ),
                             values = values,
                             parent = self)
   }
 
-  shinyQW::call_multiple_modules_2(module_templates = einstellungen,
+  call_multiple_modules_2(module_templates = einstellungen,
                           glue_module = list(x1 = "einstellungen", x2 = "{template}"),
                           glue_id = list(x1 = "id_einstellungen", x2 = "{template}"),
                           glue_reactive = list(x1 = "call_einstellungen", x2 = "{template}"),
-                          user_data_storage = user_data_storage,
-                          permanent_data_storage = permanent_data_storage,
+                          data = list(
+                            user_data_storage = user_data_storage,
+                            permanent_data_storage = permanent_data_storage
+                          ),
                           values = values,
                           parent = self)
 

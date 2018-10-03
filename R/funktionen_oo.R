@@ -142,9 +142,56 @@ node <- R6::R6Class(
   )
 )
 
+#' Create a easy accessible tabbed box
+#'
+#' Create a \code{\link[shinydashboard]{tabBox}} using an R6 object. The object
+#' contains methods for creating the tabBox, inserting and removing \code{
+#' \link[shiny]{tabPanel}} elements and the ability to expand the usual tabBox
+#' with an additional action button which closes a tab.
+#'
+#' Instantiate a new tabBox_R6 obejct with \code{tabBox_R6$new(id,
+#' selected = NULL, title = "Viewer", width = 6, height = NULL,
+#' side = c("left", "right"))}.
+#'
+#' @usage
+#' NULL
+#'
+#' @format
+#' NULL
+#'
+#' @return
+#' Public methods and fields are accesible using the '$' operator.
+#' \item{appendTab(tab, select = FALSE, closeable = TRUE)}{Append the
+#' \code{\link[shiny]{tabPanel}} \code{tab} to the tabBox. If \code{tab} should
+#' be selected upon being inserted use \code{select = TRUE}. If the \code{tab}
+#' should not be closeable via an \code{\link[shiny]{actionButton}} use
+#' \code{closeable = FALSE}.}
+#' \item{get(what)}{Get the value of the private element with name \code{what}.}
+#' \item{insertTab(tab, target, position = c("before", "after"),
+#' select = FALSE, closeable = TRUE)}{Insert the \code{\link[shiny]{tabPanel}}}
+#' \code{tab} to the tabBox. See \code{\link[shiny]{insertTab}} for Details
+#' regarding \code{target} and \code{position}. If \code{tab} should be selected
+#' upon being inserted use \code{select = TRUE}. If the \code{tab}
+#' should not be closeable via an \code{\link[shiny]{actionButton}} use
+#' \code{closeable = FALSE}.}
+#' \item{prependTab(tab, select = FALSE, closeable = TRUE)}{Append the
+#' \code{\link[shiny]{tabPanel}} \code{tab} to the tabBox. If \code{tab} should
+#' be selected upon being inserted use \code{select = TRUE}. If the \code{tab}
+#' should not be closeable via an \code{\link[shiny]{actionButton}} use
+#' \code{closeable = FALSE}.}
+#' \item{removeTab(target)}{Remove the tab with value \code{target}.}
+#' \item{set_session}{Set the session for the tabBox. This method is separated
+#' from the instantiation because you will usually want to use the tabBox
+#' already in the ui when there is no session present yet. Therefore the session
+#' has to be manually in the server function.
+#' \item{tabBox()}{Return the HTML that builds the \code{\link[shinydashboard]{
+#' tabBox}}.}
+#' Use \code{get()} without any arguments to see the names of all private
+#' fields and methods.
+#'
 #' @export
-viewer <- R6::R6Class(
-  "viewer",
+tabBox_R6 <- R6::R6Class(
+  "tabBox_R6",
   public = list(
     initialize = function(id, selected = NULL, title = "Viewer",
                           width = 6, height = NULL, side = c("left", "right")) {
@@ -155,20 +202,22 @@ viewer <- R6::R6Class(
       private$height <- height
       private$side <- match.arg(side)
     },
-    appendTab = function(tab, select = FALSE) {
+    appendTab = function(tab, select = FALSE, closeable = TRUE) {
       shiny::appendTab(
         inputId = private$id,
         tab = tab,
         select = select,
         session = private$session
       )
-      private$createActionButton(tab)
+      if (closeable) private$createActionButton(tab)
+      invisible(self)
     },
     get = function(what) {
+      if (missing(what)) return(names(private))
       private[[what]]
     },
     insertTab = function(tab, target, position = c("before", "after"),
-                         select = FALSE) {
+                         select = FALSE, closeable = TRUE) {
       shiny::insertTab(
         inputId = private$id,
         tab = tab,
@@ -177,9 +226,10 @@ viewer <- R6::R6Class(
         select = select,
         session = private$session
       )
-      private$createActionButton(tab)
+      if (closeable) private$createActionButton(tab)
+      invisible(self)
     },
-    prependTab = function(tab, select = FALSE) {
+    prependTab = function(tab, select = FALSE, closeable = TRUE) {
       shiny::prependTab(
         inputId = private$id,
         tab = tab,
@@ -187,7 +237,8 @@ viewer <- R6::R6Class(
         select = select,
         session = private$session
       )
-      private$createActionButton(tab)
+      if (closeable) private$createActionButton(tab)
+      invisible(self)
     },
     removeTab = function(target) {
       shiny::removeTab(
@@ -195,6 +246,7 @@ viewer <- R6::R6Class(
         target = target,
         session = private$session
       )
+      invisible(self)
     },
     set_session = function(session) {
       private$session <- session

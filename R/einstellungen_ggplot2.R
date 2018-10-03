@@ -35,8 +35,9 @@ einstellungen_ggplot2_ui <- function(id) {
 }
 
 #' @export
-einstellungen_ggplot2 <- function(input, output, session, user_data_storage, permanent_data_storage, values,
-                                  parent, ...) {
+einstellungen_ggplot2 <- function(
+  input, output, session, data, values, parent, ...
+) {
   self <- node$new("einstellungen_ggplot2", parent, session)
 
   ns <- session$ns

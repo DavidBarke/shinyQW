@@ -62,7 +62,7 @@ dqe_design_of_experiments_ui <- function(id) {
 }
 
 #' @export
-dqe_design_of_experiments <- function(input, output, session, user_data_storage, permanent_data_storage, values,
+dqe_design_of_experiments <- function(input, output, session, data, values,
                                       parent, ...) {
 
   self <- node$new("design_of_experiments", parent, session)
@@ -80,30 +80,8 @@ dqe_design_of_experiments <- function(input, output, session, user_data_storage,
                             glue_id = list(x1 = "id", x2 = "{prefix}", x3 = "{template}"),
                             glue_reactive = list(x1 = "call", x2 = "{prefix}", x3 = "{template}"),
                             glue_list = list(prefix = "dqe_design_of_experiments_projekt"),
-                            user_data_storage = user_data_storage,
-                            permanent_data_storage = permanent_data_storage,
+                            data = data,
                             values = values,
                             session_tree = session_tree,
                             parent = self)
-    # callModule(module = dqe_design_of_experiments_projekt_standardisierung,
-    #                                             id = "id_dqe_design_of_experiments_projekt_standardisierung",
-    #                                             user_data_storage = user_data_storage,
-    #                                             permanent_data_storage = permanent_data_storage,
-    #                                             values = values,
-    #                                             session_tree = session_tree,
-    #                                             parent = "design_of_experiments")
-    # rvs_struktur_versuchsplan <- callModule(module = dqe_design_of_experiments_projekt_versuchsplan,
-    #                                         id = "id_dqe_design_of_experiments_projekt_versuchsplan",
-    #                                         user_data_storage = user_data_storage,
-    #                                         permanent_data_storage = permanent_data_storage,
-    #                                         values = values,
-    #                                         session_tree = session_tree,
-    #                                         parent = "design_of_experiments")
-    # rvs_struktur_steepest_ascent <- callModule(module = dqe_design_of_experiments_projekt_steepest_ascent,
-    #                                            id = "id_dqe_design_of_experiments_projekt_steepest_ascent",
-    #                                            user_data_storage = user_data_storage,
-    #                                            permanent_data_storage = permanent_data_storage,
-    #                                            values = values,
-    #                                            session_tree = session_tree,
-    #                                            parent = "design_of_experiments")
 }

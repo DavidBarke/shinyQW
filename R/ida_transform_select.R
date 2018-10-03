@@ -35,11 +35,9 @@ select_ui_footer <- function(id) {
 }
 
 #' @export
-select_ui <- function(input, output, session,
-                      user_data_storage, permanent_data_storage, values,
-                      parent,
-                      selected_data,
-                      ...) {
+select_ui <- function(
+  input, output, session, data, values, parent, selected_data, ...
+) {
   self <- node$new("select", parent, session)
 
   ns <- session$ns
@@ -54,7 +52,7 @@ select_ui <- function(input, output, session,
   data <- reactive({
     selected_data <- selected_data()$values
     data_type <- selected_data$data_type
-    data_storage <- get(data_type)
+    data_storage <- get(data_type, data)
     data <- data_storage[[selected_data$data$selected]]
   })
 
@@ -166,7 +164,7 @@ select_ui <- function(input, output, session,
       # rvs$data_table im data_storage überschreiben
       selected_data <- selected_data()$values
       data_type <- selected_data$data_type
-      data_storage <- get(data_type)
+      data_storage <- get(data_type, data)
       data_storage[[selected_data$data$selected]] <- data
       rvs$data_table <- rvs$default$data_table
     }

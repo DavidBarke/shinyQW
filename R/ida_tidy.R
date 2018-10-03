@@ -13,8 +13,9 @@ ida_tidy_ui <- function(id) {
 }
 
 #' @export
-ida_tidy <- function(input, output, session, user_data_storage, permanent_data_storage, values,
-                     parent, ...) {
+ida_tidy <- function(
+  input, output, session, data, values, parent, ...
+) {
   self <- node$new("tidy", parent, session)
 
   ns <- session$ns

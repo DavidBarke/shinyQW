@@ -1,5 +1,6 @@
 #' @export
-summarise_ui <- function(input, output, session, user_data_storage, permanent_data_storage, values,
-                         parent, selected_data, ...) {
+summarise_ui <- function(
+  input, output, session, data, values, parent, selected_data, ...
+) {
   self <- node$new("summarise", parent, session)
 }

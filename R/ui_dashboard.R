@@ -16,6 +16,6 @@ full_box <- function(..., title = NULL, footer = NULL, status = NULL,
 #' @export
 full_dashboardBody <- function(...) {
   h <- dashboardBody(...)
-  # h$children[[1]]$attribs$style <- "padding: 0px"
-  # h
+  h$children[[1]]$attribs$style <- "padding: 0px"
+  h
 }

@@ -28,16 +28,18 @@ dqe_modellstrukturen_ui <- function(id) {
 }
 
 #' @export
-dqe_modellstrukturen <- function(input, output, session, user_data_storage, permanent_data_storage, values,
-                                 parent, ...) {
+dqe_modellstrukturen <- function(
+  input, output, session, data, values, parent, ...
+) {
   self <- node$new("modellstrukturen", parent, session)
 
   ns <- session$ns
 
-  call_dqe_modellstrukturen_lineares_modell <- callModule(module = dqe_modellstrukturen_lineares_modell,
-                               id = "id_dqe_modellstrukturen_lineares_modell",
-                               user_data_storage = user_data_storage,
-                               permanent_data_storage = permanent_data_storage,
-                               values = values,
-                               parent = self)
+  call_dqe_modellstrukturen_lineares_modell <- callModule(
+    module = dqe_modellstrukturen_lineares_modell,
+    id = "id_dqe_modellstrukturen_lineares_modell",
+    data = data,
+    values = values,
+    parent = self
+  )
 }

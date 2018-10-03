@@ -11,6 +11,7 @@ menubar_ui <- function(id, title) {
 }
 
 #' @export
-menubar <- function(input, output, session, user_data_storage,
-                    permanent_data_storage, values, parent, ...) {
+menubar <- function(
+  input, output, session, data, values, parent, ...
+) {
 }

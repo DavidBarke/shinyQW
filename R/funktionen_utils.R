@@ -57,7 +57,7 @@ update_multiple_ui_elements <- function(session, input, prefix_id, update_functi
 }
 
 call_multiple_modules <- function(module_vector, prefix = "call", infix = NULL,
-                                  user_data_storage, permanent_data_storage, values,
+                                  data, values,
                                   session_tree, parent) {
     for (module in module_vector) {
       name_reactive <- prefix %_% infix %_% module
@@ -66,8 +66,7 @@ call_multiple_modules <- function(module_vector, prefix = "call", infix = NULL,
       assign(name_reactive, callModule(
         module = eval(parse(text = name_module)),
         id = id_module,
-        user_data_storage = user_data_storage,
-        permanent_data_storage = permanent_data_storage,
+        data = data,
         values = values,
         session_tree = session_tree,
         parent = parent

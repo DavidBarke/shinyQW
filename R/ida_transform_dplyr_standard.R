@@ -41,12 +41,9 @@ ida_transform_dplyr_standard_ui <- function(id) {
 }
 
 #' @export
-ida_transform_dplyr_standard <- function(input, output, session,
-                                         user_data_storage,
-                                         permanent_data_storage,
-                                         values,
-                                         parent,
-                                         ...) {
+ida_transform_dplyr_standard <- function(
+  input, output, session, data, values, parent, ...
+) {
   self <- node$new("dplyr_standard", parent, session)
 
   ns <- session$ns
@@ -70,10 +67,7 @@ ida_transform_dplyr_standard <- function(input, output, session,
 
   call_select_data <- callModule(module = select_data,
                                  id = "id_select_data",
-                                 data_rvs = list(
-                                   user_data_storage = user_data_storage,
-                                   permanent_data_storage = permanent_data_storage
-                                 ),
+                                 data_rvs = data,
                                  values = values,
                                  parent = self,
                                  tabset_data = tibble(
@@ -92,8 +86,7 @@ ida_transform_dplyr_standard <- function(input, output, session,
 
   call_function_dialog <- callModule(module = function_dialog,
                                      id = "id_function_dialog",
-                                     user_data_storage = user_data_storage,
-                                     permanent_data_storage = permanent_data_storage,
+                                     data = data,
                                      values = values,
                                      parent = self,
                                      selected_data = call_select_data,

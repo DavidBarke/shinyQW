@@ -50,8 +50,9 @@ ida_transform_dplyr_editor_ui <- function(id) {
 }
 
 #' @export
-ida_transform_dplyr_editor <- function(input, output, session, user_data_storage, permanent_data_storage, values,
-                                       parent, ...) {
+ida_transform_dplyr_editor <- function(
+  input, output, session, data, values, parent, ...
+) {
   self <- node$new("dplyr_editor", parent, session)
 
   ns <- session$ns

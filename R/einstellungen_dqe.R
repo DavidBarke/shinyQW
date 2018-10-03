@@ -26,8 +26,9 @@ einstellungen_dqe_ui <- function(id) {
 }
 
 #' @export
-einstellungen_dqe <- function(input, output, session, user_data_storage, permanent_data_storage, values,
-                              parent, ...) {
+einstellungen_dqe <- function(
+  input, output, session, data, values, parent, ...
+) {
   self <- node$new("einstellungen_dqe", parent, session)
 
   ns <- session$ns

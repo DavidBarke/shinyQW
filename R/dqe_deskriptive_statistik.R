@@ -60,8 +60,9 @@ dqe_deskriptive_statistik_ui <- function(id) {
 }
 
 #' @export
-dqe_deskriptive_statistik <- function(input, output, session, user_data_storage, permanent_data_storage, values,
-                                      parent, ...) {
+dqe_deskriptive_statistik <- function(
+  input, output, session, data, values, parent, ...
+) {
   self <- node$new("deskriptive_statistik", parent, session)
 
   ns <- session$ns
@@ -71,20 +72,17 @@ dqe_deskriptive_statistik <- function(input, output, session, user_data_storage,
   # TODO: call_multiple_modules anwenden
   call_dqe_deskriptive_statistik_sortierte_daten <- callModule(module = dqe_deskriptive_statistik_sortierte_daten,
                                id = "id_dqe_deskriptive_statistik_sortierte_daten",
-                               user_data_storage = user_data_storage,
-                               permanent_data_storage = permanent_data_storage,
+                               data = data,
                                values = values,
                                parent = self)
   call_dqe_deskriptive_statistik_gruppierte_daten <- callModule(module = dqe_deskriptive_statistik_gruppierte_daten,
                                id = "id_dqe_deskriptive_statistik_gruppierte_daten",
-                               user_data_storage = user_data_storage,
-                               permanent_data_storage = permanent_data_storage,
+                               data = data,
                                values = values,
                                parent = self)
   call_dqe_deskriptive_statistik_boxplot <- callModule(module = dqe_deskriptive_statistik_boxplot,
                                id = "id_dqe_deskriptive_statistik_boxplot",
-                               user_data_storage = user_data_storage,
-                               permanent_data_storage = permanent_data_storage,
+                               data = data,
                                values = values,
                                parent = self)
   # call_dqe_deskriptive_statistik_theorie <- callModule(module = dqe_deskriptive_statistik_theorie,

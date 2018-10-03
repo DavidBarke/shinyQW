@@ -161,9 +161,11 @@ dqe_design_of_experiments_projekt_versuchsplan_ui <- function(id) {
 }
 
 #' @export
-dqe_design_of_experiments_projekt_versuchsplan <- function(input, output, session, user_data_storage, permanent_data_storage, values,
-                                                           parent, ...) {
+dqe_design_of_experiments_projekt_versuchsplan <- function(
+  input, output, session, data, values, parent, ...
+) {
 
+  user_data_storage <- data$user_data_storage
 
   self <- node$new("versuchsplan", parent, session)
 

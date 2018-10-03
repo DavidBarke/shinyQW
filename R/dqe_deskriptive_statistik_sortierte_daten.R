@@ -100,8 +100,10 @@ dqe_deskriptive_statistik_sortierte_daten_ui <- function(id) {
 }
 
 #' @export
-dqe_deskriptive_statistik_sortierte_daten <- function(input, output, session, user_data_storage, permanent_data_storage, values,
-                                                      parent, ...) {
+dqe_deskriptive_statistik_sortierte_daten <- function(
+  input, output, session, data, values, parent, ...
+) {
+
   self <- node$new("sortierte_daten", parent, session)
 
   ns <- session$ns
@@ -120,7 +122,10 @@ dqe_deskriptive_statistik_sortierte_daten <- function(input, output, session, us
         isolate({
           select_data <- call_select_data()$values
           print(select_data)
-          data_storage <- get(x = paste(select_data$data_type, "data_storage", sep = "_"))
+          data_storage <- get(
+            x = paste(select_data$data_type, "data_storage", sep = "_"),
+            pos = data
+          )
           raw_data <- data_storage[[select_data$data$selected]][[select_data$data$column$selected_1]]
         })
       }
@@ -278,10 +283,7 @@ dqe_deskriptive_statistik_sortierte_daten <- function(input, output, session, us
 
   call_select_data <- callModule(module = select_data,
                                 id = "id_sortierte_daten_select_data",
-                                data_rvs = list(
-                                  user_data_storage = user_data_storage,
-                                  permanent_data_storage = permanent_data_storage
-                                ),
+                                data_rvs = data,
                                 values = values,
                                 parent = self,
                                 tabset_data = tibble(

@@ -45,10 +45,9 @@ filter_ui_footer <- function(id) {
 }
 
 #' @export
-filter_ui <- function(input, output, session,
-                      user_data_storage, permanent_data_storage, values,
-                      parent,
-                      selected_data, ...) {
+filter_ui <- function(
+  input, output, session, data, values, parent, selected_data, ...
+) {
   self <- node$new("filter", parent, session)
 
   ns <- session$ns
@@ -84,8 +83,7 @@ filter_ui <- function(input, output, session,
   call_condition_maker <- callModule(
     module = condition_maker,
     id = "make_condition",
-    user_data_storage = user_data_storage,
-    permanent_data_storage = permanent_data_storage,
+    data = data,
     values = values,
     selected_data = selected_data,
     parent = self
@@ -94,10 +92,7 @@ filter_ui <- function(input, output, session,
   call_select_data <- callModule(
     module = select_data,
     id = "id_select_data",
-    data_rvs = list(
-      user_data_storage = user_data_storage,
-      permanent_data_storage = permanent_data_storage
-    ),
+    data_rvs = data,
     values,
     parent = self,
     tabset_data = tibble(

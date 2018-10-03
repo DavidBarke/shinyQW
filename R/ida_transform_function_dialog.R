@@ -24,10 +24,10 @@ function_dialog_ui <- function(id) {
 #' "group_by", "mutate", "select", "summarise")}.
 #'
 #' @export
-function_dialog <- function(input, output, session,
-                            user_data_storage, permanent_data_storage, values,
-                            parent,
-                            selected_data, dplyr_function, ...) {
+function_dialog <- function(
+  input, output, session, data, values, parent, selected_data, dplyr_function,
+  ...
+) {
   self <- node$new("function_dialog", parent, session)
 
   ns <- session$ns
@@ -37,8 +37,7 @@ function_dialog <- function(input, output, session,
     glue_module = list(x1 = "{template}", x2 = "ui"),
     glue_id = list(x1 = "id", x2 = "{template}", x3 = "ui"),
     glue_reactive = list(x1 = "call", x2 = "{template}"),
-    user_data_storage = user_data_storage,
-    permanent_data_storage = permanent_data_storage,
+    data = data,
     values = values,
     selected_data = selected_data,
     parent = self
@@ -50,7 +49,8 @@ function_dialog <- function(input, output, session,
   })
 
   output$ui_footer <- renderUI({
-    do.call(dplyr_function$dplyr_function %_% "ui_footer", list(id = ns("id" %_% rvs$dplyr_function %_% "ui")))
+    do.call(dplyr_function$dplyr_function %_% "ui_footer",
+            list(id = ns("id" %_% rvs$dplyr_function %_% "ui")))
   })
 
 }

@@ -79,8 +79,9 @@ dqe_deskriptive_statistik_gruppierte_daten_ui <- function(id) {
 }
 
 #' @export
-dqe_deskriptive_statistik_gruppierte_daten <- function(input, output, session, user_data_storage, permanent_data_storage, values,
-                                                       parent, ...) {
+dqe_deskriptive_statistik_gruppierte_daten <- function(
+  input, output, session, data, values, parent, ...
+) {
   self <- node$new("gruppierte_daten", parent, session)
 
   ns <- session$ns
@@ -115,7 +116,8 @@ dqe_deskriptive_statistik_gruppierte_daten <- function(input, output, session, u
   })
 
   groups <- reactive({
-    cut(req(x_data()), breaks = breaks(), right = FALSE, ordered_result = TRUE, dig.lab = 4, include.lowest = TRUE)
+    cut(req(x_data()), breaks = breaks(), right = FALSE, ordered_result = TRUE,
+        dig.lab = 4, include.lowest = TRUE)
   })
 
   tabellierte_haeufigkeitsverteilung <- reactive({
@@ -174,7 +176,8 @@ dqe_deskriptive_statistik_gruppierte_daten <- function(input, output, session, u
                             max = input$minmax[[2]] + 1))
     } else if (input$input_type == "data_storage") {
       select_data <- call_select_data()$values
-      data_storage <- get(x = paste(select_data$data_type, sep = "_"))
+      data_storage <- get(x = paste(select_data$data_type, sep = "_"),
+                          pos = data)
       x_data <- data_storage[[select_data$data$selected]][[select_data$data$column$selected_1]]
     }
     rvs$x_data <- x_data
@@ -242,10 +245,7 @@ dqe_deskriptive_statistik_gruppierte_daten <- function(input, output, session, u
 
   call_select_data <- callModule(module = select_data,
                                  id = "id_gruppierte_daten_select_data",
-                                 data_rvs = list(
-                                   user_data_storage = user_data_storage,
-                                   permanent_data_storage = permanent_data_storage
-                                 ),
+                                 data_rvs = data,
                                  values = values,
                                  parent = self,
                                  tabset_data = tibble(
