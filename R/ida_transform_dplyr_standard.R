@@ -17,7 +17,9 @@ ida_transform_dplyr_standard_ui <- function(id) {
           selectInput(
             inputId = ns("dplyr_function"),
             label = "Funktion",
-            choices = list("select", "arrange", "filter", "mutate", "group_by", "summarise")
+            choices = list("select", "arrange",
+                           "filter", "mutate",
+                           "group_by", "summarise")
           )
         ),
         column(
@@ -39,23 +41,19 @@ ida_transform_dplyr_standard_ui <- function(id) {
 }
 
 #' @export
-ida_transform_dplyr_standard <- function(input, output, session, user_data_storage, permanent_data_storage, values,
-                                         parent, ...) {
+ida_transform_dplyr_standard <- function(input, output, session,
+                                         user_data_storage,
+                                         permanent_data_storage,
+                                         values,
+                                         parent,
+                                         ...) {
   self <- node$new("dplyr_standard", parent, session)
 
   ns <- session$ns
 
-  rvs <- reactiveValues()
+  dplyr_function <- reactiveValues()
 
   observeEvent(input$start_function_dialog, {
-    # showModal(
-    #   session = session,
-    #   ui = modalDialog(
-    #     title = input$select_function,
-    #     function_dialog_ui(id = ns("id_function_dialog")),
-    #     footer = function_dialog_footer(id = ns("id_function_dialog"))
-    #   )
-    # )
     selector <- paste0("#", ns("tabset"), " + div .active")
     insertUI(
       selector = selector,
@@ -65,8 +63,7 @@ ida_transform_dplyr_standard <- function(input, output, session, user_data_stora
   })
 
   observeEvent(input$dplyr_function, {
-    rvs$dplyr_function <- input$dplyr_function
-    rvs$module <- get(rvs$dplyr_function %_% "ui")
+    dplyr_function$dplyr_function <- input$dplyr_function
   })
 
   # Funktionsmodule
@@ -82,9 +79,11 @@ ida_transform_dplyr_standard <- function(input, output, session, user_data_stora
                                  tabset_data = tibble(
                                    id = c("tabset", "tabset"),
                                    session = c(session, session),
-                                   type = c("append_new_tab", "append_current_tab"),
+                                   type = c("append_new_tab",
+                                            "append_current_tab"),
                                    position = c(1, 2),
-                                   label = c("Im neuen Tab anzeigen", "Im gegenwärtigen Tab anzeigen")
+                                   label = c("Im neuen Tab anzeigen",
+                                             "Im gegenwärtigen Tab anzeigen")
                                  ),
                                  select_column = FALSE
   )
@@ -98,6 +97,6 @@ ida_transform_dplyr_standard <- function(input, output, session, user_data_stora
                                      values = values,
                                      parent = self,
                                      selected_data = call_select_data,
-                                     rvs = rvs
+                                     dplyr_function = dplyr_function
                                     )
 }

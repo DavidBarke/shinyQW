@@ -2,16 +2,32 @@
 function_dialog_ui <- function(id) {
   ns <- NS(id)
 
-  uiOutput(
-    outputId = ns("ui_output")
+  fluidRow(
+    uiOutput(
+      outputId = ns("ui_output")
+    ),
+    uiOutput(
+      outputId = ns("ui_footer")
+    )
   )
 }
 
+#' Initialise a dialog for executing one of the dplyr verbs on a dataset
+#'
+#' A shiny module that calls another shiny module based on \code{dplyr_function}.
+#'
+#' @param parent A \code{\link{node}} object.
+#' @param selected_data A \code{\link[shiny]{reactive}} for example returned by
+#' \code{\link{select_data}}.
+#' @param dplyr_function A \code{\link[shiny]{reactiveValues}} containing an
+#' element with name 'dplyr_function' and value in \code{c("arrange", "filter",
+#' "group_by", "mutate", "select", "summarise")}.
+#'
 #' @export
 function_dialog <- function(input, output, session,
                             user_data_storage, permanent_data_storage, values,
                             parent,
-                            selected_data, rvs, ...) {
+                            selected_data, dplyr_function, ...) {
   self <- node$new("function_dialog", parent, session)
 
   ns <- session$ns
@@ -29,11 +45,12 @@ function_dialog <- function(input, output, session,
   )
 
   output$ui_output <- renderUI({
-    do.call(rvs$dplyr_function %_% "ui_ui", list(id = ns("id" %_% rvs$dplyr_function %_% "ui")))
+    do.call(dplyr_function$dplyr_function %_% "ui_ui",
+            list(id = ns("id" %_% dplyr_function$dplyr_function %_% "ui")))
   })
 
   output$ui_footer <- renderUI({
-    do.call(rvs$dplyr_function %_% "ui_footer", list(id = ns("id" %_% rvs$dplyr_function %_% "ui")))
+    do.call(dplyr_function$dplyr_function %_% "ui_footer", list(id = ns("id" %_% rvs$dplyr_function %_% "ui")))
   })
 
 }

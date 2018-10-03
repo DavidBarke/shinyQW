@@ -1,21 +1,21 @@
 #' @export
 dqe_deskriptive_statistik_gruppierte_daten_ui <- function(id) {
-  ns <- NS(id)
+  ns <- shiny::NS(id)
 
-  tabsetPanel(
+  shiny::tabsetPanel(
     id = ns("tabset"),
-    tabPanel(
+    shiny::tabPanel(
       title = "",
       value = ns("tabset_default"),
-      div(
+      htmltools::div(
         id = ns("gruppierte_daten"),
-        fluidRow(
-          column(
+        shiny::fluidRow(
+          shiny::column(
             width = 4,
-            fluidRow(
-              column(
+            shiny::fluidRow(
+              shiny::column(
                 width = 6,
-                selectInput(
+                shiny::selectInput(
                   inputId = ns("input_type"),
                   label = "Datenquelle",
                   choices = list("Zufallszahlen" = "random",
@@ -24,51 +24,51 @@ dqe_deskriptive_statistik_gruppierte_daten_ui <- function(id) {
                 )
               )
             ),
-            div(
+            htmltools::div(
               id = ns("input_type_input")
             ),
-            fluidRow(
-              column(
+            shiny::fluidRow(
+              shiny::column(
                 width = 6,
-                actionButton(
+                shiny::actionButton(
                   inputId = ns("update"),
                   label = "Aktualisiere"
                 )
               )
             )
           ),
-          column(
+          shiny::column(
             width = 8,
-            fluidRow(
+            shiny::fluidRow(
               DT::dataTableOutput(
                 outputId = ns("tabellierte_haeufigkeitsverteilung")
               )
             )
           )
         ),
-        fluidRow(
-          fluidRow(
-            column(
+        shiny::fluidRow(
+          shiny::fluidRow(
+            shiny::column(
               width = 6,
-              plotOutput(
+              shiny::plotOutput(
                 outputId = ns("histogramm_absolut")
               )
             ),
-            column(
+            shiny::column(
               width = 6,
-              plotOutput(
+              shiny::plotOutput(
                 outputId = ns("histogramm_relativ")
               )
             )
           ),
-          fluidRow(
-            column(
+          shiny::fluidRow(
+            shiny::column(
               width = 6,
-              plotOutput(
+              shiny::plotOutput(
                 outputId = ns("verteilungsfunktion")
               )
             ),
-            column(
+            shiny::column(
               width = 6
             )
           )
@@ -85,15 +85,15 @@ dqe_deskriptive_statistik_gruppierte_daten <- function(input, output, session, u
 
   ns <- session$ns
 
-  k <- reactive({
+  k <- shiny::reactive({
     return(nclass.Sturges(req(x_data())))
   })
 
-  min_x_data <- reactive({
+  min_x_data <- shiny::reactive({
     return(min(req(x_data()), na.rm = TRUE))
   })
 
-  max_x_data <- reactive({
+  max_x_data <- shiny::reactive({
     return(max(req(x_data()), na.rm = TRUE))
   })
 
@@ -118,25 +118,10 @@ dqe_deskriptive_statistik_gruppierte_daten <- function(input, output, session, u
     cut(req(x_data()), breaks = breaks(), right = FALSE, ordered_result = TRUE, dig.lab = 4, include.lowest = TRUE)
   })
 
-  get_h_j <- function(levels, occurences) {
-    h_j <- vector("numeric", length = length(levels))
-    for (i in 1:length(levels)) {
-      h_j[i] = sum(occurences == levels[i])
-    }
-    return(h_j)
-  }
-
   tabellierte_haeufigkeitsverteilung <- reactive({
-    req(x_data())
-    b <- b()
-    k <- k()
-    groups <- groups()
-    data <- tibble(Klasse = levels(groups))
-    data$h_j <- get_h_j(levels(groups), groups)
-    data <- data %>%
-      mutate(f_j = h_j / sum(h_j), H_x = cumsum(h_j), F_x = cumsum(f_j),
-             b_j = b, m_j = ((1:k) - 0.5) * b + min_x_data(),
-             h_dichte = h_j / b_j, f_dichte = f_j / b_j)
+    data <- shinyQW::table_frequency_distribution(x = req(x_data()),
+                                              b = b(),
+                                              k = k())
     return(data)
   })
 
@@ -146,56 +131,32 @@ dqe_deskriptive_statistik_gruppierte_daten <- function(input, output, session, u
     return(data)
   })
 
-  histogramm <- function(type) {
-    plot <- reactive({
-      if (type == "relativ") {
-        dichte <- "f_j"
-        y_label <- expression(tilde(f)[j])
-      } else if (type == "absolut") {
-        dichte <- "h_j"
-        y_label <- expression(tilde(h)[j])
-      }
-      data <- tabellierte_haeufigkeitsverteilung()
-      breaks_x <- breaks()
-      breaks_y <- data[[dichte]]
-      plot <- ggplot(data = data) +
-        geom_tile(mapping = aes(x = m_j, y = data[[dichte]]/2, width = b_j, height = data[[dichte]]),
-                  col = values$einstellungen$ggplot2$col,
-                  fill = values$einstellungen$ggplot2$fill,
-                  alpha = values$einstellungen$ggplot2$alpha) +
-        scale_x_continuous(breaks = breaks_x, labels = breaks_x) +
-        scale_y_continuous(breaks = breaks_y, labels = breaks_y) +
-        labs(x = "", y = y_label) +
-        theme_bw()
-    })
-    return(plot())
-  }
-
   output$histogramm_relativ <- renderPlot({
-    plot <- histogramm("relativ")
+    plot <- shinyQW::histogram(data = tabellierte_haeufigkeitsverteilung(),
+                           frequency_density = "relative",
+                           breaks = breaks(),
+                           col = values$einstellungen$ggplot2$col,
+                           fill = values$einstellungen$ggplot2$fill,
+                           alpha = values$einstellungen$ggplot2$alpha)
     return(plot)
   })
 
   output$histogramm_absolut <- renderPlot({
-    plot <- histogramm("absolut")
+    plot <- shinyQW::histogram(data = tabellierte_haeufigkeitsverteilung(),
+                           frequency_density = "absolute",
+                           breaks = breaks(),
+                           col = values$einstellungen$ggplot2$col,
+                           fill = values$einstellungen$ggplot2$fill,
+                           alpha = values$einstellungen$ggplot2$alpha)
     return(plot)
   })
 
   output$verteilungsfunktion <- renderPlot({
-    tab_haeuf <- tabellierte_haeufigkeitsverteilung()
-    breaks <- breaks()
-    data <- tibble(x = breaks, y = c(0, tab_haeuf$F_x))
-    plot <- ggplot(data = data, mapping = aes(x = x, y = y)) +
-      geom_line(col = values$einstellungen$ggplot2$col,
-                alpha = values$einstellungen$ggplot2$alpha,
-                size = values$einstellungen$ggplot2$size) +
-      geom_point(col = values$einstellungen$ggplot2$col,
-                 alpha = values$einstellungen$ggplot2$alpha,
-                 size = 2 * values$einstellungen$ggplot2$size) +
-      scale_x_continuous(breaks = c(0, breaks), expand = c(0, 0)) +
-      scale_y_continuous(limits = c(0, 1), expand = c(0, 0)) +
-      labs(x = "", y = expression(F(x))) +
-      theme_bw()
+    plot <- cumulative_distribution_function(tabellierte_haeufigkeitsverteilung(),
+                                             breaks = breaks(),
+                                             col = values$einstellungen$ggplot2$col,
+                                             fill = values$einstellungen$ggplot2$fill,
+                                             alpha = values$einstellungen$ggplot2$alpha)
     return(plot)
   })
 
@@ -213,7 +174,7 @@ dqe_deskriptive_statistik_gruppierte_daten <- function(input, output, session, u
                             max = input$minmax[[2]] + 1))
     } else if (input$input_type == "data_storage") {
       select_data <- call_select_data()$values
-      data_storage <- get(x = paste(select_data$data_type, "data_storage", sep = "_"))
+      data_storage <- get(x = paste(select_data$data_type, sep = "_"))
       x_data <- data_storage[[select_data$data$selected]][[select_data$data$column$selected_1]]
     }
     rvs$x_data <- x_data

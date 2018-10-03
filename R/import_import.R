@@ -41,7 +41,7 @@ tab_import <- function(input, output, session, user_data_storage, permanent_data
   # Reactives
 
   file <- reactive({
-    validate(need(input$file, message = FALSE))
+    shiny::validate(need(input$file, message = FALSE))
     input$file
   })
 

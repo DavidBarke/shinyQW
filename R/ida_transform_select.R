@@ -152,7 +152,7 @@ select_ui <- function(input, output, session,
     values$vorschau <- data
   })
 
-  observeEvent(input$submit_modal, {
+  observeEvent(input$submit, {
     # select ausführen
     if (!is.null(input$columns)) {
       data <- data()
@@ -170,11 +170,9 @@ select_ui <- function(input, output, session,
       data_storage[[selected_data$data$selected]] <- data
       rvs$data_table <- rvs$default$data_table
     }
-    removeModal()
   })
 
-  observeEvent(input$exit_modal, {
+  observeEvent(input$exit, {
     rvs$data_table <- rvs$default$data_table
-    removeModal()
   })
 }

@@ -72,6 +72,15 @@ if (!require(shinyQW)) {
   require(shinyQW)
 }
 
+if (!require(R.utils)) {
+  install.packages("R.utils")
+  require(R.utils)
+}
+
+# SOURCE -----------------------------------------------------------------------
+# Damit nicht nach jeder Veränderung shinyQW neu gebuilded werden muss
+sourceDirectory(path = "../../R", encoding = "UTF-8")
+
 # Globals ----------------------------------------------------------------------
 
 lehrveranstaltungen <- list(
@@ -96,7 +105,7 @@ lehrveranstaltungen <- list(
 
 # UI ---------------------------------------------------------------------------
 # Für alle Lehrveranstaltungen wird jeweils ein navbarMenu erstellt, dass die
-# einzelnen Theme in tabPaneln enthält
+# einzelnen Themen in tabPaneln enthält
 for (lehrveranstaltung in names(lehrveranstaltungen)) {
   assign(lehrveranstaltung %_% "navbarMenu_args", list(
     title = toupper(lehrveranstaltung)

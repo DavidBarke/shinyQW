@@ -120,7 +120,7 @@ select_data <- function(input, output, session,
 
   data_storage <- reactive({
     if (is.list(data_rvs)) {
-      return(get(req(input$data_type), envir = list2env(data_rvs)))
+      return(get(req(input$data_type), data_rvs))
     } else {
       return(data_rvs)
     }
@@ -264,7 +264,7 @@ select_data <- function(input, output, session,
 #' make_fluid_row(list(a, a, a), 4)
 make_fluid_row <- function(ui_fluid_row, widgets_per_row) {
   stopifnot(is.numeric(widgets_per_row),
-            length(ui_fluid_row) > widgets_per_row,
+            length(ui_fluid_row) <= widgets_per_row,
             widgets_per_row %in% c(1, 2, 3, 4, 6, 12))
   ui_list <- list()
   # seq_along(ui_fluid_row) für den Fall, dass der Block nicht komplett gefüllt ist
@@ -318,7 +318,7 @@ interact_with_tabset_panel <- function(input, output, session,
 
   selected_data_storage <- reactive({
     if (is.list(data_rvs)) {
-      get(select_data()$values$data_type, envir = list2env(data_rvs))
+      get(select_data()$values$data_type, data_rvs)
     } else {
       data_rvs
     }
