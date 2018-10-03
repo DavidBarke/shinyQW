@@ -24,7 +24,6 @@ stetige_verteilungen <- c(
 #' @export
 dqe_verteilungsmodelle_ui <- function(id) {
   ns <- NS(id)
-
   dashboardPage(
     skin = "black",
     dashboardHeader(
@@ -103,6 +102,12 @@ dqe_verteilungsmodelle_ui <- function(id) {
       )
     )
   )
+}
+
+dqe_verteilungsmodelle_box <- function(id) {
+  ns <- NS(id)
+
+  div("Temporary UI")
 }
 
 #' @export

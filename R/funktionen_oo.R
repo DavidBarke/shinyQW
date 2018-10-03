@@ -142,11 +142,104 @@ node <- R6::R6Class(
   )
 )
 
-# Zum Testen:
-# root <- node$new("root", session = "s")
-# branch_1 <- node$new("branch_1", root, "s")
-# branch_2 <- node$new("branch_2", root, "s")
-# leave_1 <- node$new("leave_1", branch_1, "s")
-# leave_2 <- node$new("leave_2", branch_1, "s")
-# leave_3 <- node$new("leave_3", branch_1, "s")
-# mini_1 <- node$new("mini_1", leave_2, "s")
+#' @export
+viewer <- R6::R6Class(
+  "viewer",
+  public = list(
+    initialize = function(id, selected = NULL, title = "Viewer",
+                          width = 6, height = NULL, side = c("left", "right")) {
+      private$id <- id
+      private$selected <- selected
+      private$title <- title
+      private$width <- width
+      private$height <- height
+      private$side <- match.arg(side)
+    },
+    appendTab = function(tab, select = FALSE) {
+      shiny::appendTab(
+        inputId = private$id,
+        tab = tab,
+        select = select,
+        session = private$session
+      )
+    },
+    get = function(what) {
+      private[[what]]
+    },
+    insertTab = function(tab, target, position = c("before", "after"),
+                         select = FALSE) {
+      shiny::insertTab(
+        inputId = private$id,
+        tab = tab,
+        target = target,
+        position = match.arg(position),
+        select = select,
+        session = private$session
+      )
+    },
+    prependTab = function(tab, select = FALSE) {
+      shiny::prependTab(
+        inputId = private$id,
+        tab = tab,
+        target = target,
+        select = select,
+        session = private$session
+      )
+    },
+    removeTab = function(target) {
+      shiny::removeTab(
+        inputId = private$id,
+        target = target,
+        session = private$session
+      )
+    },
+    set_session = function(session) {
+      private$session <- session
+    },
+    tabBox = function() {
+      if (!private$once) {
+        ui <- shinydashboard::tabBox(
+          id = private$id,
+          selected = private$selected,
+          title = private$title,
+          width = private$width,
+          height = private$height,
+          side = private$side
+        )
+        private$once <- TRUE
+        return(ui)
+      }
+      else print("tabBox has been already created.")
+    },
+    tabPanel = function(title, ..., value = title, icon = NULL) {
+      private$tabCounter <- private$tabCounter + 1
+      closeId <- private$id %_% private$tabCounter
+      ui <- tagList(
+        div(
+          class = "div-btn-close",
+          shiny::actionButton(
+            inputId = closeId,
+            label = NULL,
+            icon = icon("window-close")
+          )
+        )
+      )
+      if (!missing(...)) ui[[2]] <- ...
+      observeEvent(private$session$input[[closeId]], {
+        self$removeTab(target = value)
+      }, domain = private$session)
+      shiny::tabPanel(title = title, ui, value = value, icon = icon)
+    }
+  ),
+  private = list(
+    id = NULL,
+    selected = NULL,
+    title = "Viewer",
+    width = 6,
+    height = NULL,
+    side = "left",
+    once = FALSE,
+    session = NULL,
+    tabCounter = 0
+  )
+)

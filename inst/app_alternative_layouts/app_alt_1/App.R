@@ -11,10 +11,11 @@ library(R.utils)
 
 # SOURCE -----------------------------------------------------------------------
 # Damit nicht nach jeder Veränderung shinyQW neu gebuilded werden muss
-# SCHEINT HIER NICHT ZU FUNKTIONIEREN
-sourceDirectory(path = "../../../../R", encoding = "UTF-8")
+sourceDirectory(path = "../../../R", encoding = "UTF-8")
 
 # Globals ----------------------------------------------------------------------
+
+viewer_box <- shinyQW::viewer$new(id = "viewer")
 
 lehrveranstaltungen <- list(
   ida = c(
@@ -120,10 +121,16 @@ ui <- dashboardPage(
     )
   ),
   shinyQW::full_dashboardBody(
+    useShinyjs(),
     shinyQW::menubar_ui(
       id = "id_menubar",
       title = "Menu"
     ),
+    actionButton(
+      inputId = "append",
+      label = "Append Tab"
+    ),
+    viewer_box$tabBox(),
     tabItems(
       tabItem(
         tabName = "tab_import",
@@ -193,7 +200,7 @@ ui <- dashboardPage(
       ),
       tabItem(
         tabName = "tab_verteilungsmodelle",
-        shinyQW::dqe_verteilungsmodelle_ui(
+        dqe_verteilungsmodelle_box(
           id = "id_verteilungsmodelle"
         )
       ),
@@ -231,6 +238,8 @@ server <- function(input, output, session) {
 
   self <- node$new("app", session = session)
 
+  viewer_box$set_session(session)
+
 # REACTIVE VALUES --------------------------------------------------------------
 
   user_data_storage <- reactiveValues()
@@ -263,6 +272,13 @@ server <- function(input, output, session) {
                           permanent_data_storage = permanent_data_storage,
                           values = values,
                           parent = self)
+
+  observeEvent(input$append, {
+    viewer_box$appendTab(
+      viewer_box$tabPanel("Appended"),
+      select = TRUE
+    )
+  })
 }
 
 shinyApp(ui, server)
