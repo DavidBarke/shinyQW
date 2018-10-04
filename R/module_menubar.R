@@ -5,8 +5,13 @@ menubar_ui <- function(id, title) {
     title = title,
     width = 12,
     collapsible = TRUE,
-    box("Box_1"),
-    box("Box_2")
+    box(title = "Box_1",
+      actionButton(
+        inputId = ns("append"),
+        label = "Append"
+      )
+    ),
+    box(title = "Box_2")
   )
 }
 
@@ -14,4 +19,12 @@ menubar_ui <- function(id, title) {
 menubar <- function(
   input, output, session, data, values, parent, ...
 ) {
+  self <- node$new("menubar", parent, session)
+
+  observeEvent(input$append, {
+    values$viewer_box$appendTab(
+      tabPanel("Appended"),
+      select = TRUE
+    )
+  })
 }

@@ -193,10 +193,9 @@ node <- R6::R6Class(
 tabBox_R6 <- R6::R6Class(
   "tabBox_R6",
   public = list(
-    initialize = function(id, selected = NULL, title = "Viewer",
+    initialize = function(id, title = "Viewer",
                           width = 6, height = NULL, side = c("left", "right")) {
       private$id <- id
-      private$selected <- selected
       private$title <- title
       private$width <- width
       private$height <- height
@@ -251,16 +250,33 @@ tabBox_R6 <- R6::R6Class(
     set_session = function(session) {
       private$session <- session
     },
-    tabBox = function() {
+    tabBox = function(collapsible = FALSE) {
       if (!private$once) {
-        ui <- shinydashboard::tabBox(
-          id = private$id,
-          selected = private$selected,
-          title = private$title,
-          width = private$width,
-          height = private$height,
-          side = private$side
-        )
+        if (!collapsible) {
+          ui <- shinydashboard::tabBox(
+            id = private$id,
+            title = private$title,
+            width = private$width,
+            height = private$height,
+            side = private$side
+          )
+        } else {
+          ui <- shinydashboard::box(
+            title = private$title,
+            collapsible = TRUE,
+            width = private$width,
+            height = private$height,
+            shinydashboard::tabBox(
+              id = private$id,
+              width = 12,
+              side = private$side
+            )
+          )
+          ui$children[[1]]$children[[2]]$children[[1]]$attribs$class <- paste(
+            ui$children[[1]]$children[[2]]$children[[1]]$attribs$class,
+            "collapsible-tab-box"
+          )
+        }
         private$once <- TRUE
         return(ui)
       }
@@ -269,7 +285,8 @@ tabBox_R6 <- R6::R6Class(
   ),
   private = list(
     id = NULL,
-    selected = NULL,
+    # Zurzeit nicht benötigt, da Initialisierung ohne tabPanel stattfindet
+    # selected = NULL,
     title = "Viewer",
     width = 6,
     height = NULL,

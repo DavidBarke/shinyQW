@@ -133,11 +133,7 @@ ui <- dashboardPage(
       id = "id_menubar",
       title = "Menu"
     ),
-    actionButton(
-      inputId = "append",
-      label = "Append Tab"
-    ),
-    viewer_box$tabBox(),
+    viewer_box$tabBox(collapsible = TRUE),
     tabItems(
       tabItem(
         tabName = "tab_import",
@@ -256,8 +252,10 @@ server <- function(input, output, session) {
     iris = iris
   )
 
-  values <- reactiveValues(session_tree = self)
-
+  values <- reactiveValues(
+    session_tree = self,
+    viewer_box = viewer_box
+  )
 
   for (lehrveranstaltung in names(lehrveranstaltungen)) {
     themen <- lehrveranstaltungen[[lehrveranstaltung]]
@@ -284,12 +282,16 @@ server <- function(input, output, session) {
                           values = values,
                           parent = self)
 
-  observeEvent(input$append, {
-    viewer_box$appendTab(
-      tabPanel("Appended"),
-      select = TRUE
-    )
-  })
+  call_menubar <- callModule(
+    module = menubar,
+    id = "id_menubar",
+    data = list(
+      user_data_storage = user_data_storage,
+      permanent_data_storage = permanent_data_storage
+    ),
+    values = values,
+    parent = self
+  )
 }
 
 shinyApp(ui, server)
