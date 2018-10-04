@@ -62,6 +62,9 @@ lineares_modell <- function(
 ) {
   self <- node$new("lineares_modell", parent, session)
 
+  user_data_storage <- data$user_data_storage
+  permanent_data_storage <- data$permanent_data_storage
+
   ns <- session$ns
 
   rvs <- reactiveValues()

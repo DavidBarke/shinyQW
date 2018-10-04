@@ -4,9 +4,8 @@
 \alias{function_dialog}
 \title{Initialise a dialog for executing one of the dplyr verbs on a dataset}
 \usage{
-function_dialog(input, output, session, user_data_storage,
-  permanent_data_storage, values, parent, selected_data, dplyr_function,
-  ...)
+function_dialog(input, output, session, data, values, parent,
+  selected_data, dplyr_function, ...)
 }
 \arguments{
 \item{parent}{A \code{\link{node}} object.}

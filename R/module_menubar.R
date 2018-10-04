@@ -22,7 +22,7 @@ menubar <- function(
   self <- node$new("menubar", parent, session)
 
   observeEvent(input$append, {
-    values$viewer_box$appendTab(
+    values$viewer_data$appendTab(
       tabPanel("Appended"),
       select = TRUE
     )

@@ -100,6 +100,51 @@ dqe_deskriptive_statistik_sortierte_daten_ui <- function(id) {
 }
 
 #' @export
+dqe_deskriptive_statistik_sortierte_daten_box <- function(id) {
+  ns <- NS(id)
+
+  tagList(
+    fluidRow(
+      column(
+        width = 6,
+        selectInput(
+          inputId = ns("input_type"),
+          label = "Datenquelle",
+          choices = list("Zufallszahlen" = "random",
+                         "Daten" = "data_storage"),
+          selected = "random"
+        )
+      ),
+      column(
+        id = ns("random_type_container"),
+        width = 6,
+        selectInput(
+          inputId = ns("random_type"),
+          label = "Typ",
+          choices = list(Integer = "integer",
+                         Stetig = "stetig")
+        )
+      )
+    ),
+    div(
+      id = ns("input_type_input")
+    ),
+    fluidRow(
+      column(
+        width = 6,
+        actionButton(
+          inputId = ns("update"),
+          label = "Aktualisiere"
+        )
+      ),
+      column(
+        width = 6
+      )
+    )
+  )
+}
+
+#' @export
 dqe_deskriptive_statistik_sortierte_daten <- function(
   input, output, session, data, values, parent, ...
 ) {
@@ -123,7 +168,7 @@ dqe_deskriptive_statistik_sortierte_daten <- function(
           select_data <- call_select_data()$values
           print(select_data)
           data_storage <- get(
-            x = paste(select_data$data_type, "data_storage", sep = "_"),
+            select_data$data_type,
             pos = data
           )
           raw_data <- data_storage[[select_data$data$selected]][[select_data$data$column$selected_1]]
@@ -146,9 +191,28 @@ dqe_deskriptive_statistik_sortierte_daten <- function(
   rvs_data <- reactiveValues(counter = 0)
 
   observeEvent(input$update, {
+    print(values$einstellungen$ggplot2$col)
     rvs_data$counter <- rvs_data$counter + 1
     rvs_data$laenge <- input$laenge
     rvs_data$minmax <- input$minmax
+    values$viewer_data$appendTab(
+      tab = tabPanel(
+        title = "Tabellierte Häufigkeitsverteilung",
+        DT::dataTableOutput(
+          outputId = ns("datatable")
+        )
+      ),
+      select = TRUE
+    )
+    values$viewer_plot$appendTab(
+      tab = tabPanel(
+        title = "Grafische Häufigkeitsverteilung",
+        plotOutput(
+          outputId = ns("plot_group")
+        )
+      ),
+      select = TRUE
+    )
   })
 
   output$datatable <- DT::renderDataTable({
@@ -168,47 +232,62 @@ dqe_deskriptive_statistik_sortierte_daten <- function(
     return(plot)
   })
 
-  output$plot_h_aj <- renderPlot({
+
+
+  plot_h_aj <- reactive({
     base_plot <- base_plot()
     plot <- base_plot +
       geom_bar(mapping = aes(y = ..count..),
                col = values$einstellungen$ggplot2$col,
                fill = values$einstellungen$ggplot2$fill,
-               alpha = values$einstellungen$ggplot2$alpha) +
+               alpha = values$einstellungen$ggplot2$alpha
+               ) +
       labs(x = "", y = expression(h(a[j])))
+    print(plot)
     return(plot)
   })
 
-  output$plot_f_aj <- renderPlot({
+  plot_f_aj <- reactive({
     base_plot <- base_plot()
     plot <- base_plot +
       geom_bar(mapping = aes(y = ..count.. / sum(..count..)),
                col = values$einstellungen$ggplot2$col,
                fill = values$einstellungen$ggplot2$fill,
-               alpha = values$einstellungen$ggplot2$alpha) +
+               alpha = values$einstellungen$ggplot2$alpha
+               ) +
       labs(x = "", y = expression(f(a[j])))
     return(plot)
   })
 
-  output$plot_H_x <- renderPlot({
+  plot_H_x <- reactive({
     base_plot <- base_plot()
     plot <- base_plot +
       stat_count(aes(y = cumsum(..count..)),
                  geom = "step",
                  col = values$einstellungen$ggplot2$col,
-                 alpha = values$einstellungen$ggplot2$alpha) +
+                 alpha = values$einstellungen$ggplot2$alpha
+                 ) +
       labs(x = "", y = expression(H(x)))
     return(plot)
   })
 
-  output$plot_F_x <- renderPlot({
+  plot_F_x <- reactive({
     base_plot <- base_plot()
     plot <- base_plot +
       stat_count(aes(y = cumsum(..count.. / sum(..count..))),
                  geom = "step",
                  col = values$einstellungen$ggplot2$col,
-                 alpha = values$einstellungen$ggplot2$alpha) +
+                 alpha = values$einstellungen$ggplot2$alpha
+                 ) +
       labs(x = "", y = expression(F(x)))
+    return(plot)
+  })
+
+  output$plot_group <- renderPlot({
+    plot <- plot_h_aj() + plot_f_aj() + plot_H_x() + plot_F_x() +
+      patchwork::plot_layout(
+        ncol = 2, nrow = 2
+      )
     return(plot)
   })
 

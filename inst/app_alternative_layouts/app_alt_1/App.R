@@ -8,14 +8,26 @@ library(tidyverse)
 library(plotly)
 library(R6)
 library(R.utils)
+library(DT)
+library(patchwork)
 
 # SOURCE -----------------------------------------------------------------------
 # Damit nicht nach jeder Veränderung shinyQW neu gebuilded werden muss
-x <- sourceDirectory(path = "../../../R", encoding = "UTF-8")
+sourceDirectory(path = "../../../R", encoding = "UTF-8")
 
 # Globals ----------------------------------------------------------------------
 
-viewer_box <- tabBox_R6$new(id = "viewer")
+viewer_data <- tabBox_R6$new(
+  id = "viewer_data",
+  title = "Daten",
+  width = 12
+)
+
+viewer_plot <- tabBox_R6$new(
+  id = "viewer_plot",
+  title = "Plots",
+  width = 12
+)
 
 lehrveranstaltungen <- list(
   ida = c(
@@ -133,105 +145,114 @@ ui <- dashboardPage(
       id = "id_menubar",
       title = "Menu"
     ),
-    viewer_box$tabBox(collapsible = TRUE),
-    tabItems(
-      tabItem(
-        tabName = "tab_import",
-        ida_import_ui(
-          id = "id_import"
-        )
-      ),
-      tabItem(
-        tabName = "tab_tidy",
-        ida_tidy_ui(
-          id = "id_tidy"
-        )
-      ),
-      tabItem(
-        tabName = "tab_transform",
-        ida_transform_ui(
-          id = "id_transform"
-        )
-      ),
-      tabItem(
-        tabName = "tab_programming",
-        ida_programming_ui(
-          id = "id_programming"
-        )
-      ),
-      tabItem(
-        tabName = "tab_regular_expressions",
-        ida_regular_expressions_ui(
-          id = "id_regular_expressions"
-        )
-      ),
-      tabItem(
-        tabName = "tab_visualize",
-        ida_visualize_ui(
-          id = "id_visualize"
-        )
-      ),
-      tabItem(
-        tabName = "tab_design_of_experiments",
-        dqe_design_of_experiments_ui(
-          id = "id_design_of_experiments"
-        )
-      ),
-      tabItem(
-        tabName = "tab_deskriptive_statistik",
-        dqe_deskriptive_statistik_ui(
-          id = "id_deskriptive_statistik"
-        )
-      ),
-      tabItem(
-        tabName = "tab_modellstrukturen",
-        dqe_modellstrukturen_ui(
-          id = "id_modellstrukturen"
-        )
-      ),
-      tabItem(
-        tabName = "tab_statistische_prozesskontrolle",
-        dqe_statistische_prozesskontrolle_ui(
-          id = "id_statistische_prozesskontrolle"
-        )
-      ),
-      tabItem(
-        tabName = "tab_testtheorie",
-        dqe_testtheorie_ui(
-          id = "id_testtheorie"
-        )
-      ),
-      tabItem(
-        tabName = "tab_verteilungsmodelle",
-        dqe_verteilungsmodelle_box(
-          id = "id_verteilungsmodelle"
-        )
-      ),
-      tabItem(
-        tabName = "tab_wahrscheinlichkeitsrechnung",
-        dqe_wahrscheinlichkeitsrechnung_ui(
-          id = "id_wahrscheinlichkeitsrechnung"
-        )
-      ),
-      tabItem(
-        tabName = "tab_allgemein",
-        einstellungen_allgemein_ui(
-          id = "id_allgemein"
-        )
-      ),
-      tabItem(
-        tabName = "tab_ggplot2",
-        einstellungen_ggplot2_ui(
-          id = "id_ggplot2"
-        )
-      ),
-      tabItem(
-        tabName = "tab_plotly",
-        einstellungen_plotly_ui(
-          id = "id_plotly"
-        )
-      )
-    )
+    fluidRow(
+      column(
+        width  = 6,
+        tabItems(
+          tabItem(
+            tabName = "tab_import",
+            ida_import_ui(
+              id = "id_import"
+            )
+          ),
+          tabItem(
+            tabName = "tab_tidy",
+            ida_tidy_ui(
+              id = "id_tidy"
+            )
+          ),
+          tabItem(
+            tabName = "tab_transform",
+            ida_transform_ui(
+              id = "id_transform"
+            )
+          ),
+          tabItem(
+            tabName = "tab_programming",
+            ida_programming_ui(
+              id = "id_programming"
+            )
+          ),
+          tabItem(
+            tabName = "tab_regular_expressions",
+            ida_regular_expressions_ui(
+              id = "id_regular_expressions"
+            )
+          ),
+          tabItem(
+            tabName = "tab_visualize",
+            ida_visualize_ui(
+              id = "id_visualize"
+            )
+          ),
+          tabItem(
+            tabName = "tab_design_of_experiments",
+            dqe_design_of_experiments_box(
+              id = "id_design_of_experiments"
+            )
+          ),
+          tabItem(
+            tabName = "tab_deskriptive_statistik",
+            dqe_deskriptive_statistik_box(
+              id = "id_deskriptive_statistik"
+            )
+          ),
+          tabItem(
+            tabName = "tab_modellstrukturen",
+            dqe_modellstrukturen_ui(
+              id = "id_modellstrukturen"
+            )
+          ),
+          tabItem(
+            tabName = "tab_statistische_prozesskontrolle",
+            dqe_statistische_prozesskontrolle_ui(
+              id = "id_statistische_prozesskontrolle"
+            )
+          ),
+          tabItem(
+            tabName = "tab_testtheorie",
+            dqe_testtheorie_ui(
+              id = "id_testtheorie"
+            )
+          ),
+          tabItem(
+            tabName = "tab_verteilungsmodelle",
+            dqe_verteilungsmodelle_box(
+              id = "id_verteilungsmodelle"
+            )
+          ),
+          tabItem(
+            tabName = "tab_wahrscheinlichkeitsrechnung",
+            dqe_wahrscheinlichkeitsrechnung_ui(
+              id = "id_wahrscheinlichkeitsrechnung"
+            )
+          ),
+          tabItem(
+            tabName = "tab_allgemein",
+            einstellungen_allgemein_ui(
+              id = "id_allgemein"
+            )
+          ),
+          tabItem(
+            tabName = "tab_ggplot2",
+            einstellungen_ggplot2_box(
+              id = "id_ggplot2"
+            )
+          ),
+          tabItem(
+            tabName = "tab_plotly",
+            einstellungen_plotly_ui(
+              id = "id_plotly"
+            )
+          )
+        ) # tabItems
+      ), # column
+      column(
+        width = 6,
+        viewer_data$tabBox(collapsible = TRUE),
+        viewer_plot$tabBox(collapsible = TRUE)
+      ) # column
+    ) # fluidRow
   )
 )
 
@@ -241,7 +262,8 @@ server <- function(input, output, session) {
 
   self <- node$new("app", session = session)
 
-  viewer_box$set_session(session)
+  viewer_data$set_session(session)
+  viewer_plot$set_session(session)
 
 # REACTIVE VALUES --------------------------------------------------------------
 
@@ -254,7 +276,8 @@ server <- function(input, output, session) {
 
   values <- reactiveValues(
     session_tree = self,
-    viewer_box = viewer_box
+    viewer_data = viewer_data,
+    viewer_plot = viewer_plot
   )
 
   for (lehrveranstaltung in names(lehrveranstaltungen)) {

@@ -35,6 +35,51 @@ einstellungen_ggplot2_ui <- function(id) {
 }
 
 #' @export
+einstellungen_ggplot2_box <- function(id) {
+  ns <- shiny::NS(id)
+  tabBox(
+    id = ns("tabBox_ggplot2"),
+    title = "Einstellungen ggplot2",
+    width = 12,
+    tabPanel(
+      title = "Color",
+      colourInput(
+        inputId = ns("col_col"),
+        label = "Col",
+        value = "blue"
+      )
+    ),
+    tabPanel(
+      title = "Fill",
+      colourInput(
+        inputId = ns("col_fill"),
+        label = "Fill",
+        value = "lightblue"
+      )
+    ),
+    tabPanel(
+      title = "Alpha",
+      numericInput(
+        inputId = ns("alpha"),
+        label = "Alpha",
+        value = 1,
+        min = 0,
+        max = 1
+      )
+    ),
+    tabPanel(
+      title = "Size",
+      numericInput(
+        inputId = ns("size"),
+        label = "Size",
+        value = 1,
+        min = 0
+      )
+    )
+  )
+}
+
+#' @export
 einstellungen_ggplot2 <- function(
   input, output, session, data, values, parent, ...
 ) {
@@ -43,45 +88,18 @@ einstellungen_ggplot2 <- function(
   ns <- session$ns
 
   observeEvent(input$col_col, {
-    rvs_values$ggplot2$col <- input$col_col
+    values$einstellungen$ggplot2$col <- input$col_col
   })
 
   observeEvent(input$col_fill, {
-    rvs_values$ggplot2$fill <- input$col_fill
+    values$einstellungen$ggplot2$fill <- input$col_fill
   })
 
   observeEvent(input$alpha, {
-    rvs_values$ggplot2$alpha <- input$alpha
+    values$einstellungen$ggplot2$alpha <- input$alpha
   })
 
   observeEvent(input$size, {
-    rvs_values$ggplot2$size <- input$size
+    values$einstellungen$ggplot2$size <- input$size
   })
-
-  rvs_values <- reactiveValues()
-
-  return_user_data_storage <- reactive({
-    return(NULL)
-  })
-
-  return_permanent_data_storage <- reactive({
-    return(NULL)
-  })
-
-  return_values <- reactive({
-    return_values <- list(
-      ggplot2 = rvs_values$ggplot2
-    )
-    return(return_values)
-  })
-
-  return_list <- reactive({
-    return_list <- list(
-      user_data_storage = return_user_data_storage(),
-      permanent_data_storage = return_permanent_data_storage(),
-      values = return_values()
-    )
-  })
-
-  return(return_list)
 }

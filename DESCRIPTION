@@ -21,5 +21,6 @@ Imports:
     shinythemes,
     colourpicker,
     DT,
-    plotly
+    plotly,
+    patchwork
 RoxygenNote: 6.1.0

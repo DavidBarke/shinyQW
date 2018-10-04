@@ -13,8 +13,8 @@ should not be closeable via an \code{\link[shiny]{actionButton}} use
 \code{closeable = FALSE}.}
 \item{get(what)}{Get the value of the private element with name \code{what}.}
 \item{insertTab(tab, target, position = c("before", "after"),
-select = FALSE, closeable = TRUE)}{Insert the \code{\link[shiny]{tabPanel}}}
-\code{tab} to the tabBox. See \code{\link[shiny]{insertTab}} for Details
+select = FALSE, closeable = TRUE)}{Insert the \code{\link[shiny]{tabPanel}}
+\code{tab} to the tabBox. See \code{\link[shiny]{insertTab}} for details
 regarding \code{target} and \code{position}. If \code{tab} should be selected
 upon being inserted use \code{select = TRUE}. If the \code{tab}
 should not be closeable via an \code{\link[shiny]{actionButton}} use
@@ -28,7 +28,7 @@ should not be closeable via an \code{\link[shiny]{actionButton}} use
 \item{set_session}{Set the session for the tabBox. This method is separated
 from the instantiation because you will usually want to use the tabBox
 already in the ui when there is no session present yet. Therefore the session
-has to be manually in the server function.
+has to be manually in the server function.}
 \item{tabBox()}{Return the HTML that builds the \code{\link[shinydashboard]{
 tabBox}}.}
 Use \code{get()} without any arguments to see the names of all private
