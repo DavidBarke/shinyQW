@@ -146,7 +146,7 @@ dqe_deskriptive_statistik_sortierte_daten_box <- function(id) {
 
 #' @export
 dqe_deskriptive_statistik_sortierte_daten <- function(
-  input, output, session, data, values, parent, ...
+  input, output, session, .data, values, parent, ...
 ) {
 
   self <- node$new("sortierte_daten", parent, session)
@@ -166,10 +166,9 @@ dqe_deskriptive_statistik_sortierte_daten <- function(
       } else if (input$input_type == "data_storage") {
         isolate({
           select_data <- call_select_data()$values
-          print(select_data)
           data_storage <- get(
             select_data$data_type,
-            pos = data
+            pos = .data
           )
           raw_data <- data_storage[[select_data$data$selected]][[select_data$data$column$selected_1]]
         })
@@ -191,7 +190,6 @@ dqe_deskriptive_statistik_sortierte_daten <- function(
   rvs_data <- reactiveValues(counter = 0)
 
   observeEvent(input$update, {
-    print(values$einstellungen$ggplot2$col)
     rvs_data$counter <- rvs_data$counter + 1
     rvs_data$laenge <- input$laenge
     rvs_data$minmax <- input$minmax
@@ -243,7 +241,6 @@ dqe_deskriptive_statistik_sortierte_daten <- function(
                alpha = values$einstellungen$ggplot2$alpha
                ) +
       labs(x = "", y = expression(h(a[j])))
-    print(plot)
     return(plot)
   })
 
@@ -362,7 +359,7 @@ dqe_deskriptive_statistik_sortierte_daten <- function(
 
   call_select_data <- callModule(module = select_data,
                                 id = "id_sortierte_daten_select_data",
-                                data_rvs = data,
+                                data_rvs = .data,
                                 values = values,
                                 parent = self,
                                 tabset_data = tibble(
@@ -371,7 +368,6 @@ dqe_deskriptive_statistik_sortierte_daten <- function(
                                   type = c("append_new_tab", "append_current_tab"),
                                   position = c(1, 2),
                                   label = c("Im neuen Tab anzeigen", "Im gegenwärtigen Tab anzeigen")
-                                ),
-                                select_column = TRUE,
-                                grid_select = tibble(type = "select", position = 1, label = "Wähle Spalte"))
+                                )
+  )
 }

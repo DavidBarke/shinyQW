@@ -230,7 +230,7 @@ dqe_deskriptive_statistik_gruppierte_daten <- function(
       }
       # Insert UI-Element
       insertUI(
-        selector = paste("#", ns(insertDivId), sep = ""),
+        selector = paste0("#", ns(insertDivId)),
         where = "beforeEnd",
         ui = ui_element
       )

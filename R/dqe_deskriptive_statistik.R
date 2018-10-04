@@ -101,7 +101,7 @@ dqe_deskriptive_statistik <- function(
   # TODO: call_multiple_modules anwenden
   call_dqe_deskriptive_statistik_sortierte_daten <- callModule(module = dqe_deskriptive_statistik_sortierte_daten,
                                id = "id_dqe_deskriptive_statistik_sortierte_daten",
-                               data = data,
+                               .data = data,
                                values = values,
                                parent = self)
   call_dqe_deskriptive_statistik_gruppierte_daten <- callModule(module = dqe_deskriptive_statistik_gruppierte_daten,

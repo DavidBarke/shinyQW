@@ -230,19 +230,19 @@ ui <- dashboardPage(
           tabItem(
             tabName = "tab_allgemein",
             einstellungen_allgemein_ui(
-              id = "id_allgemein"
+              id = "id_einstellungen_allgemein"
             )
           ),
           tabItem(
             tabName = "tab_ggplot2",
             einstellungen_ggplot2_box(
-              id = "id_ggplot2"
+              id = "id_einstellungen_ggplot2"
             )
           ),
           tabItem(
             tabName = "tab_plotly",
             einstellungen_plotly_ui(
-              id = "id_plotly"
+              id = "id_einstellungen_plotly"
             )
           )
         ) # tabItems
