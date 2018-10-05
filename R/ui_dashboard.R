@@ -42,10 +42,13 @@ full_dashboardBody <- function(...) {
 #' @param side Which side of the box the tabs should be on (\code{"left"} or
 #' \code{"right"}). When \code{side="right"}, the order of tabs will be
 #' reversed.
+#' @param closeable If the \code{\link{collapsible_tabBox}} is closeable via an
+#' \code{\link[shiny]{actionButton}} use \code{closeable=TRUE}.
 #'
 #' @details
-#' The created \code{\link[shinydashboard]{tabBox}}'s class attribute contains
-#' "collapsible-tab-box".
+#' The \code{collapsible_tabBox} has class "collapsible-tab-box", the enclosing
+#' div of the closing \code{\link[shiny]{actionButton}} has class
+#' "div-btn-close".
 #'
 #' @export
 collapsible_tabBox <- function(
@@ -80,4 +83,91 @@ collapsible_tabBox <- function(
     )
   }
   ui
+}
+
+# TODO: Use ... argument of actionButton
+#' Action item
+#'
+#' Create a \code{\link[shinydashboard:sidebarMenu]{menuItem}}-like
+#' \code{\link[shiny]{actionButton}} with an enclosing div with class
+#' "div-btn-sidebar".
+#'
+#' @param inputId The \code{input} slot that will be used to access the value.
+#' @param label The contents of the button or link - usually a text label, but
+#' you could also use any other HTML, like an image.
+#' @param An optional \code{\link[shiny]{icon}} to appear on the button.
+#' @param width The width of the input, e.g. \code{'400px'}, or \code{'100\%'};
+#' see \code{\link[shiny]{validateCssUnit}}.
+#'
+#' @export
+actionItem <- function(inputId, label, ...) {
+  if (missing(...)) {
+    ui <- tags$li(
+      `data-toggle` = "tab",
+      `data-value` = "tab",
+      tags$a(
+        div(
+          class = "div-btn-sidebar",
+          shiny::actionButton(
+            inputId = inputId,
+            label = label
+          )
+        )
+      )
+    )
+  } else {
+    ui <- tags$li(
+      class = "treeview",
+      tags$a(
+        div(
+          class = "div-btn-sidebar",
+          shiny::actionButton(
+            inputId = inputId,
+            label = label
+          )
+        ),
+        tags$i(
+          class = "fa fa-angle-left pull-right"
+        )
+      ),
+      tags$ul(
+        class = "treeview-menu",
+        style = "display: none",
+        `data-expanded` = inputId,
+        ...
+      )
+    )
+  }
+  return(ui)
+}
+
+actionSubItem <- function(inputId, label) {
+  ui <- tags$li(
+    tags$a(
+      `data-toggle` = "tab",
+      `data-value` = "tab",
+      tags$div(
+        class = "div-btn-sidebar-sub",
+        shiny::actionButton(
+          inputId = inputId,
+          label = tags$div(
+            tags$i(
+              class = "fa fa-angle-double-right"
+            ),
+            paste0(" ", label)
+          )
+        )
+      )
+    )
+  )
+}
+
+multiple_actionItem <- function(inputId_list, label_list) {
+  ui <- purrr::pmap(
+    .l = list(
+      inputId = inputId_list,
+      label = label_list
+    ),
+    .f = actionItem
+  )
 }

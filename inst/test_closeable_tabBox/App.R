@@ -1,3 +1,5 @@
+# Test der closeable collapsible_tabBox()
+
 ui <- dashboardPage(
   dashboardHeader(
 
