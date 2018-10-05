@@ -50,7 +50,7 @@ full_dashboardBody <- function(...) {
 #' @export
 collapsible_tabBox <- function(
   ..., id = NULL, selected = NULL, title = NULL, width = 6, height = NULL,
-  side = c("left", "right")
+  side = c("left", "right"), closeable = FALSE
 ) {
   ui <- shinydashboard::box(
     title = title,
@@ -69,5 +69,15 @@ collapsible_tabBox <- function(
     ui$children[[1]]$children[[2]]$children[[1]]$attribs$class,
     "collapsible-tab-box"
   )
+  if (closeable) {
+    ui$children[[1]]$children[[1]]$children[[2]]$children[[2]] <- div(
+      class = "div-btn-close",
+      shiny::actionButton(
+        inputId = id %_% "close",
+        label = NULL,
+        icon = icon("window-close")
+      )
+    )
+  }
   ui
 }

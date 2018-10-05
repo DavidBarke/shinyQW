@@ -202,6 +202,8 @@ tabBox_R6 <- R6::R6Class(
       private$side <- match.arg(side)
     },
 
+    # Wird nur benötigt, wenn man mehrere Plots, die sich genau gleich verhalten
+    # erzeugen möchte, ein Anwendungsfall fällt mir zurzeit nicht ein
     appendPlot = function(plot_reactive, title, select = TRUE,
                           closeable = TRUE) {
       private$tabCounter <- private$tabCounter + 1
@@ -223,19 +225,29 @@ tabBox_R6 <- R6::R6Class(
         select = select,
         session = private$session
       )
-      if (closeable) private$createActionButton(data_value = data_value)
+      if (closeable) private$createActionButton(data_value)
       invisible(self)
     },
 
     appendTab = function(tab, select = TRUE, closeable = TRUE) {
       private$tabCounter <- private$tabCounter + 1
-      shiny::appendTab(
-        inputId = private$id,
-        tab = tab,
-        select = select,
-        session = private$session
-      )
-      if (closeable) private$createActionButton(tab)
+      data_value <- tab$attribs[["data-value"]]
+      if (data_value %in% private$tab_values) {
+        updateTabsetPanel(
+          session = private$session,
+          inputId = private$id,
+          selected = data_value
+        )
+      } else {
+        private$tab_values <- c(private$tab_values, data_value)
+        shiny::appendTab(
+          inputId = private$id,
+          tab = tab,
+          select = select,
+          session = private$session
+        )
+        if (closeable) private$createActionButton(data_value)
+      }
       invisible(self)
     },
 
@@ -247,28 +259,48 @@ tabBox_R6 <- R6::R6Class(
     insertTab = function(tab, target, position = c("before", "after"),
                          select = FALSE, closeable = TRUE) {
       private$tabCounter <- private$tabCounter + 1
-      shiny::insertTab(
-        inputId = private$id,
-        tab = tab,
-        target = target,
-        position = match.arg(position),
-        select = select,
-        session = private$session
-      )
-      if (closeable) private$createActionButton(tab)
+      data_value <- tab$attribs[["data-value"]]
+      if (data_value %in% private$tab_values) {
+        updateTabsetPanel(
+          session = private$session,
+          inputId = private$id,
+          selected = data_value
+        )
+      } else {
+        private$tab_values <- c(private$tab_values, data_value)
+        shiny::insertTab(
+          inputId = private$id,
+          tab = tab,
+          target = target,
+          position = match.arg(position),
+          select = select,
+          session = private$session
+        )
+        if (closeable) private$createActionButton(tab)
+      }
       invisible(self)
     },
 
     prependTab = function(tab, select = FALSE, closeable = TRUE) {
       private$tabCounter <- private$tabCounter + 1
-      shiny::prependTab(
-        inputId = private$id,
-        tab = tab,
-        target = target,
-        select = select,
-        session = private$session
-      )
-      if (closeable) private$createActionButton(tab)
+      data_value <- tab$attribs[["data-value"]]
+      if (data_value %in% private$tab_values) {
+        updateTabsetPanel(
+          session = private$session,
+          inputId = private$id,
+          selected = data_value
+        )
+      } else {
+        private$tab_values <- c(private$tab_values, data_value)
+        shiny::prependTab(
+          inputId = private$id,
+          tab = tab,
+          target = target,
+          select = select,
+          session = private$session
+        )
+        if (closeable) private$createActionButton(tab)
+      }
       invisible(self)
     },
 
@@ -329,9 +361,9 @@ tabBox_R6 <- R6::R6Class(
     once = FALSE,
     session = NULL,
     tabCounter = 0,
+    tab_values = character(),
 
-    createActionButton = function(tab, data_value) {
-      if (missing(data_value)) data_value <- tab$attribs[["data-value"]]
+    createActionButton = function(data_value) {
       closeId <- private$id %_% private$tabCounter
       div_button <- div(
         class = "div-btn-close",

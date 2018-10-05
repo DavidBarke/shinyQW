@@ -1,0 +1,13 @@
+div .div-btn-close button {
+  border-color: rgb(255, 255, 255);
+  background-color: rgb(255, 255, 255);
+}
+
+div .div-btn-close {
+  display: inline;
+}
+
+div .collapsible-tab-box {
+  padding: 0;
+}
+

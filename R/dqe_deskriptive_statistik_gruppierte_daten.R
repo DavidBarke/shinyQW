@@ -195,7 +195,7 @@ dqe_deskriptive_statistik_gruppierte_daten <- function(
     return(plot)
   })
 
-  plot_group <- reactive({
+  output$plot_group <- renderPlot({
     plot <- histogramm_absolut() + histogramm_relativ() -
       verteilungsfunktion() +
       plot_layout(ncol = 1)
@@ -213,7 +213,7 @@ dqe_deskriptive_statistik_gruppierte_daten <- function(
     } else if (input$input_type == "data_storage") {
       select_data <- call_select_data()$values
       data_storage <- get(x = paste(select_data$data_type, sep = "_"),
-                          pos = data)
+                          pos = .data)
       x_data <- data_storage[[select_data$data$selected]][[select_data$data$column$selected_1]]
     }
     print(x_data)
@@ -223,24 +223,26 @@ dqe_deskriptive_statistik_gruppierte_daten <- function(
   observeEvent(input$update, {
     .values$viewer$data$appendTab(
       tab = tabPanel(
-        title = "Tabellierte Häufigkeitsverteilung_",
+        title = "Tabellierte Häufigkeitsverteilung",
         DT::dataTableOutput(
           outputId = ns("tabellierte_haeufigkeitsverteilung")
-        )
+        ),
+        value = ns("Tabellierte Häufigkeitsverteilung")
       )
     )
-    .values$viewer$plot$appendPlot(
-      title = "Grafik",
-      plot_reactive = plot_group
-    )
-    # .values$viewer$plot$appendTab(
-    #   tab = tabPanel(
-    #     title = "Grafische",
-    #     plotOutput(
-    #       outputId = ns("plot_group")
-    #     )
-    #   )
+    # .values$viewer$plot$appendPlot(
+    #   title = "Grafik",
+    #   plot_reactive = plot_group
     # )
+    .values$viewer$plot$appendTab(
+      tab = tabPanel(
+        title = "Grafische Häufigkeitsverteilung",
+        plotOutput(
+          outputId = ns("plot_group")
+        ),
+        value = ns("Grafische Häufigkeitsverteilung")
+      )
+    )
   })
 
   # Spezifischer Input für gruppierte Daten
