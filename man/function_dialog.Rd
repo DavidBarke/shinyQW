@@ -4,7 +4,7 @@
 \alias{function_dialog}
 \title{Initialise a dialog for executing one of the dplyr verbs on a dataset}
 \usage{
-function_dialog(input, output, session, data, values, parent,
+function_dialog(input, output, session, .data, .values, parent,
   selected_data, dplyr_function, ...)
 }
 \arguments{

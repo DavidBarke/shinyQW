@@ -75,7 +75,7 @@ dqe_deskriptive_statistik_box <- function(id) {
     ),
     tabPanel(
       title = "Gruppierte Daten",
-      dqe_deskriptive_statistik_gruppierte_daten_ui(
+      dqe_deskriptive_statistik_gruppierte_daten_box(
         id = ns("id_dqe_deskriptive_statistik_gruppierte_daten")
       )
     ),

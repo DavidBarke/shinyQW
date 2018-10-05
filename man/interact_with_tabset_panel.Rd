@@ -4,7 +4,7 @@
 \alias{interact_with_tabset_panel}
 \title{Interact with a shiny tabset panel}
 \usage{
-interact_with_tabset_panel(input, output, session, data_rvs, values,
+interact_with_tabset_panel(input, output, session, data_rvs, .values,
   tabset_data, select_data, parent, ...)
 }
 \arguments{
@@ -14,7 +14,7 @@ actions. See 'Details'.}
 \item{select_data}{\code{\link[shiny]{reactiveValues}} for example returned by
 \code{\link{select_data}}.}
 
-\item{user_data_storage, permanent_data_storage, values}{\code{\link[shiny]{reactiveValues}} storing data imported by the user, predefined
+\item{user_data_storage, permanent_data_storage, .values}{\code{\link[shiny]{reactiveValues}} storing data imported by the user, predefined
 by the app author and other values.}
 }
 \description{

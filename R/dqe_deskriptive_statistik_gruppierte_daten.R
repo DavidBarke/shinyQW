@@ -79,6 +79,38 @@ dqe_deskriptive_statistik_gruppierte_daten_ui <- function(id) {
 }
 
 #' @export
+dqe_deskriptive_statistik_gruppierte_daten_box <- function(id) {
+  ns <- NS(id)
+
+  tagList(
+    shiny::fluidRow(
+      shiny::column(
+        width = 6,
+        shiny::selectInput(
+          inputId = ns("input_type"),
+          label = "Datenquelle",
+          choices = list("Zufallszahlen" = "random",
+                         "Daten" = "data_storage"),
+          selected = "random"
+        )
+      )
+    ),
+    htmltools::div(
+      id = ns("input_type_input")
+    ),
+    shiny::fluidRow(
+      shiny::column(
+        width = 6,
+        shiny::actionButton(
+          inputId = ns("update"),
+          label = "Aktualisiere"
+        )
+      )
+    )
+  )
+}
+
+#' @export
 dqe_deskriptive_statistik_gruppierte_daten <- function(
   input, output, session, .data, .values, parent, ...
 ) {
@@ -133,42 +165,46 @@ dqe_deskriptive_statistik_gruppierte_daten <- function(
     return(data)
   })
 
-  output$histogramm_relativ <- renderPlot({
+  histogramm_relativ <- reactive({
     plot <- shinyQW::histogram(data = tabellierte_haeufigkeitsverteilung(),
                            frequency_density = "relative",
                            breaks = breaks(),
-                           col = values$einstellungen$ggplot2$col,
-                           fill = values$einstellungen$ggplot2$fill,
-                           alpha = values$einstellungen$ggplot2$alpha)
+                           col = .values$einstellungen$ggplot2$col,
+                           fill = .values$einstellungen$ggplot2$fill,
+                           alpha = .values$einstellungen$ggplot2$alpha)
     return(plot)
   })
 
-  output$histogramm_absolut <- renderPlot({
+  histogramm_absolut <- reactive({
     plot <- shinyQW::histogram(data = tabellierte_haeufigkeitsverteilung(),
                            frequency_density = "absolute",
                            breaks = breaks(),
-                           col = values$einstellungen$ggplot2$col,
-                           fill = values$einstellungen$ggplot2$fill,
-                           alpha = values$einstellungen$ggplot2$alpha)
+                           col = .values$einstellungen$ggplot2$col,
+                           fill = .values$einstellungen$ggplot2$fill,
+                           alpha = .values$einstellungen$ggplot2$alpha)
     return(plot)
   })
 
-  output$verteilungsfunktion <- renderPlot({
+  verteilungsfunktion <- reactive({
     plot <- cumulative_distribution_function(tabellierte_haeufigkeitsverteilung(),
                                              breaks = breaks(),
-                                             col = values$einstellungen$ggplot2$col,
-                                             fill = values$einstellungen$ggplot2$fill,
-                                             alpha = values$einstellungen$ggplot2$alpha)
+                                             col = .values$einstellungen$ggplot2$col,
+                                             fill = .values$einstellungen$ggplot2$fill,
+                                             alpha = .values$einstellungen$ggplot2$alpha,
+                                             size = .values$einstellungen$ggplot2$size)
+    return(plot)
+  })
+
+  plot_group <- reactive({
+    plot <- histogramm_absolut() + histogramm_relativ() -
+      verteilungsfunktion() +
+      plot_layout(ncol = 1)
     return(plot)
   })
 
   rvs <- reactiveValues()
 
   x_data <- reactive({
-    return(req(rvs$x_data))
-  })
-
-  observeEvent(input$update, {
     req(input$laenge, input$minmax)
     if (input$input_type == "random") {
       x_data <- floor(runif(n = input$laenge,
@@ -180,7 +216,31 @@ dqe_deskriptive_statistik_gruppierte_daten <- function(
                           pos = data)
       x_data <- data_storage[[select_data$data$selected]][[select_data$data$column$selected_1]]
     }
-    rvs$x_data <- x_data
+    print(x_data)
+    return(x_data)
+  })
+
+  observeEvent(input$update, {
+    .values$viewer$data$appendTab(
+      tab = tabPanel(
+        title = "Tabellierte Häufigkeitsverteilung_",
+        DT::dataTableOutput(
+          outputId = ns("tabellierte_haeufigkeitsverteilung")
+        )
+      )
+    )
+    .values$viewer$plot$appendPlot(
+      title = "Grafik",
+      plot_reactive = plot_group
+    )
+    # .values$viewer$plot$appendTab(
+    #   tab = tabPanel(
+    #     title = "Grafische",
+    #     plotOutput(
+    #       outputId = ns("plot_group")
+    #     )
+    #   )
+    # )
   })
 
   # Spezifischer Input für gruppierte Daten

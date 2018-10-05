@@ -4,7 +4,7 @@
 \alias{cumulative_distribution_function}
 \title{Plot the cumulative distribution function}
 \usage{
-cumulative_distribution_function(tfd, breaks, col, fill, alpha)
+cumulative_distribution_function(tfd, breaks, col, fill, alpha, size)
 }
 \description{
 Plot the cumulative distribution function using \code{ggplot2}.

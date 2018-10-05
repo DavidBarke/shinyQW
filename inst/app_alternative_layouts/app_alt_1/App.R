@@ -13,7 +13,8 @@ library(patchwork)
 
 # SOURCE -----------------------------------------------------------------------
 # Damit nicht nach jeder Veränderung shinyQW neu gebuilded werden muss
-sourceDirectory(path = "../../../R", encoding = "UTF-8")
+# Es ist wichtig, dass modifiedOnly = FALSE ist!
+sourceDirectory(path = "../../../R", encoding = "UTF-8", modifiedOnly = FALSE)
 
 # Globals ----------------------------------------------------------------------
 

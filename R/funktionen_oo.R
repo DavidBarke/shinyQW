@@ -201,7 +201,34 @@ tabBox_R6 <- R6::R6Class(
       private$height <- height
       private$side <- match.arg(side)
     },
-    appendTab = function(tab, select = FALSE, closeable = TRUE) {
+
+    appendPlot = function(plot_reactive, title, select = TRUE,
+                          closeable = TRUE) {
+      private$tabCounter <- private$tabCounter + 1
+      unique_id <- shiny:::createUniqueId()
+      private$session$output[[unique_id]] <- renderPlot({
+        return(plot_reactive())
+      })
+      data_value <- title %_% private$tabCounter
+      tab <- tabPanel(
+        title = title,
+        plotOutput(
+          outputId = private$session$ns(unique_id)
+        ),
+        value = data_value
+      )
+      shiny::appendTab(
+        inputId = private$id,
+        tab = tab,
+        select = select,
+        session = private$session
+      )
+      if (closeable) private$createActionButton(data_value = data_value)
+      invisible(self)
+    },
+
+    appendTab = function(tab, select = TRUE, closeable = TRUE) {
+      private$tabCounter <- private$tabCounter + 1
       shiny::appendTab(
         inputId = private$id,
         tab = tab,
@@ -211,12 +238,15 @@ tabBox_R6 <- R6::R6Class(
       if (closeable) private$createActionButton(tab)
       invisible(self)
     },
+
     get = function(what) {
       if (missing(what)) return(names(private))
       private[[what]]
     },
+
     insertTab = function(tab, target, position = c("before", "after"),
                          select = FALSE, closeable = TRUE) {
+      private$tabCounter <- private$tabCounter + 1
       shiny::insertTab(
         inputId = private$id,
         tab = tab,
@@ -228,7 +258,9 @@ tabBox_R6 <- R6::R6Class(
       if (closeable) private$createActionButton(tab)
       invisible(self)
     },
+
     prependTab = function(tab, select = FALSE, closeable = TRUE) {
+      private$tabCounter <- private$tabCounter + 1
       shiny::prependTab(
         inputId = private$id,
         tab = tab,
@@ -239,6 +271,7 @@ tabBox_R6 <- R6::R6Class(
       if (closeable) private$createActionButton(tab)
       invisible(self)
     },
+
     removeTab = function(target) {
       shiny::removeTab(
         inputId = private$id,
@@ -247,9 +280,11 @@ tabBox_R6 <- R6::R6Class(
       )
       invisible(self)
     },
+
     set_session = function(session) {
       private$session <- session
     },
+
     tabBox = function(collapsible = FALSE) {
       if (!private$once) {
         if (!collapsible) {
@@ -294,9 +329,9 @@ tabBox_R6 <- R6::R6Class(
     once = FALSE,
     session = NULL,
     tabCounter = 0,
-    createActionButton = function(tab) {
-      data_value <- tab$attribs[["data-value"]]
-      private$tabCounter <- private$tabCounter + 1
+
+    createActionButton = function(tab, data_value) {
+      if (missing(data_value)) data_value <- tab$attribs[["data-value"]]
       closeId <- private$id %_% private$tabCounter
       div_button <- div(
         class = "div-btn-close",

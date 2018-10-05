@@ -202,7 +202,7 @@ dqe_verteilungsmodelle <- function(
           ui = get_specific_distribution_input(
             session = session,
             input = input,
-            values = values,
+            .values = .values,
             prefix_id = uiDivId,
             distribution = input[[selectVerteilungPlotId]]
           )

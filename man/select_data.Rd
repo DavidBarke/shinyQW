@@ -6,7 +6,7 @@
 \usage{
 select_data(input, output, session, data_rvs = list(user_data_storage =
   user_data_storage, permanent_data_storage = permanent_data_storage),
-  values, grid_select = tibble(type = "select", position = 1, label =
+  .values, grid_select = tibble(type = "select", position = 1, label =
   "Select column"), widgets_per_row = 2, tabset_data = NULL, parent,
   ...)
 }

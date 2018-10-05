@@ -57,10 +57,10 @@ table_frequency_distribution <- function(x, b = NULL, k = NULL) {
     groups <- cut(x, breaks = breaks, right = FALSE, ordered_result = TRUE,
                   dig.lab = 4, include.lowest = TRUE)
     data <- tibble(Klasse = levels(groups))
-    data$h_j <- absolute_density_grouped_data(levels(groups), groups)
+    data$h_j <- absolute_density_grouped_data(groups, levels(groups))
     data <- data %>%
       mutate(f_j = h_j / sum(h_j), H_x = cumsum(h_j), F_x = cumsum(f_j),
-             b_j = b, m_j = ((1:k) - 0.5) * b + min_x_data(),
+             b_j = b, m_j = ((1:k) - 0.5) * b + min(x),
              h_dichte = h_j / b_j, f_dichte = f_j / b_j)
     return(data)
   } else {
@@ -75,7 +75,6 @@ table_frequency_distribution <- function(x, b = NULL, k = NULL) {
 #'
 #' @examples
 absolute_density_grouped_data <- function(x, levels) {
-  stopifnot(is.numeric(x))
   h_j <- vector("numeric", length = length(levels))
   for (i in 1:length(levels)) {
     h_j[i] = sum(x == levels[i])
@@ -89,7 +88,7 @@ absolute_density_grouped_data <- function(x, levels) {
 #' Plot the cumulative distribution function using \code{ggplot2}.
 #'
 #'
-cumulative_distribution_function <- function(tfd, breaks, col, fill, alpha) {
+cumulative_distribution_function <- function(tfd, breaks, col, fill, alpha, size) {
   data <- tibble(x = breaks, y = c(0, tfd$F_x))
   plot <- ggplot(data = data, mapping = aes(x = x, y = y)) +
     geom_line(col = col,
