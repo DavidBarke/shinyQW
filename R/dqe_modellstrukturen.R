@@ -29,7 +29,7 @@ dqe_modellstrukturen_ui <- function(id) {
 
 #' @export
 dqe_modellstrukturen <- function(
-  input, output, session, data, values, parent, ...
+  input, output, session, .data, .values, parent, ...
 ) {
   self <- node$new("modellstrukturen", parent, session)
 
@@ -38,8 +38,8 @@ dqe_modellstrukturen <- function(
   call_dqe_modellstrukturen_lineares_modell <- callModule(
     module = dqe_modellstrukturen_lineares_modell,
     id = "id_dqe_modellstrukturen_lineares_modell",
-    data = data,
-    values = values,
+    .data = .data,
+    .values = .values,
     parent = self
   )
 }

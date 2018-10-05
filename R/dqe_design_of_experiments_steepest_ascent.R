@@ -72,10 +72,10 @@ dqe_design_of_experiments_projekt_steepest_ascent_ui <- function(id) {
 
 #' @export
 dqe_design_of_experiments_projekt_steepest_ascent <- function(
-  input, output, session, data, values, parent, ...
+  input, output, session, .data, .values, parent, ...
 ) {
 
-  user_data_storage <- data$user_data_storage
+  user_data_storage <- .data$user_data_storage
 
   self <- node$new("steepest_ascent", parent, session)
 

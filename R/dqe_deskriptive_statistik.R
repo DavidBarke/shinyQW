@@ -90,7 +90,7 @@ dqe_deskriptive_statistik_box <- function(id) {
 
 #' @export
 dqe_deskriptive_statistik <- function(
-  input, output, session, data, values, parent, ...
+  input, output, session, .data, .values, parent, ...
 ) {
   self <- node$new("deskriptive_statistik", parent, session)
 
@@ -101,23 +101,22 @@ dqe_deskriptive_statistik <- function(
   # TODO: call_multiple_modules anwenden
   call_dqe_deskriptive_statistik_sortierte_daten <- callModule(module = dqe_deskriptive_statistik_sortierte_daten,
                                id = "id_dqe_deskriptive_statistik_sortierte_daten",
-                               .data = data,
-                               values = values,
+                               .data = .data,
+                               .values = .values,
                                parent = self)
   call_dqe_deskriptive_statistik_gruppierte_daten <- callModule(module = dqe_deskriptive_statistik_gruppierte_daten,
                                id = "id_dqe_deskriptive_statistik_gruppierte_daten",
-                               data = data,
-                               values = values,
+                               .data = .data,
+                               .values = .values,
                                parent = self)
   call_dqe_deskriptive_statistik_boxplot <- callModule(module = dqe_deskriptive_statistik_boxplot,
                                id = "id_dqe_deskriptive_statistik_boxplot",
-                               data = data,
-                               values = values,
+                               .data = .data,
+                               .values = .values,
                                parent = self)
   # call_dqe_deskriptive_statistik_theorie <- callModule(module = dqe_deskriptive_statistik_theorie,
   #                              id = "id_dqe_deskriptive_statistik_theorie",
-  #                              user_data_storage = user_data_storage,
-  #                              permanent_data_storage = permanent_data_storage,
-  #                              values = values,
+  #                              .data = .data,
+  #                              .values = .values,
   #                              parent = self)
 }

@@ -58,12 +58,12 @@ lineares_modell_ui <- function(id) {
 
 #' @export
 lineares_modell <- function(
-  input, output, session, data, values, parent, ...
+  input, output, session, .data, .values, parent, ...
 ) {
   self <- node$new("lineares_modell", parent, session)
 
-  user_data_storage <- data$user_data_storage
-  permanent_data_storage <- data$permanent_data_storage
+  user_data_storage <- .data$user_data_storage
+  permanent_data_storage <- .data$permanent_data_storage
 
   ns <- session$ns
 
@@ -78,7 +78,7 @@ lineares_modell <- function(
       formula <- call_formula_interface()$values$formula
       selected_data <- selected_data()
       name_data_storage <- selected_data$data_type
-      data_storage <- get(name_data_storage, data)
+      data_storage <- get(name_data_storage, .data)
       data <- data_storage[[selected_data$data]]
       lm_ <- lm(formula = formula, data = data)
     })
@@ -238,11 +238,8 @@ lineares_modell <- function(
 
   call_select_data <- callModule(module = select_data,
                                id = "id_select_data",
-                               data_rvs = list(
-                                 user_data_storage = user_data_storage,
-                                 permanent_data_storage = permanent_data_storage
-                               ),
-                               values = values,
+                               data_rvs = .data,
+                               .values = .values,
                                tabset_data = tibble(
                                  id = c("tabset", "tabset"),
                                  session = c(session, session),
@@ -255,9 +252,8 @@ lineares_modell <- function(
                                parent = self)
   call_formula_interface <- callModule(module = formula_interface,
                               id = "id_formula_interface",
-                              user_data_storage = user_data_storage,
-                              permanent_data_storage = permanent_data_storage,
-                              values = values,
+                              .data = .data,
+                              .values = .values,
                               parent = self,
                               data = selected_data,
                               erklaert = erklaert,
@@ -281,29 +277,5 @@ lineares_modell <- function(
  zielgroesse <- reactive({
    return(call_select_data()$values$data$column$selected_1)
  })
-
-# RETURN --------------------------------------------------------------------------------
-
-  return_user_data_storage <- reactive({
-    return(NULL)
-  })
-
-  return_permanent_data_storage <- reactive({
-    return(NULL)
-  })
-
-  return_values <- reactive({
-    return(NULL)
-  })
-
-  return_list <- reactive({
-    return_list <- list(
-      user_data_storage = return_user_data_storage(),
-      permanent_data_storage = return_permanent_data_storage(),
-      values = return_values()
-    )
-  })
-
-  return(return_list)
 }
 

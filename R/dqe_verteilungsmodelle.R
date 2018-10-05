@@ -113,7 +113,7 @@ dqe_verteilungsmodelle_box <- function(id) {
 
 #' @export
 dqe_verteilungsmodelle <- function(
-  input, output, session, data, values, parent, ...
+  input, output, session, .data, .values, parent, ...
 ) {
   self <- node$new("verteilungsmodelle", parent, session)
 
@@ -182,7 +182,7 @@ dqe_verteilungsmodelle <- function(
     output[[outputId]] <- renderPlot({
       plot <- get_distribution_plot(
         input = input,
-        values = values,
+        .values = .values,
         prefix_id = uiDivId,
         distribution = input[[selectVerteilungPlotId]],
         type = input[[selectTypePlotId]],

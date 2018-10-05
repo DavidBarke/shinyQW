@@ -81,25 +81,25 @@ einstellungen_ggplot2_box <- function(id) {
 
 #' @export
 einstellungen_ggplot2 <- function(
-  input, output, session, data, values, parent, ...
+  input, output, session, .data, .values, parent, ...
 ) {
   self <- node$new("einstellungen_ggplot2", parent, session)
 
   ns <- session$ns
 
   observeEvent(input$col_col, {
-    values$einstellungen$ggplot2$col <- input$col_col
+    .values$einstellungen$ggplot2$col <- input$col_col
   })
 
   observeEvent(input$col_fill, {
-    values$einstellungen$ggplot2$fill <- input$col_fill
+    .values$einstellungen$ggplot2$fill <- input$col_fill
   })
 
   observeEvent(input$alpha, {
-    values$einstellungen$ggplot2$alpha <- input$alpha
+    .values$einstellungen$ggplot2$alpha <- input$alpha
   })
 
   observeEvent(input$size, {
-    values$einstellungen$ggplot2$size <- input$size
+    .values$einstellungen$ggplot2$size <- input$size
   })
 }

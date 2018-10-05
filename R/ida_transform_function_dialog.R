@@ -25,7 +25,7 @@ function_dialog_ui <- function(id) {
 #'
 #' @export
 function_dialog <- function(
-  input, output, session, data, values, parent, selected_data, dplyr_function,
+  input, output, session, .data, .values, parent, selected_data, dplyr_function,
   ...
 ) {
   self <- node$new("function_dialog", parent, session)
@@ -37,8 +37,8 @@ function_dialog <- function(
     glue_module = list(x1 = "{template}", x2 = "ui"),
     glue_id = list(x1 = "id", x2 = "{template}", x3 = "ui"),
     glue_reactive = list(x1 = "call", x2 = "{template}"),
-    data = data,
-    values = values,
+    .data = .data,
+    .values = .values,
     selected_data = selected_data,
     parent = self
   )

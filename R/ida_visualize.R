@@ -14,7 +14,7 @@ ida_visualize_ui <- function(id) {
 
 #' @export
 ida_visualize <- function(
-  input, output, session, data, values, parent, ...
+  input, output, session, .data, .values, parent, ...
 ) {
   self <- node$new("visualize", parent, session)
 

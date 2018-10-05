@@ -14,7 +14,7 @@ dqe_testtheorie_ui <- function(id) {
 
 #' @export
 dqe_testtheorie <- function(
-  input, output, session, data, values, parent, ...
+  input, output, session, .data, .values, parent, ...
 ) {
   self <- node$new("testtheorie", parent, session)
 

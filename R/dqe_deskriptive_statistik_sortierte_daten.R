@@ -146,7 +146,7 @@ dqe_deskriptive_statistik_sortierte_daten_box <- function(id) {
 
 #' @export
 dqe_deskriptive_statistik_sortierte_daten <- function(
-  input, output, session, .data, values, parent, ...
+  input, output, session, .data, .values, parent, ...
 ) {
 
   self <- node$new("sortierte_daten", parent, session)
@@ -193,7 +193,7 @@ dqe_deskriptive_statistik_sortierte_daten <- function(
     rvs_data$counter <- rvs_data$counter + 1
     rvs_data$laenge <- input$laenge
     rvs_data$minmax <- input$minmax
-    values$viewer_data$appendTab(
+    .values$viewer$data$appendTab(
       tab = tabPanel(
         title = "Tabellierte Häufigkeitsverteilung",
         DT::dataTableOutput(
@@ -202,7 +202,7 @@ dqe_deskriptive_statistik_sortierte_daten <- function(
       ),
       select = TRUE
     )
-    values$viewer_plot$appendTab(
+    .values$viewer$plot$appendTab(
       tab = tabPanel(
         title = "Grafische Häufigkeitsverteilung",
         plotOutput(
@@ -236,9 +236,9 @@ dqe_deskriptive_statistik_sortierte_daten <- function(
     base_plot <- base_plot()
     plot <- base_plot +
       geom_bar(mapping = aes(y = ..count..),
-               col = values$einstellungen$ggplot2$col,
-               fill = values$einstellungen$ggplot2$fill,
-               alpha = values$einstellungen$ggplot2$alpha
+               col = .values$einstellungen$ggplot2$col,
+               fill = .values$einstellungen$ggplot2$fill,
+               alpha = .values$einstellungen$ggplot2$alpha
                ) +
       labs(x = "", y = expression(h(a[j])))
     return(plot)
@@ -248,9 +248,9 @@ dqe_deskriptive_statistik_sortierte_daten <- function(
     base_plot <- base_plot()
     plot <- base_plot +
       geom_bar(mapping = aes(y = ..count.. / sum(..count..)),
-               col = values$einstellungen$ggplot2$col,
-               fill = values$einstellungen$ggplot2$fill,
-               alpha = values$einstellungen$ggplot2$alpha
+               col = .values$einstellungen$ggplot2$col,
+               fill = .values$einstellungen$ggplot2$fill,
+               alpha = .values$einstellungen$ggplot2$alpha
                ) +
       labs(x = "", y = expression(f(a[j])))
     return(plot)
@@ -261,8 +261,8 @@ dqe_deskriptive_statistik_sortierte_daten <- function(
     plot <- base_plot +
       stat_count(aes(y = cumsum(..count..)),
                  geom = "step",
-                 col = values$einstellungen$ggplot2$col,
-                 alpha = values$einstellungen$ggplot2$alpha
+                 col = .values$einstellungen$ggplot2$col,
+                 alpha = .values$einstellungen$ggplot2$alpha
                  ) +
       labs(x = "", y = expression(H(x)))
     return(plot)
@@ -273,8 +273,8 @@ dqe_deskriptive_statistik_sortierte_daten <- function(
     plot <- base_plot +
       stat_count(aes(y = cumsum(..count.. / sum(..count..))),
                  geom = "step",
-                 col = values$einstellungen$ggplot2$col,
-                 alpha = values$einstellungen$ggplot2$alpha
+                 col = .values$einstellungen$ggplot2$col,
+                 alpha = .values$einstellungen$ggplot2$alpha
                  ) +
       labs(x = "", y = expression(F(x)))
     return(plot)
@@ -360,7 +360,7 @@ dqe_deskriptive_statistik_sortierte_daten <- function(
   call_select_data <- callModule(module = select_data,
                                 id = "id_sortierte_daten_select_data",
                                 data_rvs = .data,
-                                values = values,
+                                .values = .values,
                                 parent = self,
                                 tabset_data = tibble(
                                   id = c("tabset", "tabset"),

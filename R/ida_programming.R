@@ -22,8 +22,7 @@ ida_programming_ui <- function(id) {
 
 #' @export
 ida_programming <- function(
-  input, output, session, data, values,
-  parent, ...
+  input, output, session, .data, .values, parent, ...
 ) {
   self <- node$new("programming", parent, session)
 

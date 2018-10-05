@@ -14,7 +14,7 @@ dqe_wahrscheinlichkeitsrechnung_ui <- function(id) {
 
 #' @export
 dqe_wahrscheinlichkeitsrechnung <- function(
-  input, output, session, data, values, parent, ...
+  input, output, session, .data, .values, parent, ...
 ) {
   self <- node$new("wahrscheinlichkeitsrechnung", parent, session)
 

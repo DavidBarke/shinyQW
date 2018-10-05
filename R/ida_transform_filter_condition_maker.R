@@ -84,7 +84,7 @@ condition_maker_ui <- function(id) {
 
 #' @export
 condition_maker <- function(
-  input, output, session, data, values, selected_data, parent, ...
+  input, output, session, .data, .values, selected_data, parent, ...
 ) {
   self <- node$new("condition_maker", parent, session)
 
@@ -103,7 +103,7 @@ condition_maker <- function(
   data <- reactive({
     selected_data <- selected_data()$values
     data_type <- selected_data$data_type
-    data_storage <- get(data_type, data)
+    data_storage <- get(data_type, .data)
     data <- data_storage[[selected_data$data$selected]]
   })
 

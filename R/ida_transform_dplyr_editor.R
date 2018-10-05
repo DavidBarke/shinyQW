@@ -51,7 +51,7 @@ ida_transform_dplyr_editor_ui <- function(id) {
 
 #' @export
 ida_transform_dplyr_editor <- function(
-  input, output, session, data, values, parent, ...
+  input, output, session, .data, .values, parent, ...
 ) {
   self <- node$new("dplyr_editor", parent, session)
 
@@ -99,13 +99,13 @@ ida_transform_dplyr_editor <- function(
     print(input$code)
   })
 
-  observeEvent(values$einstellungen, {
+  observeEvent(.values$einstellungen, {
     print("Observe Update")
     updateAceEditor(
       session = session,
       editorId = ns("code"),
       value = input$code,
-      theme = values$einstellungen$allgemein$ace$theme
+      theme = .values$einstellungen$allgemein$ace$theme
     )
   })
 }

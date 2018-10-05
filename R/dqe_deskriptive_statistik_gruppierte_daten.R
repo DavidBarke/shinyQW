@@ -80,7 +80,7 @@ dqe_deskriptive_statistik_gruppierte_daten_ui <- function(id) {
 
 #' @export
 dqe_deskriptive_statistik_gruppierte_daten <- function(
-  input, output, session, data, values, parent, ...
+  input, output, session, .data, .values, parent, ...
 ) {
   self <- node$new("gruppierte_daten", parent, session)
 
@@ -245,8 +245,8 @@ dqe_deskriptive_statistik_gruppierte_daten <- function(
 
   call_select_data <- callModule(module = select_data,
                                  id = "id_gruppierte_daten_select_data",
-                                 data_rvs = data,
-                                 values = values,
+                                 data_rvs = .data,
+                                 .values = .values,
                                  parent = self,
                                  tabset_data = tibble(
                                    id = c("tabset", "tabset"),

@@ -14,7 +14,7 @@ dqe_statistische_prozesskontrolle_ui <- function(id) {
 
 #' @export
 dqe_statistische_prozesskontrolle <- function(
-  input, output, session, data, values, parent, ...
+  input, output, session, .data, .values, parent, ...
 ) {
   self <- node$new("statistische_prozesskontrolle", parent, session)
 

@@ -97,7 +97,7 @@ dqe_design_of_experiments_box <- function(id) {
 }
 
 #' @export
-dqe_design_of_experiments <- function(input, output, session, data, values,
+dqe_design_of_experiments <- function(input, output, session, .data, .values,
                                       parent, ...) {
 
   self <- node$new("design_of_experiments", parent, session)
@@ -115,8 +115,8 @@ dqe_design_of_experiments <- function(input, output, session, data, values,
                             glue_id = list(x1 = "id", x2 = "{prefix}", x3 = "{template}"),
                             glue_reactive = list(x1 = "call", x2 = "{prefix}", x3 = "{template}"),
                             glue_list = list(prefix = "dqe_design_of_experiments_projekt"),
-                            data = data,
-                            values = values,
+                            .data = .data,
+                            .values = .values,
                             session_tree = session_tree,
                             parent = self)
 }

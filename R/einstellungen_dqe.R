@@ -27,7 +27,7 @@ einstellungen_dqe_ui <- function(id) {
 
 #' @export
 einstellungen_dqe <- function(
-  input, output, session, data, values, parent, ...
+  input, output, session, .data, .values, parent, ...
 ) {
   self <- node$new("einstellungen_dqe", parent, session)
 
@@ -43,7 +43,7 @@ einstellungen_dqe <- function(
         )
       }
     })
-    rvs$dqe$quantil_xmax <- input$quantil_xmax
+    .values$einstellungen$dqe$quantil_xmax <- input$quantil_xmax
   })
 
   observeEvent(input$quantil_xmin, {
@@ -56,33 +56,6 @@ einstellungen_dqe <- function(
         )
       }
     })
-    rvs$dqe$quantil_xmin <- input$quantil_xmin
+    .values$einstellungen$dqe$quantil_xmin <- input$quantil_xmin
   })
-
-  rvs <- reactiveValues()
-
-  return_user_data_storage <- reactive({
-    return(NULL)
-  })
-
-  return_permanent_data_storage <- reactive({
-    return(NULL)
-  })
-
-  return_values <- reactive({
-    return_list <- list(
-      dqe = rvs$dqe
-    )
-    return(return_list)
-  })
-
-  return_list <- reactive({
-    return_list <- list(
-      user_data_storage = return_user_data_storage(),
-      permanent_data_storage = return_permanent_data_storage(),
-      values = return_values()
-    )
-  })
-
-  return(return_list)
 }

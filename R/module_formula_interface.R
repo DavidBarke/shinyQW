@@ -84,7 +84,7 @@ formula_interface_ui <- function(id) {
 
 #' @export
 formula_interface <- function(
-  input, output, session, data, values, parent, erklaert, zielgroesse,
+  input, output, session, .data, .values, parent, erklaert, zielgroesse,
   ...
 ) {
   self <- node$new("formula_interface", parent, session)
@@ -152,30 +152,4 @@ formula_interface <- function(
   output$formula <- renderText({
     return(req(formula()))
   })
-
-# RETURN -----------------------------------------------------------------------------
-  return_user_data_storage <- reactive({
-    return(NULL)
-  })
-
-  return_permanent_data_storage <- reactive({
-    return(NULL)
-  })
-
-  return_values <- reactive({
-    return_list <- list(
-      formula = formula()
-    )
-    return(return_list)
-  })
-
-  return_list <- reactive({
-    return_list <- list(
-      user_data_storage = return_user_data_storage(),
-      permanent_data_storage = return_permanent_data_storage(),
-      values = return_values()
-    )
-  })
-
-  return(return_list)
 }

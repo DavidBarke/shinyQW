@@ -14,7 +14,7 @@ ida_import_ui <- function(id) {
 
 #' @export
 ida_import <- function(
-  input, output, session, data, values,
+  input, output, session, .data, .values,
   parent, ...
 ) {
   self <- node$new("import", parent, session)

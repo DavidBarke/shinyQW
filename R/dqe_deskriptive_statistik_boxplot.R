@@ -14,7 +14,7 @@ dqe_deskriptive_statistik_boxplot_ui <- function(id) {
 
 #' @export
 dqe_deskriptive_statistik_boxplot <- function(
-  input, output, session, data, values, parent, ...
+  input, output, session, .data, .values, parent, ...
 ) {
   self <- node$new("boxplot", parent, session)
 

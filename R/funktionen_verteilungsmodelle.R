@@ -23,31 +23,31 @@ hide_all_specific_distribution_inputs <- function(prefix_id) {
 # ÜBERLEGUNG: Das ganze als eigenes Modul umsetzen
 
 #' @export
-get_specific_distribution_input <- function(session, input, values, prefix_id, distribution) {
+get_specific_distribution_input <- function(session, input, .values, prefix_id, distribution) {
   ui_element <- switch(
     EXPR = distribution,
-    "binom" = get_specific_binom_input(session, input, values, prefix_id),
-    "geom" = get_specific_geom_input(session, input, values, prefix_id),
-    "hyper" = get_specific_hyper_input(session, input, values, prefix_id),
-    "multinom" = get_specific_multinom_input(session, input, values, prefix_id),
-    "nbinom" = get_specific_nbinom_input(session, input, values, prefix_id),
-    "pois" = get_specific_pois_input(session, input, values, prefix_id),
-    "beta" = get_specific_beta_input(session, input, values, prefix_id),
-    "cauchy" = get_specific_cauchy_input(session, input, values, prefix_id),
-    "chisq" = get_specific_chisq_input(session, input, values, prefix_id),
-    "exp" = get_specific_exp_input(session, input, values, prefix_id),
-    "f" = get_specific_f_input(session, input, values, prefix_id),
-    "gamma" = get_specific_gamma_input(session, input, values, prefix_id),
-    "unif" = get_specific_unif_input(session, input, values, prefix_id),
-    "lnorm" = get_specific_lnorm_input(session, input, values, prefix_id),
-    "norm" = get_specific_norm_input(session, input, values, prefix_id),
-    "t" = get_specific_t_input(session, input, values, prefix_id),
-    "weibull" = get_specific_weibull_input(session, input, values, prefix_id)
+    "binom" = get_specific_binom_input(session, input, .values, prefix_id),
+    "geom" = get_specific_geom_input(session, input, .values, prefix_id),
+    "hyper" = get_specific_hyper_input(session, input, .values, prefix_id),
+    "multinom" = get_specific_multinom_input(session, input, .values, prefix_id),
+    "nbinom" = get_specific_nbinom_input(session, input, .values, prefix_id),
+    "pois" = get_specific_pois_input(session, input, .values, prefix_id),
+    "beta" = get_specific_beta_input(session, input, .values, prefix_id),
+    "cauchy" = get_specific_cauchy_input(session, input, .values, prefix_id),
+    "chisq" = get_specific_chisq_input(session, input, .values, prefix_id),
+    "exp" = get_specific_exp_input(session, input, .values, prefix_id),
+    "f" = get_specific_f_input(session, input, .values, prefix_id),
+    "gamma" = get_specific_gamma_input(session, input, .values, prefix_id),
+    "unif" = get_specific_unif_input(session, input, .values, prefix_id),
+    "lnorm" = get_specific_lnorm_input(session, input, .values, prefix_id),
+    "norm" = get_specific_norm_input(session, input, .values, prefix_id),
+    "t" = get_specific_t_input(session, input, .values, prefix_id),
+    "weibull" = get_specific_weibull_input(session, input, .values, prefix_id)
   )
   return(ui_element)
 }
 
-get_specific_binom_input <- function(session, input, values, prefix_id) {
+get_specific_binom_input <- function(session, input, .values, prefix_id) {
   ns <- session$ns
   divId <- paste(prefix_id, "binom_div", sep = "_")
   divClass <- paste(prefix_id, "class", sep = "_")
@@ -82,7 +82,7 @@ get_specific_binom_input <- function(session, input, values, prefix_id) {
   return(ui_element)
 }
 
-get_specific_geom_input <- function(session, input, values, prefix_id) {
+get_specific_geom_input <- function(session, input, .values, prefix_id) {
   ns <- session$ns
   divId <- paste(prefix_id, "geom_div", sep = "_")
   divClass <- paste(prefix_id, "class", sep = "_")
@@ -119,20 +119,20 @@ get_specific_geom_input <- function(session, input, values, prefix_id) {
     updateNumericInput(
       session = session,
       inputId = xmaxId,
-      value = qgeom(p = req(values$einstellungen$dqe$quantil_xmax), prob = req(input[[probId]]))
+      value = qgeom(p = req(.values$einstellungen$dqe$quantil_xmax), prob = req(input[[probId]]))
     )
   })
-  observeEvent(values$einstellungen$dqe$quantil_xmax, {
+  observeEvent(.values$einstellungen$dqe$quantil_xmax, {
     updateNumericInput(
       session = session,
       inputId = xmaxId,
-      value = qgeom(p = req(values$einstellungen$dqe$quantil_xmax), prob = req(input[[probId]]))
+      value = qgeom(p = req(.values$einstellungen$dqe$quantil_xmax), prob = req(input[[probId]]))
     )
   })
   return(ui_element)
 }
 
-get_specific_hyper_input <- function(session, input, values, prefix_id) {
+get_specific_hyper_input <- function(session, input, .values, prefix_id) {
   ns <- session$ns
   divId <- paste(prefix_id, "hyper_div", sep = "_")
   divClass <- paste(prefix_id, "class", sep = "_")
@@ -175,7 +175,7 @@ get_specific_hyper_input <- function(session, input, values, prefix_id) {
   return(ui_element)
 }
 
-get_specific_multinom_input <- function(session, input, values, prefix_id) {
+get_specific_multinom_input <- function(session, input, .values, prefix_id) {
   ns <- session$ns
   divId <- paste(prefix_id, "multinom_div", sep = "_")
   divClass <- paste(prefix_id, "class", sep = "_")
@@ -187,7 +187,7 @@ get_specific_multinom_input <- function(session, input, values, prefix_id) {
   return(ui_element)
 }
 
-get_specific_nbinom_input <- function(session, input, values, prefix_id) {
+get_specific_nbinom_input <- function(session, input, .values, prefix_id) {
   ns <- session$ns
   divId <- paste(prefix_id, "nbinom_div", sep = "_")
   divClass <- paste(prefix_id, "class", sep = "_")
@@ -236,27 +236,27 @@ get_specific_nbinom_input <- function(session, input, values, prefix_id) {
     updateNumericInput(
       session = session,
       inputId = xmaxId,
-      value = qnbinom(p = req(values$einstellungen$dqe$quantil_xmax), size = req(input[[sizeId]]), prob = req(input[[probId]]))
+      value = qnbinom(p = req(.values$einstellungen$dqe$quantil_xmax), size = req(input[[sizeId]]), prob = req(input[[probId]]))
     )
   })
   observeEvent(input[[probId]], {
     updateNumericInput(
       session = session,
       inputId = xmaxId,
-      value = qnbinom(p = req(values$einstellungen$dqe$quantil_xmax), size = req(input[[sizeId]]), prob = req(input[[probId]]))
+      value = qnbinom(p = req(.values$einstellungen$dqe$quantil_xmax), size = req(input[[sizeId]]), prob = req(input[[probId]]))
     )
   })
-  observeEvent(values$einstellungen$dqe$quantil_xmax, {
+  observeEvent(.values$einstellungen$dqe$quantil_xmax, {
     updateNumericInput(
       session = session,
       inputId = xmaxId,
-      value = qnbinom(p = req(values$einstellungen$dqe$quantil_xmax), size = req(input[[sizeId]]), prob = req(input[[probId]]))
+      value = qnbinom(p = req(.values$einstellungen$dqe$quantil_xmax), size = req(input[[sizeId]]), prob = req(input[[probId]]))
     )
   })
   return(ui_element)
 }
 
-get_specific_pois_input <- function(session, input, values, prefix_id) {
+get_specific_pois_input <- function(session, input, .values, prefix_id) {
   ns <- session$ns
   divId <- paste(prefix_id, "pois_div", sep = "_")
   divClass <- paste(prefix_id, "class", sep = "_")
@@ -292,20 +292,20 @@ get_specific_pois_input <- function(session, input, values, prefix_id) {
     updateNumericInput(
       session = session,
       inputId = xmaxId,
-      value = qpois(p = req(values$einstellungen$dqe$quantil_xmax), lambda = req(input[[lambdaId]]))
+      value = qpois(p = req(.values$einstellungen$dqe$quantil_xmax), lambda = req(input[[lambdaId]]))
     )
   })
-  observeEvent(values$einstellungen$dqe$quantil_xmax, {
+  observeEvent(.values$einstellungen$dqe$quantil_xmax, {
     updateNumericInput(
       session = session,
       inputId = xmaxId,
-      value = qpois(p = req(values$einstellungen$dqe$quantil_xmax), lambda = req(input[[lambdaId]]))
+      value = qpois(p = req(.values$einstellungen$dqe$quantil_xmax), lambda = req(input[[lambdaId]]))
     )
   })
   return(ui_element)
 }
 
-get_specific_beta_input <- function(session, input, values, prefix_id) {
+get_specific_beta_input <- function(session, input, .values, prefix_id) {
   ns <- session$ns
   divId <- paste(prefix_id, "beta_div", sep = "_")
   divClass <- paste(prefix_id, "class", sep = "_")
@@ -340,7 +340,7 @@ get_specific_beta_input <- function(session, input, values, prefix_id) {
   return(ui_element)
 }
 
-get_specific_cauchy_input <- function(session, input, values, prefix_id) {
+get_specific_cauchy_input <- function(session, input, .values, prefix_id) {
   ns <- session$ns
   divId <- paste(prefix_id, "cauchy_div", sep = "_")
   divClass <- paste(prefix_id, "class", sep = "_")
@@ -371,7 +371,7 @@ get_specific_cauchy_input <- function(session, input, values, prefix_id) {
   return(ui_element)
 }
 
-get_specific_chisq_input <- function(session, input, values, prefix_id) {
+get_specific_chisq_input <- function(session, input, .values, prefix_id) {
   ns <- session$ns
   divId <- paste(prefix_id, "chisq_div", sep = "_")
   divClass <- paste(prefix_id, "class", sep = "_")
@@ -394,7 +394,7 @@ get_specific_chisq_input <- function(session, input, values, prefix_id) {
   return(ui_element)
 }
 
-get_specific_exp_input <- function(session, input, values, prefix_id) {
+get_specific_exp_input <- function(session, input, .values, prefix_id) {
   ns <- session$ns
   divId <- paste(prefix_id, "exp_div", sep = "_")
   divClass <- paste(prefix_id, "class", sep = "_")
@@ -418,7 +418,7 @@ get_specific_exp_input <- function(session, input, values, prefix_id) {
   return(ui_element)
 }
 
-get_specific_f_input <- function(session, input, values, prefix_id) {
+get_specific_f_input <- function(session, input, .values, prefix_id) {
   ns <- session$ns
   divId <- paste(prefix_id, "f_div", sep = "_")
   divClass <- paste(prefix_id, "class", sep = "_")
@@ -451,7 +451,7 @@ get_specific_f_input <- function(session, input, values, prefix_id) {
   return(ui_element)
 }
 
-get_specific_gamma_input <- function(session, input, values, prefix_id) {
+get_specific_gamma_input <- function(session, input, .values, prefix_id) {
   ns <- session$ns
   divId <- paste(prefix_id, "gamma_div", sep = "_")
   divClass <- paste(prefix_id, "class", sep = "_")
@@ -486,7 +486,7 @@ get_specific_gamma_input <- function(session, input, values, prefix_id) {
   return(ui_element)
 }
 
-get_specific_unif_input <- function(session, input, values, prefix_id) {
+get_specific_unif_input <- function(session, input, .values, prefix_id) {
   ns <- session$ns
   divId <- paste(prefix_id, "unif_div", sep = "_")
   divClass <- paste(prefix_id, "class", sep = "_")
@@ -517,7 +517,7 @@ get_specific_unif_input <- function(session, input, values, prefix_id) {
   return(ui_element)
 }
 
-get_specific_lnorm_input <- function(session, input, values, prefix_id) {
+get_specific_lnorm_input <- function(session, input, .values, prefix_id) {
   ns <- session$ns
   divId <- paste(prefix_id, "lnorm_div", sep = "_")
   divClass <- paste(prefix_id, "class", sep = "_")
@@ -549,7 +549,7 @@ get_specific_lnorm_input <- function(session, input, values, prefix_id) {
   return(ui_element)
 }
 
-get_specific_norm_input <- function(session, input, values, prefix_id) {
+get_specific_norm_input <- function(session, input, .values, prefix_id) {
   ns <- session$ns
   divId <- paste(prefix_id, "norm_div", sep = "_")
   divClass <- paste(prefix_id, "class", sep = "_")
@@ -581,7 +581,7 @@ get_specific_norm_input <- function(session, input, values, prefix_id) {
   return(ui_element)
 }
 
-get_specific_t_input <- function(session, input, values, prefix_id) {
+get_specific_t_input <- function(session, input, .values, prefix_id) {
   ns <- session$ns
   divId <- paste(prefix_id, "t_div", sep = "_")
   divClass <- paste(prefix_id, "class", sep = "_")
@@ -604,7 +604,7 @@ get_specific_t_input <- function(session, input, values, prefix_id) {
   return(ui_element)
 }
 
-get_specific_weibull_input <- function(session, input, values, prefix_id) {
+get_specific_weibull_input <- function(session, input, .values, prefix_id) {
   ns <- session$ns
   divId <- paste(prefix_id, "weibull_div", sep = "_")
   divClass <- paste(prefix_id, "class", sep = "_")
@@ -643,31 +643,31 @@ get_specific_weibull_input <- function(session, input, values, prefix_id) {
 # x_steps: x-Werte, an denen die Plotfunktion ausgewertet werden soll
 
 #' @export
-get_distribution_plot <- function(input, values, prefix_id, distribution, type, plot_engine) {
+get_distribution_plot <- function(input, .values, prefix_id, distribution, type, plot_engine) {
   args <- switch(
     EXPR = distribution,
-    "binom" = get_binom_plot(input, values, prefix_id, type, plot_engine),
-    "geom" = get_geom_plot(input, values, prefix_id, type, plot_engine),
-    "hyper" = get_hyper_plot(input, values, prefix_id, type, plot_engine),
-    "multinom" = get_multinom_plot(input, values, prefix_id, type, plot_engine),
-    "nbinom" = get_nbinom_plot(input, values, prefix_id, type, plot_engine),
-    "pois" = get_pois_plot(input, values, prefix_id, type, plot_engine),
-    "beta" = get_beta_plot(input, values, prefix_id, type, plot_engine),
-    "cauchy" = get_cauchy_plot(input, values, prefix_id, type, plot_engine),
-    "chisq" = get_chisq_plot(input, values, prefix_id, type, plot_engine),
-    "exp" = get_exp_plot(input, values, prefix_id, type, plot_engine),
-    "f" = get_f_plot(input, values, prefix_id, type, plot_engine),
-    "gamma" = get_gamma_plot(input, values, prefix_id, type, plot_engine),
-    "unif" = get_unif_plot(input, values, prefix_id, type, plot_engine),
-    "lnorm" = get_lnorm_plot(input, values, prefix_id, type, plot_engine),
-    "norm" = get_norm_plot(input, values, prefix_id, type, plot_engine),
-    "t" = get_t_plot(input, values, prefix_id, type, plot_engine),
-    "weibull" = get_weibull_plot(input, values, prefix_id, type, plot_engine)
+    "binom" = get_binom_plot(input, .values, prefix_id, type, plot_engine),
+    "geom" = get_geom_plot(input, .values, prefix_id, type, plot_engine),
+    "hyper" = get_hyper_plot(input, .values, prefix_id, type, plot_engine),
+    "multinom" = get_multinom_plot(input, .values, prefix_id, type, plot_engine),
+    "nbinom" = get_nbinom_plot(input, .values, prefix_id, type, plot_engine),
+    "pois" = get_pois_plot(input, .values, prefix_id, type, plot_engine),
+    "beta" = get_beta_plot(input, .values, prefix_id, type, plot_engine),
+    "cauchy" = get_cauchy_plot(input, .values, prefix_id, type, plot_engine),
+    "chisq" = get_chisq_plot(input, .values, prefix_id, type, plot_engine),
+    "exp" = get_exp_plot(input, .values, prefix_id, type, plot_engine),
+    "f" = get_f_plot(input, .values, prefix_id, type, plot_engine),
+    "gamma" = get_gamma_plot(input, .values, prefix_id, type, plot_engine),
+    "unif" = get_unif_plot(input, .values, prefix_id, type, plot_engine),
+    "lnorm" = get_lnorm_plot(input, .values, prefix_id, type, plot_engine),
+    "norm" = get_norm_plot(input, .values, prefix_id, type, plot_engine),
+    "t" = get_t_plot(input, .values, prefix_id, type, plot_engine),
+    "weibull" = get_weibull_plot(input, .values, prefix_id, type, plot_engine)
   )
   return(args)
 }
 
-get_binom_plot <- function(input, values, prefix_id, type, plot_engine) {
+get_binom_plot <- function(input, .values, prefix_id, type, plot_engine) {
   sizeId <- paste(prefix_id, "binom_size", sep = "_")
   probId <- paste(prefix_id, "binom_prob", sep = "_")
   size <- input[[sizeId]]
@@ -677,20 +677,20 @@ get_binom_plot <- function(input, values, prefix_id, type, plot_engine) {
     if (type == "density") {
       data <- tibble(x = seq(0, size, by = 1), y = dbinom(x = x, size = size, prob = prob))
       plot <- ggplot(data = data, mapping = aes(x = x, y = y)) +
-        geom_col(col = values$einstellungen$ggplot2$col, fill = values$einstellungen$ggplot2$fill) +
+        geom_col(col = .values$einstellungen$ggplot2$col, fill = .values$einstellungen$ggplot2$fill) +
         theme_bw()
     } else if (type == "probability") {
       data <- tibble(x = 0:size, y = pbinom(q = x, size = size, prob = prob))
-      print(values$einstellungen$ggplot2$col)
-      print(values$einstellungen$ggplot2$size)
+      print(.values$einstellungen$ggplot2$col)
+      print(.values$einstellungen$ggplot2$size)
       plot <- ggplot(data = data) +
         geom_segment(mapping = aes(x = x, y = y, xend = x + 1, yend = y)) +
         geom_point(mapping = aes(x = x, y = y), shape = 16,
-                   col = values$einstellungen$ggplot2$col,
-                   size = 2.5 * values$einstellungen$ggplot2$size) +
+                   col = .values$einstellungen$ggplot2$col,
+                   size = 2.5 * .values$einstellungen$ggplot2$size) +
         geom_point(mapping = aes(x = x + 1, y = y), shape = 1,
-                   col = values$einstellungen$ggplot2$col,
-                   size = 2.5 * values$einstellungen$ggplot2$size) +
+                   col = .values$einstellungen$ggplot2$col,
+                   size = 2.5 * .values$einstellungen$ggplot2$size) +
         scale_x_continuous(breaks = 0:size) +
         scale_y_continuous(limits = c(0, 1)) +
         labs(x = "x", y = expression(paste(F(x) == P(X <= x)))) +
@@ -718,7 +718,7 @@ get_binom_plot <- function(input, values, prefix_id, type, plot_engine) {
   return(plot)
 }
 
-get_geom_plot <- function(input, values, prefix_id, type, plot_engine) {
+get_geom_plot <- function(input, .values, prefix_id, type, plot_engine) {
   probId <- paste(prefix_id, "geom_prob", sep = "_")
   xmaxId <- paste(prefix_id, "geom_xmax", sep = "_")
   prob <- input[[probId]]
@@ -728,18 +728,18 @@ get_geom_plot <- function(input, values, prefix_id, type, plot_engine) {
     if (type == "density") {
       data <- tibble(x = seq(0, xmax), y = dgeom(x = x, prob = prob))
       plot <- ggplot(data = data, mapping = aes(x = x, y = y)) +
-        geom_col(col = values$einstellungen$ggplot2$col, fill = values$einstellungen$ggplot2$fill) +
+        geom_col(col = .values$einstellungen$ggplot2$col, fill = .values$einstellungen$ggplot2$fill) +
         theme_bw()
     } else if (type == "probability") {
       data <- tibble(x = seq(0, xmax), y = pgeom(q = x, prob = prob))
       plot <- ggplot(data = data, mapping = aes(x = x, y = y)) +
         geom_segment(mapping = aes(x = x, y = y, xend = x + 1, yend = y)) +
         geom_point(mapping = aes(x = x, y = y), shape = 16,
-                   col = values$einstellungen$ggplot2$col,
-                   size = 2.5 * values$einstellungen$ggplot2$size) +
+                   col = .values$einstellungen$ggplot2$col,
+                   size = 2.5 * .values$einstellungen$ggplot2$size) +
         geom_point(mapping = aes(x = x + 1, y = y), shape = 1,
-                   col = values$einstellungen$ggplot2$col,
-                   size = 2.5 * values$einstellungen$ggplot2$size) +
+                   col = .values$einstellungen$ggplot2$col,
+                   size = 2.5 * .values$einstellungen$ggplot2$size) +
         scale_x_continuous(breaks = 0:xmax) +
         scale_y_continuous(limits = c(0, 1)) +
         labs(x = "x", y = expression(paste(F(x) == P(X <= x)))) +
@@ -759,7 +759,7 @@ get_geom_plot <- function(input, values, prefix_id, type, plot_engine) {
   return(plot)
 }
 
-get_hyper_plot <- function(input, values, prefix_id, type, plot_engine) {
+get_hyper_plot <- function(input, .values, prefix_id, type, plot_engine) {
   m <- input[[paste(prefix_id, "hyper_m", sep = "_")]]
   n <- input[[paste(prefix_id, "hyper_n", sep = "_")]]
   k <- input[[paste(prefix_id, "hyper_k", sep = "_")]]
@@ -768,18 +768,18 @@ get_hyper_plot <- function(input, values, prefix_id, type, plot_engine) {
     if (type == "density") {
       data <- tibble(x = seq(0, k), y = dhyper(x = x, m = m, n = n, k = k))
       plot <- ggplot(data = data, mapping = aes(x = x, y = y)) +
-        geom_col(col = values$einstellungen$ggplot2$col, fill = values$einstellungen$ggplot2$fill) +
+        geom_col(col = .values$einstellungen$ggplot2$col, fill = .values$einstellungen$ggplot2$fill) +
         theme_bw()
     } else if (type == "probability") {
       data <- tibble(x = seq(0, k), y = phyper(q = x, m = m, n = n, k = k))
       plot <- ggplot(data = data, mapping = aes(x = x, y = y)) +
         geom_segment(mapping = aes(x = x, y = y, xend = x + 1, yend = y)) +
         geom_point(mapping = aes(x = x, y = y), shape = 16,
-                   col = values$einstellungen$ggplot2$col,
-                   size = 2.5 * values$einstellungen$ggplot2$size) +
+                   col = .values$einstellungen$ggplot2$col,
+                   size = 2.5 * .values$einstellungen$ggplot2$size) +
         geom_point(mapping = aes(x = x + 1, y = y), shape = 1,
-                   col = values$einstellungen$ggplot2$col,
-                   size = 2.5 * values$einstellungen$ggplot2$size) +
+                   col = .values$einstellungen$ggplot2$col,
+                   size = 2.5 * .values$einstellungen$ggplot2$size) +
         scale_x_continuous(breaks = 0:k) +
         scale_y_continuous(limits = c(0, 1)) +
         labs(x = "x", y = expression(paste(F(x) == P(X <= x)))) +
@@ -799,14 +799,14 @@ get_hyper_plot <- function(input, values, prefix_id, type, plot_engine) {
   return(plot)
 }
 
-get_multinom_plot <- function(input, values, prefix_id, type, plot_engine) {
+get_multinom_plot <- function(input, .values, prefix_id, type, plot_engine) {
   args_list <- list(
     NULL
   )
   return(args_list)
 }
 
-get_nbinom_plot <- function(input, values, prefix_id, type, plot_engine) {
+get_nbinom_plot <- function(input, .values, prefix_id, type, plot_engine) {
   size <- input[[paste(prefix_id, "nbinom_size", sep = "_")]]
   prob <- input[[paste(prefix_id, "nbinom_prob", sep = "_")]]
   xmax <- input[[paste(prefix_id, "nbinom_xmax", sep = "_")]]
@@ -815,18 +815,18 @@ get_nbinom_plot <- function(input, values, prefix_id, type, plot_engine) {
     if (type == "density") {
       data <- tibble(x = seq(0, size), y = dnbinom(x = x, size = size, prob = prob))
       plot <- ggplot(data = data, mapping = aes(x = x, y = y)) +
-        geom_col(col = values$einstellungen$ggplot2$col, fill = values$einstellungen$ggplot2$fill) +
+        geom_col(col = .values$einstellungen$ggplot2$col, fill = .values$einstellungen$ggplot2$fill) +
         theme_bw()
     } else if (type == "probability") {
       data <- tibble(x = seq(0, xmax), y = pnbinom(q = x, size = size, prob = prob))
       plot <- ggplot(data = data, mapping = aes(x = x, y = y)) +
         geom_segment(mapping = aes(x = x, y = y, xend = x + 1, yend = y)) +
         geom_point(mapping = aes(x = x, y = y), shape = 16,
-                   col = values$einstellungen$ggplot2$col,
-                   size = 2.5 * values$einstellungen$ggplot2$size) +
+                   col = .values$einstellungen$ggplot2$col,
+                   size = 2.5 * .values$einstellungen$ggplot2$size) +
         geom_point(mapping = aes(x = x + 1, y = y), shape = 1,
-                   col = values$einstellungen$ggplot2$col,
-                   size = 2.5 * values$einstellungen$ggplot2$size) +
+                   col = .values$einstellungen$ggplot2$col,
+                   size = 2.5 * .values$einstellungen$ggplot2$size) +
         scale_x_continuous(breaks = 0:xmax) +
         scale_y_continuous(limits = c(0, 1)) +
         labs(x = "x", y = expression(paste(F(x) == P(X <= x)))) +
@@ -846,7 +846,7 @@ get_nbinom_plot <- function(input, values, prefix_id, type, plot_engine) {
   return(plot)
 }
 
-get_pois_plot <- function(input, values, prefix_id, type, plot_engine) {
+get_pois_plot <- function(input, .values, prefix_id, type, plot_engine) {
   lambda <- input[[paste(prefix_id, "pois_lambda", sep = "_")]]
   xmax <- input[[paste(prefix_id, "pois_xmax", sep = "_")]]
   req(lambda, xmax)
@@ -854,18 +854,18 @@ get_pois_plot <- function(input, values, prefix_id, type, plot_engine) {
     if (type == "density") {
       data <- tibble(x = seq(0, xmax), y = dpois(x = x, lambda = lambda))
       plot <- ggplot(data = data, mapping = aes(x = x, y = y)) +
-        geom_col(col = values$einstellungen$ggplot2$col, fill = values$einstellungen$ggplot2$fill) +
+        geom_col(col = .values$einstellungen$ggplot2$col, fill = .values$einstellungen$ggplot2$fill) +
         theme_bw()
     } else if (type == "probability") {
       data <- tibble(x = seq(0, xmax), y = ppois(q = x, lambda = lambda))
       plot <- ggplot(data = data, mapping = aes(x = x, y = y)) +
         geom_segment(mapping = aes(x = x, y = y, xend = x + 1, yend = y)) +
         geom_point(mapping = aes(x = x, y = y), shape = 16,
-                   col = values$einstellungen$ggplot2$col,
-                   size = 2.5 * values$einstellungen$ggplot2$size) +
+                   col = .values$einstellungen$ggplot2$col,
+                   size = 2.5 * .values$einstellungen$ggplot2$size) +
         geom_point(mapping = aes(x = x + 1, y = y), shape = 1,
-                   col = values$einstellungen$ggplot2$col,
-                   size = 2.5 * values$einstellungen$ggplot2$size) +
+                   col = .values$einstellungen$ggplot2$col,
+                   size = 2.5 * .values$einstellungen$ggplot2$size) +
         scale_x_continuous(breaks = 0:xmax) +
         scale_y_continuous(limits = c(0, 1)) +
         labs(x = "x", y = expression(paste(F(x) == P(X <= x)))) +
@@ -885,7 +885,7 @@ get_pois_plot <- function(input, values, prefix_id, type, plot_engine) {
   return(plot)
 }
 
-get_beta_plot <- function(input, values, prefix_id, type, plot_engine) {
+get_beta_plot <- function(input, .values, prefix_id, type, plot_engine) {
   shape1 <- input[[paste(prefix_id, "beta_shape1", sep = "_")]]
   shape2 <- input[[paste(prefix_id, "beta_shape2", sep = "_")]]
   req(shape1, shape2)
@@ -893,12 +893,12 @@ get_beta_plot <- function(input, values, prefix_id, type, plot_engine) {
     if (type == "density") {
       data <- tibble(x = seq(0, 1, length.out = 500), y = dbeta(x = x, shape1, shape2))
       plot <- ggplot(data = data, mapping = aes(x = x, y = y)) +
-        geom_line(col = values$einstellungen$ggplot2$col) +
+        geom_line(col = .values$einstellungen$ggplot2$col) +
         theme_bw()
     } else if (type == "probability") {
       data <- tibble(x = seq(0, 1, length.out = 500), y = pbeta(q = x, shape1, shape2))
       plot <- ggplot(data = data, mapping = aes(x = x, y = y)) +
-        geom_line(col = values$einstellungen$ggplot2$col) +
+        geom_line(col = .values$einstellungen$ggplot2$col) +
         theme_bw()
     } else if (type == "quantile") {
 
@@ -915,7 +915,7 @@ get_beta_plot <- function(input, values, prefix_id, type, plot_engine) {
   return(plot)
 }
 
-get_cauchy_plot <- function(input, values, prefix_id, type, plot_engine) {
+get_cauchy_plot <- function(input, .values, prefix_id, type, plot_engine) {
   location <- input[[paste(prefix_id, "cauchy_location", sep = "_")]]
   scale <- input[[paste(prefix_id, "cauchy_scale", sep = "_")]]
   req(location, scale)
@@ -924,13 +924,13 @@ get_cauchy_plot <- function(input, values, prefix_id, type, plot_engine) {
       data <- tibble(x = seq(qcauchy(0.01, location, scale), qcauchy(0.99, location, scale), length.out = 500),
                      y = dcauchy(x = x, location, scale))
       plot <- ggplot(data = data, mapping = aes(x = x, y = y)) +
-        geom_line(col = values$einstellungen$ggplot2$col) +
+        geom_line(col = .values$einstellungen$ggplot2$col) +
         theme_bw()
     } else if (type == "probability") {
       data <- tibble(x = seq(qcauchy(0.01, location, scale), qcauchy(0.99, location, scale), length.out = 500),
                      y = pcauchy(q = x, location, scale))
       plot <- ggplot(data = data, mapping = aes(x = x, y = y)) +
-        geom_line(col = values$einstellungen$ggplot2$col) +
+        geom_line(col = .values$einstellungen$ggplot2$col) +
         theme_bw()
     } else if (type == "quantile") {
 
@@ -947,19 +947,19 @@ get_cauchy_plot <- function(input, values, prefix_id, type, plot_engine) {
   return(plot)
 }
 
-get_chisq_plot <- function(input, values, prefix_id, type, plot_engine) {
+get_chisq_plot <- function(input, .values, prefix_id, type, plot_engine) {
   df <- input[[paste(prefix_id, "chisq_df", sep = "_")]]
   req(df)
   if (plot_engine == "ggplot2") {
     if (type == "density") {
       data <- tibble(x = seq(0, qchisq(0.99, df), length.out = 500), y = dchisq(x = x, df))
       plot <- ggplot(data = data, mapping = aes(x = x, y = y)) +
-        geom_line(col = values$einstellungen$ggplot2$col) +
+        geom_line(col = .values$einstellungen$ggplot2$col) +
         theme_bw()
     } else if (type == "probability") {
       data <- tibble(x = seq(qchisq(0, df), qchisq(0.99, df), length.out = 500), y = pchisq(q = x, df))
       plot <- ggplot(data = data, mapping = aes(x = x, y = y)) +
-        geom_line(col = values$einstellungen$ggplot2$col) +
+        geom_line(col = .values$einstellungen$ggplot2$col) +
         theme_bw()
     } else if (type == "quantile") {
 
@@ -976,19 +976,19 @@ get_chisq_plot <- function(input, values, prefix_id, type, plot_engine) {
   return(plot)
 }
 
-get_exp_plot <- function(input, values, prefix_id, type, plot_engine) {
+get_exp_plot <- function(input, .values, prefix_id, type, plot_engine) {
   rate <- input[[paste(prefix_id, "exp_rate", sep = "_")]]
   req(rate)
   if (plot_engine == "ggplot2") {
     if (type == "density") {
       data <- tibble(x = seq(0, qexp(0.99, rate), length.out = 500), y = dexp(x = x, rate))
       plot <- ggplot(data = data, mapping = aes(x = x, y = y)) +
-        geom_line(col = values$einstellungen$ggplot2$col) +
+        geom_line(col = .values$einstellungen$ggplot2$col) +
         theme_bw()
     } else if (type == "probability") {
       data <- tibble(x = seq(0, qexp(0.99, rate), length.out = 500), y = pexp(q = x, rate))
       plot <- ggplot(data = data, mapping = aes(x = x, y = y)) +
-        geom_line(col = values$einstellungen$ggplot2$col) +
+        geom_line(col = .values$einstellungen$ggplot2$col) +
         theme_bw()
     } else if (type == "quantile") {
 
@@ -1005,7 +1005,7 @@ get_exp_plot <- function(input, values, prefix_id, type, plot_engine) {
   return(plot)
 }
 
-get_f_plot <- function(input, values, prefix_id, type, plot_engine) {
+get_f_plot <- function(input, .values, prefix_id, type, plot_engine) {
   df1 <- input[[paste(prefix_id, "f_df1", sep = "_")]]
   df2 <- input[[paste(prefix_id, "f_df2", sep = "_")]]
   req(df1, df2)
@@ -1013,12 +1013,12 @@ get_f_plot <- function(input, values, prefix_id, type, plot_engine) {
     if (type == "density") {
       data <- tibble(x = seq(0, qf(0.99, df1, df2), length.out = 500), y = df(x = x, df1, df2))
       plot <- ggplot(data = data, mapping = aes(x = x, y = y)) +
-        geom_line(col = values$einstellungen$ggplot2$col) +
+        geom_line(col = .values$einstellungen$ggplot2$col) +
         theme_bw()
     } else if (type == "probability") {
       data <- tibble(x = seq(0, qf(0.99, df1, df2), length.out = 500), y = pf(q = x, df1, df2))
       plot <- ggplot(data = data, mapping = aes(x = x, y = y)) +
-        geom_line(col = values$einstellungen$ggplot2$col) +
+        geom_line(col = .values$einstellungen$ggplot2$col) +
         theme_bw()
     } else if (type == "quantile") {
 
@@ -1035,7 +1035,7 @@ get_f_plot <- function(input, values, prefix_id, type, plot_engine) {
   return(plot)
 }
 
-get_gamma_plot <- function(input, values, prefix_id, type, plot_engine) {
+get_gamma_plot <- function(input, .values, prefix_id, type, plot_engine) {
   shape <- input[[paste(prefix_id, "gamma_shape", sep = "_")]]
   scale <- input[[paste(prefix_id, "gamma_scale", sep = "_")]]
   req(shape, scale)
@@ -1044,13 +1044,13 @@ get_gamma_plot <- function(input, values, prefix_id, type, plot_engine) {
       data <- tibble(x = seq(qgamma(0.01, shape = shape, scale = scale), qgamma(0.99, shape = shape, scale = scale), length.out = 500),
                      y = dgamma(x = x, shape = shape, scale = scale))
       plot <- ggplot(data = data, mapping = aes(x = x, y = y)) +
-        geom_line(col = values$einstellungen$ggplot2$col) +
+        geom_line(col = .values$einstellungen$ggplot2$col) +
         theme_bw()
     } else if (type == "probability") {
       data <- tibble(x = seq(qgamma(0.01, shape = shape, scale = scale), qgamma(0.99, shape = shape, scale = scale), length.out = 500),
                      y = pgamma(q = x, shape = shape, scale = scale))
       plot <- ggplot(data = data, mapping = aes(x = x, y = y)) +
-        geom_line(col = values$einstellungen$ggplot2$col) +
+        geom_line(col = .values$einstellungen$ggplot2$col) +
         theme_bw()
     } else if (type == "quantile") {
 
@@ -1067,7 +1067,7 @@ get_gamma_plot <- function(input, values, prefix_id, type, plot_engine) {
   return(plot)
 }
 
-get_lnorm_plot <- function(input, values, prefix_id, type, plot_engine) {
+get_lnorm_plot <- function(input, .values, prefix_id, type, plot_engine) {
   meanlog <- input[[paste(prefix_id, "lnorm_meanlog", sep = "_")]]
   sdlog <- input[[paste(prefix_id, "lnorm_sdlog", sep = "_")]]
   req(meanlog, sdlog)
@@ -1076,13 +1076,13 @@ get_lnorm_plot <- function(input, values, prefix_id, type, plot_engine) {
       data <- tibble(x = seq(0, qlnorm(0.99, meanlog, sdlog), length.out = 500),
                      y = dlnorm(x = x, meanlog, sdlog))
       plot <- ggplot(data = data, mapping = aes(x = x, y = y)) +
-        geom_line(col = values$einstellungen$ggplot2$col) +
+        geom_line(col = .values$einstellungen$ggplot2$col) +
         theme_bw()
     } else if (type == "probability") {
       data <- tibble(x = seq(0, qlnorm(0.99, meanlog, sdlog), length.out = 500),
                      y = plnorm(q = x, meanlog, sdlog))
       plot <- ggplot(data = data, mapping = aes(x = x, y = y)) +
-        geom_line(col = values$einstellungen$ggplot2$col) +
+        geom_line(col = .values$einstellungen$ggplot2$col) +
         theme_bw()
     } else if (type == "quantile") {
 
@@ -1099,7 +1099,7 @@ get_lnorm_plot <- function(input, values, prefix_id, type, plot_engine) {
   return(plot)
 }
 
-get_norm_plot <- function(input, values, prefix_id, type, plot_engine) {
+get_norm_plot <- function(input, .values, prefix_id, type, plot_engine) {
   mean <- input[[paste(prefix_id, "norm_mean", sep = "_")]]
   sd <- input[[paste(prefix_id, "norm_sd", sep = "_")]]
   req(mean, sd)
@@ -1108,13 +1108,13 @@ get_norm_plot <- function(input, values, prefix_id, type, plot_engine) {
       data <- tibble(x = seq(qnorm(0.01, mean, sd), qnorm(0.99, mean, sd), length.out = 500),
                      y = dnorm(x = x, mean, sd))
       plot <- ggplot(data = data, mapping = aes(x = x, y = y)) +
-        geom_line(col = values$einstellungen$ggplot2$col) +
+        geom_line(col = .values$einstellungen$ggplot2$col) +
         theme_bw()
     } else if (type == "probability") {
       data <- tibble(x = seq(qnorm(0.01, mean, sd), qnorm(0.99, mean, sd), length.out = 500),
                      y = pnorm(q = x, mean, sd))
       plot <- ggplot(data = data, mapping = aes(x = x, y = y)) +
-        geom_line(col = values$einstellungen$ggplot2$col) +
+        geom_line(col = .values$einstellungen$ggplot2$col) +
         theme_bw()
     } else if (type == "quantile") {
 
@@ -1131,7 +1131,7 @@ get_norm_plot <- function(input, values, prefix_id, type, plot_engine) {
   return(plot)
 }
 
-get_t_plot <- function(input, values, prefix_id, type, plot_engine) {
+get_t_plot <- function(input, .values, prefix_id, type, plot_engine) {
   df <- input[[paste(prefix_id, "t_df", sep = "_")]]
   req(df)
   if (plot_engine == "ggplot2") {
@@ -1139,13 +1139,13 @@ get_t_plot <- function(input, values, prefix_id, type, plot_engine) {
       data <- tibble(x = seq(qt(0.01, df), qt(0.99, df), length.out = 500),
                      y = dt(x = x, df))
       plot <- ggplot(data = data, mapping = aes(x = x, y = y)) +
-        geom_line(col = values$einstellungen$ggplot2$col) +
+        geom_line(col = .values$einstellungen$ggplot2$col) +
         theme_bw()
     } else if (type == "probability") {
       data <- tibble(x = seq(qt(0.01, df), qt(0.99, df), length.out = 500),
                      y = pt(q = x, df))
       plot <- ggplot(data = data, mapping = aes(x = x, y = y)) +
-        geom_line(col = values$einstellungen$ggplot2$col) +
+        geom_line(col = .values$einstellungen$ggplot2$col) +
         theme_bw()
     } else if (type == "quantile") {
 
@@ -1162,7 +1162,7 @@ get_t_plot <- function(input, values, prefix_id, type, plot_engine) {
   return(plot)
 }
 
-get_unif_plot <- function(input, values, prefix_id, type, plot_engine) {
+get_unif_plot <- function(input, .values, prefix_id, type, plot_engine) {
   min <- input[[paste(prefix_id, "unif_min", sep = "_")]]
   max <- input[[paste(prefix_id, "unif_max", sep = "_")]]
   req(min, max)
@@ -1171,13 +1171,13 @@ get_unif_plot <- function(input, values, prefix_id, type, plot_engine) {
       data <- tibble(x = seq(min - 1, max + 1, length.out = 500),
                      y = dunif(x = x, min, max))
       plot <- ggplot(data = data, mapping = aes(x = x, y = y)) +
-        geom_line(col = values$einstellungen$ggplot2$col) +
+        geom_line(col = .values$einstellungen$ggplot2$col) +
         theme_bw()
     } else if (type == "probability") {
       data <- tibble(x = seq(min - 1, max + 1, length.out = 500),
                      y = punif(q = x, min, max))
       plot <- ggplot(data = data, mapping = aes(x = x, y = y)) +
-        geom_line(col = values$einstellungen$ggplot2$col) +
+        geom_line(col = .values$einstellungen$ggplot2$col) +
         theme_bw()
     } else if (type == "quantile") {
 
@@ -1194,7 +1194,7 @@ get_unif_plot <- function(input, values, prefix_id, type, plot_engine) {
   return(plot)
 }
 
-get_weibull_plot <- function(input, values, prefix_id, type, plot_engine) {
+get_weibull_plot <- function(input, .values, prefix_id, type, plot_engine) {
   shape <- input[[paste(prefix_id, "weibull_shape", sep = "_")]]
   scale <- input[[paste(prefix_id, "weibull_scale", sep = "_")]]
   req(shape, scale)
@@ -1203,13 +1203,13 @@ get_weibull_plot <- function(input, values, prefix_id, type, plot_engine) {
       data <- tibble(x = seq(qweibull(0.01, shape, scale), qweibull(0.99, shape, scale), length.out = 500),
                      y = dweibull(x = x, shape, scale))
       plot <- ggplot(data = data, mapping = aes(x = x, y = y)) +
-        geom_line(col = values$einstellungen$ggplot2$col) +
+        geom_line(col = .values$einstellungen$ggplot2$col) +
         theme_bw()
     } else if (type == "probability") {
       data <- dplyr::tibble(x = seq(qweibull(0.01, shape, scale), qweibull(0.99, shape, scale), length.out = 500),
                      y = pweibull(q = x, shape, scale))
       plot <- ggplot(data = data, mapping = aes(x = x, y = y)) +
-        geom_line(col = values$einstellungen$ggplot2$col) +
+        geom_line(col = .values$einstellungen$ggplot2$col) +
         theme_bw()
     } else if (type == "quantile") {
 

@@ -14,8 +14,7 @@ ida_regular_expressions_ui <- function(id) {
 
 #' @export
 ida_regular_expressions <- function(
-  input, output, session, data, values,
-  parent, ...
+  input, output, session, .data, .values, parent, ...
 ) {
   self <- node$new("regular_expressions", parent, session)
 

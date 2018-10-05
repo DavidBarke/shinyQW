@@ -46,7 +46,7 @@ filter_ui_footer <- function(id) {
 
 #' @export
 filter_ui <- function(
-  input, output, session, data, values, parent, selected_data, ...
+  input, output, session, .data, .values, parent, selected_data, ...
 ) {
   self <- node$new("filter", parent, session)
 
@@ -75,7 +75,6 @@ filter_ui <- function(
     i <- cell_edit$row
     j <- cell_edit$col
     value <- cell_edit$value
-
   })
 
   # CALL MODULES
@@ -83,8 +82,8 @@ filter_ui <- function(
   call_condition_maker <- callModule(
     module = condition_maker,
     id = "make_condition",
-    data = data,
-    values = values,
+    .data = .data,
+    .values = .values,
     selected_data = selected_data,
     parent = self
   )
@@ -92,8 +91,8 @@ filter_ui <- function(
   call_select_data <- callModule(
     module = select_data,
     id = "id_select_data",
-    data_rvs = data,
-    values,
+    data_rvs = .data,
+    .values = .values,
     parent = self,
     tabset_data = tibble(
       id = c("tabset", "tabset"),

@@ -5,26 +5,24 @@ menubar_ui <- function(id, title) {
     title = title,
     width = 12,
     collapsible = TRUE,
-    box(title = "Box_1",
+    box(title = "Development",
       actionButton(
-        inputId = ns("append"),
-        label = "Append"
+        inputId = ns("print_session_tree"),
+        label = "Print Session Tree"
       )
     ),
-    box(title = "Box_2")
+    box(title = "Zweite Box")
   )
 }
 
 #' @export
 menubar <- function(
-  input, output, session, data, values, parent, ...
+  input, output, session, .data, .values, parent, ...
 ) {
   self <- node$new("menubar", parent, session)
 
-  observeEvent(input$append, {
-    values$viewer_data$appendTab(
-      tabPanel("Appended"),
-      select = TRUE
-    )
+  observeEvent(input$print_session_tree, {
+    str(.values$session$tree$create_list())
   })
+
 }

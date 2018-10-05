@@ -76,7 +76,7 @@ select_data_ui <- function(id) {
 select_data <- function(input, output, session,
                         data_rvs = list(user_data_storage = user_data_storage,
                                     permanent_data_storage = permanent_data_storage),
-                        values,
+                        .values,
                         grid_select = tibble(type = "select",
                                              position = 1,
                                              label = "Select column"),
@@ -207,7 +207,7 @@ select_data <- function(input, output, session,
   call_interact_with_tabset_panel <- callModule(
     module = interact_with_tabset_panel,
     id = "id_interact_with_tabset_panel",
-    data_rvs, values,
+    data_rvs, .values,
     tabset_data = tabset_data,
     parent = self,
     select_data = return_list
@@ -291,7 +291,7 @@ interact_with_tabset_panel_ui <- function(id) {
 #' Insert data into tabsetPanels accross different sessions within a modularized
 #' shiny app using \code{\link[shiny]{actionButton}}.
 #'
-#' @param user_data_storage,permanent_data_storage,values
+#' @param user_data_storage,permanent_data_storage,.values
 #' \code{\link[shiny]{reactiveValues}} storing data imported by the user, predefined
 #' by the app author and other values.
 #' @param tabset_data A tibble containing information about the involved tabsets and
@@ -301,7 +301,7 @@ interact_with_tabset_panel_ui <- function(id) {
 #'
 #' @export
 interact_with_tabset_panel <- function(input, output, session,
-                                       data_rvs, values,
+                                       data_rvs, .values,
                                        tabset_data, select_data,
                                        parent,
                                        ...) {

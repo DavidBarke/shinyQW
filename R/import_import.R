@@ -30,7 +30,7 @@ tab_import_ui <- function(id) {
 
 #' @export
 tab_import <- function(
-  input, output, session, data, values, parent, ...
+  input, output, session, .data, .values, parent, ...
 ) {
 
   self <- node$new("import_module", parent, session)

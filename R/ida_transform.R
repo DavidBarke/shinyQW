@@ -40,7 +40,7 @@ ida_transform_ui <- function(id) {
 
 #' @export
 ida_transform <- function(
-  input, output, session, data, values, parent, ...
+  input, output, session, .data, .values, parent, ...
 ) {
   self <- node$new("transform", parent, session)
 
@@ -49,16 +49,16 @@ ida_transform <- function(
   call_ida_transform_dplyr_standard <- callModule(
     module = ida_transform_dplyr_standard,
     id = "id_ida_transform_dplyr_standard",
-    data = data,
-    values = values,
+    .data = .data,
+    .values = .values,
     parent = self
   )
 
   call_ida_transform_dplyr_editor <- callModule(
     module = ida_transform_dplyr_editor,
     id = "id_ida_transform_dplyr_editor",
-    data = data,
-    values = values,
+    .data = .data,
+    .values = .values,
     parent = self
   )
 }

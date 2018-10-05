@@ -267,17 +267,29 @@ server <- function(input, output, session) {
 
 # REACTIVE VALUES --------------------------------------------------------------
 
-  user_data_storage <- reactiveValues()
-
-  permanent_data_storage <- reactiveValues(
-    mtcars = mtcars,
-    iris = iris
+  .data <- list(
+    user_data_storage = reactiveValues(),
+    permanent_data_storage = reactiveValues(
+      mtcars = mtcars,
+      iris = iris,
+      cars = cars
+    )
   )
 
-  values <- reactiveValues(
-    session_tree = self,
-    viewer_data = viewer_data,
-    viewer_plot = viewer_plot
+  .values <- list(
+    session = reactiveValues(
+      tree = self
+    ),
+    viewer = reactiveValues(
+      data = viewer_data,
+      plot = viewer_plot
+    ),
+    einstellungen = list(
+      allgemein = reactiveValues(),
+      ggplot2 = reactiveValues(),
+      plotly = reactiveValues(),
+      dqe = reactiveValues()
+    )
   )
 
   for (lehrveranstaltung in names(lehrveranstaltungen)) {
@@ -286,11 +298,8 @@ server <- function(input, output, session) {
                             glue_module = list(x1 = lehrveranstaltung, x2 = "{template}"),
                             glue_id = list(x1 = "id", x2 = "{template}"),
                             glue_reactive = list(x1 = "call", x2 = lehrveranstaltung, x3 = "{template}"),
-                            data = list(
-                              user_data_storage = user_data_storage,
-                              permanent_data_storage = permanent_data_storage
-                            ),
-                            values = values,
+                            .data = .data,
+                            .values = .values,
                             parent = self)
   }
 
@@ -298,21 +307,15 @@ server <- function(input, output, session) {
                           glue_module = list(x1 = "einstellungen", x2 = "{template}"),
                           glue_id = list(x1 = "id_einstellungen", x2 = "{template}"),
                           glue_reactive = list(x1 = "call_einstellungen", x2 = "{template}"),
-                          data = list(
-                            user_data_storage = user_data_storage,
-                            permanent_data_storage = permanent_data_storage
-                          ),
-                          values = values,
+                          .data = .data,
+                          .values = .values,
                           parent = self)
 
   call_menubar <- callModule(
     module = menubar,
     id = "id_menubar",
-    data = list(
-      user_data_storage = user_data_storage,
-      permanent_data_storage = permanent_data_storage
-    ),
-    values = values,
+    .data = .data,
+    .values = .values,
     parent = self
   )
 }
