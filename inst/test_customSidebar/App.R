@@ -8,21 +8,45 @@ ui <- dashboardPage(
   ),
   dashboardSidebar(
     sidebarMenu(
-      actionItem(
-        inputId = "action_1",
-        label = "Action_1",
-        actionSubItem(
-          inputId = "action_sub",
-          label = "Action_Sub"
+      multiple_actionItem(
+        inputId_list = list(
+          "dqe" = list(
+            "deskriptiv",
+            "design",
+            "modell",
+            "verteilungen"
+          ),
+          "ida" = list(
+            "import",
+            "tidy",
+            "transform",
+            "visualize"
+          ),
+          "einstellungen" = list(
+            "allgemein",
+            "ggplot2",
+            "plotly"
+          )
         ),
-        actionSubItem(
-          inputId = "action_sub_2",
-          label = "Action_Sub_2"
+        label_list = list(
+          "DQE" = list(
+            "Deskriptive Statistik",
+            "Design of Experiments",
+            "Modellstrukturen",
+            "Verteilungsmodelle"
+          ),
+          "IDA" = list(
+            "Import",
+            "Tidy",
+            "Transform",
+            "Visualize"
+          ),
+          "Einstellungen" = list(
+            "Allgemein",
+            "ggplot2",
+            "plotly"
+          )
         )
-      ),
-      actionItem(
-        inputId = "action_2",
-        label = "Action_2"
       )
     )
   ),

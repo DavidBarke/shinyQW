@@ -101,7 +101,7 @@ collapsible_tabBox <- function(
 #'
 #' @export
 actionItem <- function(inputId, label, ...) {
-  if (missing(...)) {
+  if (missing(...) || is.null(list(...)[[1]])) {
     ui <- tags$li(
       `data-toggle` = "tab",
       `data-value` = "tab",
@@ -154,7 +154,7 @@ actionSubItem <- function(inputId, label) {
             tags$i(
               class = "fa fa-angle-double-right"
             ),
-            paste0(" ", label)
+            label
           )
         )
       )
@@ -162,12 +162,55 @@ actionSubItem <- function(inputId, label) {
   )
 }
 
+
+#' Create multiple actionItem
+#'
+#' Create multiple \code{\link{actionItem}}s which can in turn include
+#' \code{\link{actionSubItem}}s.
+#'
+#' @param inputId_list inputIds for \code{\link[shiny]{actionButton}}. See
+#' 'Examples'.
+#' @param label_list labels for \code{\link[shiny]{actionButton}}. See
+#' 'Examples'.
+#'
+#' @examples
+#'
+#' @export
 multiple_actionItem <- function(inputId_list, label_list) {
+  stopifnot(length(inputId_list) == length(label_list))
+  .actionSubItem_list <- vector("list", length = length(inputId_list))
+  .inputId_list <- vector("list", length = length(inputId_list))
+  .label_list <- vector("list", length = length(inputId_list))
+  for (i in seq_along(.actionSubItem_list)) {
+    if (names(inputId_list[i]) == "" || is.null(names(inputId_list[i]))) {
+      .actionSubItem_list[i] <- list(NULL)
+      .inputId_list[[i]] <- inputId_list[[i]]
+      .label_list[[i]] <- label_list[[i]]
+    } else {
+      .actionSubItem_list[[i]] = multiple_actionSubItem(
+        inputId_list = inputId_list[[i]],
+        label_list = label_list[[i]]
+      )
+      .inputId_list[[i]] <- names(inputId_list[i])
+      .label_list[[i]] <- names(label_list[i])
+    }
+  }
+  ui <- purrr::pmap(
+    .l = list(
+      inputId = .inputId_list,
+      label = .label_list,
+      .actionSubItem_list
+    ),
+    .f = actionItem
+  )
+}
+
+multiple_actionSubItem <- function(inputId_list, label_list) {
   ui <- purrr::pmap(
     .l = list(
       inputId = inputId_list,
       label = label_list
     ),
-    .f = actionItem
+    .f = actionSubItem
   )
 }

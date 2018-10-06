@@ -4,7 +4,7 @@
 \alias{actionItem}
 \title{Action item}
 \usage{
-actionItem(inputId, label, icon = NULL, width = NULL)
+actionItem(inputId, label, ...)
 }
 \arguments{
 \item{inputId}{The \code{input} slot that will be used to access the value.}
@@ -12,10 +12,10 @@ actionItem(inputId, label, icon = NULL, width = NULL)
 \item{label}{The contents of the button or link - usually a text label, but
 you could also use any other HTML, like an image.}
 
+\item{An}{optional \code{\link[shiny]{icon}} to appear on the button.}
+
 \item{width}{The width of the input, e.g. \code{'400px'}, or \code{'100\%'};
 see \code{\link[shiny]{validateCssUnit}}.}
-
-\item{An}{optional \code{\link[shiny]{icon}} to appear on the button.}
 }
 \description{
 Create a \code{\link[shinydashboard:sidebarMenu]{menuItem}}-like

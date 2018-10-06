@@ -29,3 +29,7 @@
 .skin-blue .treeview-menu>li>a>div>button>div:hover {
   color: #fff;
 }
+
+.skin-blue .treeview-menu>li>a>div>button>div>i {
+  width: 20px;
+}
