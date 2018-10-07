@@ -131,6 +131,15 @@ actionItem <- function(inputId, label, ...) {
   return(ui)
 }
 
+
+#' Action Subitem
+#' Create a \code{\link[shinydashboard:sidebarMenu]{menuSubItem}}-like
+#' \code{\link[shiny]{actionButton}} which can be passed to \code{
+#' \link{actionItem}} as \code{...} argument.
+#'
+#' @inheritParams actionItem
+#'
+#' @export
 actionSubItem <- function(inputId, label) {
   ui <- tags$li(
     tags$a(

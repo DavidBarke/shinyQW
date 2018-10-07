@@ -1,6 +1,6 @@
 #' Plot a histogram
 #'
-#' Use this function to create a simple \code{\link[ggplot2]{ggplot2}} histogram.
+#' Use this function to create a simple ggplot2 histogram.
 #'
 #' @param data A data frame / tibble produced for example by
 #' \code{\link{table_frequency_distribution}}.
@@ -72,8 +72,6 @@ table_frequency_distribution <- function(x, b = NULL, k = NULL) {
 #'
 #' @param x A numeric vector.
 #' @param levels Levels of a factor, usually created by \code{\link[base]{cut}}.
-#'
-#' @examples
 absolute_density_grouped_data <- function(x, levels) {
   h_j <- vector("numeric", length = length(levels))
   for (i in 1:length(levels)) {

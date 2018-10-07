@@ -19,5 +19,5 @@ groups.}
 \item{col, fill, alpha}{Graphical parameters}
 }
 \description{
-Use this function to create a simple \code{\link[ggplot2]{ggplot2}} histogram.
+Use this function to create a simple ggplot2 histogram.
 }

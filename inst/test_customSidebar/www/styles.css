@@ -46,3 +46,8 @@ div .div-btn-close {
 div .collapsible-tab-box {
   padding: 0;
 }
+
+.ui-sortable-handle {
+  float: left;
+  width: 100%;
+}

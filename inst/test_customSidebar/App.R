@@ -1,8 +1,21 @@
 library(shiny)
 library(shinydashboard)
 library(shinyQW)
+library(shinyjqui)
 
-tabList <- tabList_R6$new(id = "placeholder")
+tabList <- tabList_R6$new(id = "placeholder", sortable = TRUE)
+
+viewer_data <- tabBox_R6$new(
+  id = "viewer_data",
+  title = "Daten",
+  width = 12
+)
+
+viewer_plot <- tabBox_R6$new(
+  id = "viewer_plot",
+  title = "Plots",
+  width = 12
+)
 
 ui <- dashboardPage(
   dashboardHeader(
@@ -65,7 +78,21 @@ ui <- dashboardPage(
         $('.div-btn-sidebar').on('click', function(){$(this).blur()});
       })
     ")),
-    tabList$container()
+    fluidRow(
+      column(
+        width = 6,
+        tabList$container()
+      ),
+      column(
+        width = 6,
+        jqui_sortable(
+          ui = tags$div(
+            viewer_data$tabBox(collapsible = TRUE),
+            viewer_plot$tabBox(collapsible = TRUE)
+          )
+        )
+      )
+    )
   )
 )
 

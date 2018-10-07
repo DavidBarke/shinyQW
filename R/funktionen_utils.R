@@ -126,10 +126,10 @@ create_subItems <- function(text, tabName) {
 #' containing another named list if you want to generate menuItems with
 #' menuSubItems. The names of the inner named list are interpreted as the
 #' tabName whereas the content is interpreted as the text for menuSubItem.
-#' @param menuItem_args Arguments passed to \code{\link[shinydashboard]{
-#' menuItem}}.
-#' @param menuSubItem_args Arguments passed to \code{\link[shinydashboard]{
-#' menuSubItem}}.
+#' @param menuItem_args Arguments passed to
+#' \code{\link[shinydashboard:sidebarMenu]{menuItem}}.
+#' @param menuSubItem_args Arguments passed to
+#' \code{\link[shinydashboard:sidebarMenu]{menuSubItem}}.
 #'
 #' @export
 multiple_menuItem <- function(struct, menuItem_args = NULL,

@@ -5,8 +5,7 @@
 \title{Create a collapsible tabbed box}
 \usage{
 collapsible_tabBox(..., id = NULL, selected = NULL, title = NULL,
-  width = 6, height = NULL, side = c("left", "right"),
-  closeable = FALSE)
+  width = 6, height = NULL, side = c("left", "right"))
 }
 \arguments{
 \item{...}{\code{\link[shiny]{tabPanel}} elements to include in the tabset}
@@ -34,8 +33,7 @@ the height scales automatically with the content.}
 \code{"right"}). When \code{side="right"}, the order of tabs will be
 reversed.}
 
-\item{closeable}{If the \code{\link{collapsible_tabBox}} is closeable via an
-\code{\link[shiny]{actionButton}} use \code{closeable=TRUE}.}
+\item{closeable}{Only functional in \code{\link{tabList_R6}}.}
 }
 \description{
 Create a collapsible \code{\link[shinydashboard]{tabBox}}.
