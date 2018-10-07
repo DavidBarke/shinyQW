@@ -42,8 +42,7 @@ full_dashboardBody <- function(...) {
 #' @param side Which side of the box the tabs should be on (\code{"left"} or
 #' \code{"right"}). When \code{side="right"}, the order of tabs will be
 #' reversed.
-#' @param closeable If the \code{\link{collapsible_tabBox}} is closeable via an
-#' \code{\link[shiny]{actionButton}} use \code{closeable=TRUE}.
+#' @param closeable Only functional in \code{\link{tabList_R6}}.
 #'
 #' @details
 #' The \code{collapsible_tabBox} has class "collapsible-tab-box", the enclosing
@@ -53,8 +52,9 @@ full_dashboardBody <- function(...) {
 #' @export
 collapsible_tabBox <- function(
   ..., id = NULL, selected = NULL, title = NULL, width = 6, height = NULL,
-  side = c("left", "right"), closeable = FALSE
+  side = c("left", "right")
 ) {
+  unique_id <- shiny:::createUniqueId()
   ui <- shinydashboard::box(
     title = title,
     collapsible = TRUE,
@@ -72,16 +72,6 @@ collapsible_tabBox <- function(
     ui$children[[1]]$children[[2]]$children[[1]]$attribs$class,
     "collapsible-tab-box"
   )
-  if (closeable) {
-    ui$children[[1]]$children[[1]]$children[[2]]$children[[2]] <- div(
-      class = "div-btn-close",
-      shiny::actionButton(
-        inputId = id %_% "close",
-        label = NULL,
-        icon = icon("window-close")
-      )
-    )
-  }
   ui
 }
 
@@ -205,6 +195,11 @@ multiple_actionItem <- function(inputId_list, label_list) {
   )
 }
 
+#' Create multiple actionSubItem
+#'
+#' This function is used internal in \code{\link{
+#' multiple_actionItem}}. It could be used manually as the \code{...} argument
+#' to \code{\link{actionItem}}.
 multiple_actionSubItem <- function(inputId_list, label_list) {
   ui <- purrr::pmap(
     .l = list(
@@ -214,3 +209,7 @@ multiple_actionSubItem <- function(inputId_list, label_list) {
     .f = actionSubItem
   )
 }
+
+
+
+

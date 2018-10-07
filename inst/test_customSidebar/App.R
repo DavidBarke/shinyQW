@@ -2,6 +2,8 @@ library(shiny)
 library(shinydashboard)
 library(shinyQW)
 
+tabList <- tabList_R6$new(id = "placeholder")
+
 ui <- dashboardPage(
   dashboardHeader(
 
@@ -63,14 +65,37 @@ ui <- dashboardPage(
         $('.div-btn-sidebar').on('click', function(){$(this).blur()});
       })
     ")),
-    actionButton(
-      inputId = "hda",
-      label = "HDA"
-    )
+    tabList$container()
   )
 )
 
 server <- function(input, output, session) {
+
+  tabList$set_session(session)
+
+  tabList$add_list_item_by_actionButton(
+    ui = tabList$tabBox(
+      id = "deskriptive_statistik",
+      title = "Deskriptive Statistik",
+      tabPanel(
+        title = "Sortierte Daten"
+      ),
+      tabPanel(
+        title = "Gruppierte Daten"
+      )
+    ),
+    inputId = "deskriptiv"
+  )
+  tabList$add_list_item_by_actionButton(
+    ui = tabList$tabBox(
+      id = "modellstrukturen",
+      title = "Modellstrukturen",
+      tabPanel(
+        title = "Lineares Modell"
+      )
+    ),
+    inputId = "modell"
+  )
 
 }
 
