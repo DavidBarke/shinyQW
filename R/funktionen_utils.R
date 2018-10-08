@@ -3,12 +3,42 @@
   paste(x, y, sep = "_")
 }
 
+#' Turn the first letter of a string in upper case
+#'
+#' @param x A character vector.
+#'
 #' @export
 firstup <- function(x) {
   substr(x, 1, 1) <- toupper(substr(x, 1, 1))
   x
 }
 
+
+
+# TODO: Nochmal nachdenken, ob die Funktion wirklich benötigt wird.
+#' Append name-value pairs to a reactiveValues object
+#'
+#' Create default values for a \code{\link[shiny]{reactiveValues}} object.
+#' This function covers the special case in which a module's server function has
+#' been called but the ui isn't part of the DOM yet, so that input values are
+#' still missing.
+#'
+#' @param rvs A \code{\link[shiny]{reactiveValues}} object.
+#' @param ... \code{name = value} pairs (\code{rvs[[name]] <- value}).
+#'
+#' @export
+append_to_reactiveValues <- function(rvs, ...) {
+  dots <- list(...)
+  observeEvent(
+    eventExpr = 1,
+    handlerExpr = {
+      for (i in seq_along(dots)) {
+        rvs[[names(dots[i])]] <- dots[[i]]
+      }
+    },
+    once = TRUE
+  )
+}
 
 # Zurzeit nicht verwendet, könnte möglicherweise nochmal von Nutzen sein
 # Die inputIds der ui-Elemente setzen sich aus einem gemeinsamen Präfix (prefix_id) und einer

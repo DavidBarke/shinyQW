@@ -305,6 +305,8 @@ tabBox_R6 <- R6::R6Class(
     },
 
     removeTab = function(target) {
+      index <- which(private$tab_values == target)
+      private$tab_values <- private$tab_values[-index]
       shiny::removeTab(
         inputId = private$id,
         target = target,
@@ -373,6 +375,7 @@ tabBox_R6 <- R6::R6Class(
           icon = icon("window-close")
         )
       )
+      print(data_value)
       selector <- paste0("#", private$id, " li a[data-value=\"", data_value, "\"]")
       shiny::insertUI(
         selector = selector,
@@ -380,6 +383,8 @@ tabBox_R6 <- R6::R6Class(
         ui = div_button
       )
       observeEvent(private$session$input[[closeId]], {
+        print("Observe")
+        print(data_value)
         self$removeTab(target = data_value)
       }, domain = private$session)
     }

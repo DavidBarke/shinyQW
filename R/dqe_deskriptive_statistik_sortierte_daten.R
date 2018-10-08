@@ -199,7 +199,7 @@ dqe_deskriptive_statistik_sortierte_daten <- function(
         DT::dataTableOutput(
           outputId = ns("datatable")
         ),
-        value = ns("Tabellarische Häufigkeitsverteilung")
+        value = ns("Tabellarische_Häufigkeitsverteilung")
       ),
       select = TRUE
     )
@@ -209,7 +209,7 @@ dqe_deskriptive_statistik_sortierte_daten <- function(
         plotOutput(
           outputId = ns("plot_group")
         ),
-        value = ns("Grafische Häufigkeitsverteilung")
+        value = ns("Grafische_Häufigkeitsverteilung")
       ),
       select = TRUE
     )

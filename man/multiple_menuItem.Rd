@@ -8,11 +8,11 @@ multiple_menuItem(struct, menuItem_args = NULL,
   menuSubItem_args = NULL)
 }
 \arguments{
-\item{menuItem_args}{Arguments passed to \code{\link[shinydashboard]{
-menuItem}}.}
+\item{menuItem_args}{Arguments passed to
+\code{\link[shinydashboard:sidebarMenu]{menuItem}}.}
 
-\item{menuSubItem_args}{Arguments passed to \code{\link[shinydashboard]{
-menuSubItem}}.}
+\item{menuSubItem_args}{Arguments passed to
+\code{\link[shinydashboard:sidebarMenu]{menuSubItem}}.}
 
 \item{struc}{Either a character vector for menuItems only or a named list
 containing another named list if you want to generate menuItems with

@@ -89,6 +89,32 @@ dqe_deskriptive_statistik_box <- function(id) {
 }
 
 #' @export
+dqe_deskriptive_statistik_tabPanel <- function(id) {
+  ns <- NS(id)
+
+  list(
+    tabPanel(
+      title = "Sortierte Daten",
+      dqe_deskriptive_statistik_sortierte_daten_box(
+        id = ns("id_dqe_deskriptive_statistik_sortierte_daten")
+      )
+    ),
+    tabPanel(
+      title = "Gruppierte Daten",
+      dqe_deskriptive_statistik_gruppierte_daten_box(
+        id = ns("id_dqe_deskriptive_statistik_gruppierte_daten")
+      )
+    ),
+    tabPanel(
+      title = "Boxplot",
+      dqe_deskriptive_statistik_boxplot_ui(
+        id = ns("id_dqe_deskriptive_statistik_boxplot")
+      )
+    )
+  )
+}
+
+#' @export
 dqe_deskriptive_statistik <- function(
   input, output, session, .data, .values, parent, ...
 ) {

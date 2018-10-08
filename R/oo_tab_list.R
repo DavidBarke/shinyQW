@@ -41,17 +41,32 @@ tabList_R6 <- R6::R6Class(
     add_list_item_by_actionButton = function(
       ui, inputId, session = shiny::getDefaultReactiveDomain()
     ) {
-      observeEvent(session$input[[inputId]], {
-        if (!inputId %in% private$open_id) {
-          private$open_id <- c(private$open_id, inputId)
-          insertUI(
-            selector = paste0("#", private$id_int),
-            where = "beforeEnd",
-            ui = ui,
-            session = private$session
+      selector_id = "container" %_% inputId
+      print(selector_id)
+      observeEvent(
+        session$input[[inputId]],
+        handler.quoted = TRUE,
+        handlerExpr = substitute(
+          expr = {
+            if (!inputId %in% private$open_id) {
+              private$open_id <- c(private$open_id, inputId)
+              insertUI(
+                selector = paste0("#", private$id_int),
+                where = "beforeEnd",
+                ui = ui,
+                session = private$session
+              )
+            } else {
+              show(
+                selector = paste0("#", selector_id)
+              )
+            }
+          },
+          env = list(
+            selector_id = selector_id
           )
-        }
-      })
+        )
+      )
       if (private$sortable) {
         jqui_sortable(paste0("#", private$id_int))
       }
@@ -66,39 +81,71 @@ tabList_R6 <- R6::R6Class(
       private$session = session
     },
     tabBox = function(
-      ..., id, selected = NULL, title = NULL, width = 12, height = NULL,
-      side = c("left", "right"), collapsible = TRUE, closeable = TRUE
+      ..., inputId, selected = NULL, title = NULL, width = 12, height = NULL,
+      side = c("left", "right"), collapsible = TRUE, closeable = TRUE,
+      tabPanel_list = NULL
     ) {
-      private$tab_counter <- private$tab_counter + 1
       side <- match.arg(side)
       if (!collapsible) {
-        ui <- shinydashboard::tabBox(
-          id = id,
-          title = title,
-          width = width,
-          height = height,
-          side = side,
-          ...
-        )
-      } else {
-        ui <- shinydashboard::box(
-          title = title,
-          collapsible = TRUE,
-          width = width,
-          height = height,
-          shinydashboard::tabBox(
-            id = id,
-            width = 12,
+        if (is.null(tabPanel_list)) {
+          ui <- shinydashboard::tabBox(
+            title = title,
+            width = width,
+            height = height,
             side = side,
             ...
           )
-        )
+        } else {
+          ui <- do.call(
+            shinydashboard::tabBox,
+            c(
+              list(
+                title = title,
+                width = width,
+                height = height,
+                side = side
+              ),
+              tabPanel_list
+            )
+          )
+        }
+      } else {
+        if (is.null(tabPanel_list)) {
+          ui <- shinydashboard::box(
+            title = title,
+            collapsible = TRUE,
+            width = width,
+            height = height,
+            shinydashboard::tabBox(
+              width = 12,
+              side = side,
+              ...
+            )
+          )
+        } else {
+          ui <- shinydashboard::box(
+            title = title,
+            collapsible = TRUE,
+            width = width,
+            height = height,
+            do.call(
+              shinydashboard::tabBox,
+              c(
+                list(
+                  width = 12,
+                  side = side
+                ),
+                tabPanel_list
+              )
+            )
+          )
+        }
         shiny::tagAppendAttributes(
           tag = ui$children[[1]]$children[[2]]$children[[1]],
           class = "collapsible-tab-box"
         )
         if (closeable) {
-          closeId <- id %_% "close" %_% private$tab_counter
+          closeId <- "close" %_% inputId
           header_ui = ui$children[[1]]$children[[1]]$children
           header_ui[[3]] <- header_ui[[2]]
           header_ui[[2]] <- div(
@@ -110,7 +157,7 @@ tabList_R6 <- R6::R6Class(
             )
           )
           ui$children[[1]]$children[[1]]$children <- header_ui
-          div_id <- "container" %_% id %_% private$tab
+          div_id <- "container" %_% inputId
           if (private$sortable) {
             ui <- div(
               id = div_id,
@@ -123,15 +170,15 @@ tabList_R6 <- R6::R6Class(
               ui
             )
           }
-          last_added <- private$open_id[length(private$open_id)]
           observeEvent(private$session$input[[closeId]], {
-            removeUI(
-              selector = paste0("#", div_id),
-              session = private$session,
-              multiple = TRUE
+            # removeUI(
+            #   selector = paste0("#", div_id),
+            #   session = private$session,
+            #   multiple = TRUE
+            # )
+            hide(
+              selector = paste0("#", div_id)
             )
-            index <- which(private$open_id == last_added)
-            private$open_id <- private$open_id[-index]
           })
         }
       }

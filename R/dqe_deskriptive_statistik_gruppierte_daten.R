@@ -227,7 +227,7 @@ dqe_deskriptive_statistik_gruppierte_daten <- function(
         DT::dataTableOutput(
           outputId = ns("tabellierte_haeufigkeitsverteilung")
         ),
-        value = ns("Tabellierte Häufigkeitsverteilung")
+        value = ns("Tabellierte_Häufigkeitsverteilung")
       )
     )
     # .values$viewer$plot$appendPlot(
@@ -240,7 +240,7 @@ dqe_deskriptive_statistik_gruppierte_daten <- function(
         plotOutput(
           outputId = ns("plot_group")
         ),
-        value = ns("Grafische Häufigkeitsverteilung")
+        value = ns("Grafische_Häufigkeitsverteilung")
       )
     )
   })

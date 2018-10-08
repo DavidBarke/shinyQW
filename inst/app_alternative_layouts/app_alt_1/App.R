@@ -2,6 +2,7 @@ library(shiny)
 library(shinydashboard)
 library(shinyAce)
 library(shinyjs)
+library(shinyjqui)
 library(colourpicker)
 library(shinyQW)
 library(tidyverse)
@@ -17,6 +18,8 @@ library(patchwork)
 sourceDirectory(path = "../../../R", encoding = "UTF-8", modifiedOnly = FALSE)
 
 # Globals ----------------------------------------------------------------------
+
+tabList <- tabList_R6$new(id = "placeholder", sortable = TRUE)
 
 viewer_data <- tabBox_R6$new(
   id = "viewer_data",
@@ -55,85 +58,86 @@ einstellungen <- c("allgemein", "ggplot2", "plotly", "dqe")
 # UI ---------------------------------------------------------------------------
 
 ui <- dashboardPage(
-  title = "QW: Applied Data Science",
-  skin = "black",
   dashboardHeader(
     title = "QW-App"
   ),
   dashboardSidebar(
     sidebarMenu(
-      menuItem(
-        "IDA",
-        menuSubItem(
-          "Import",
-          "tab_import"
+      actionItem(
+        inputId = "ida",
+        label = "IDA",
+        actionSubItem(
+          "tab_import",
+          "Import"
         ),
-        menuSubItem(
-          "Tidy",
-          "tab_tidy"
+        actionSubItem(
+          "tab_tidy",
+          "Tidy"
         ),
-        menuSubItem(
-          "Transform",
-          "tab_transform"
+        actionSubItem(
+          "tab_transform",
+          "Transform"
         ),
-        menuSubItem(
-          "Programming",
-          "tab_programming"
+        actionSubItem(
+          "tab_programming",
+          "Programming"
         ),
-        menuSubItem(
-          "Regular Expressions",
-          "tab_regular_expressions"
+        actionSubItem(
+          "tab_regular_expressions",
+          "Regular Expressions"
         ),
-        menuSubItem(
-          "Visualize",
-          "tab_visualize"
+        actionSubItem(
+          "tab_visualize",
+          "Visualize"
         )
       ),
-      menuItem(
+      actionItem(
+        "dqe",
         "DQE",
-        menuSubItem(
-          "Deskriptive Statistik",
-          "tab_deskriptive_statistik"
+        actionSubItem(
+          "tab_deskriptive_statistik",
+          "Deskriptive Statistik"
         ),
-        menuSubItem(
-          "Wahrscheinlichkeitsrechnung",
-          "tab_wahrscheinlichkeitsrechnung"
+        actionSubItem(
+          "tab_wahrscheinlichkeitsrechnung",
+          "Wahrscheinlichkeitsrechnung"
         ),
-        menuSubItem(
-          "Verteilungsmodelle",
-          "tab_verteilungsmodelle"
+        actionSubItem(
+          "tab_verteilungsmodelle",
+          "Verteilungsmodelle"
         ),
-        menuSubItem(
-          "Statistische Prozesskontrolle",
-          "tab_statistische_prozesskontrolle"
+        actionSubItem(
+          "tab_statistische_prozesskontrolle",
+          "Statistische Prozesskontrolle"
         ),
-        menuSubItem(
-          "Modellstrukturen",
-          "tab_modellstrukturen"
+        actionSubItem(
+          "tab_modellstrukturen",
+          "Modellstrukturen"
         ),
-        menuSubItem(
-          "Design of Experiments",
-          "tab_design_of_experiments"
+        actionSubItem(
+          "tab_design_of_experiments",
+          "Design of Experiments"
         )
       ),
-      menuItem(
+      actionItem(
+        "einstellungen",
         "Einstellungen",
-        menuSubItem(
-          "Allgemein",
-          "tab_allgemein"
+        actionSubItem(
+          "tab_allgemein",
+          "Allgemein"
         ),
-        menuSubItem(
-          "ggplot2",
-          "tab_ggplot2"
+        actionSubItem(
+          "tab_ggplot2",
+          "ggplot2"
         ),
-        menuSubItem(
-          "plotly",
-          "tab_plotly"
+        actionSubItem(
+          "tab_plotly",
+          "plotly"
         )
       )
     )
   ),
-  full_dashboardBody(
+  dashboardBody(
     useShinyjs(),
     tags$head(
       tags$link(
@@ -149,109 +153,16 @@ ui <- dashboardPage(
     fluidRow(
       column(
         width  = 6,
-        tabItems(
-          tabItem(
-            tabName = "tab_import",
-            ida_import_ui(
-              id = "id_import"
-            )
-          ),
-          tabItem(
-            tabName = "tab_tidy",
-            ida_tidy_ui(
-              id = "id_tidy"
-            )
-          ),
-          tabItem(
-            tabName = "tab_transform",
-            ida_transform_ui(
-              id = "id_transform"
-            )
-          ),
-          tabItem(
-            tabName = "tab_programming",
-            ida_programming_ui(
-              id = "id_programming"
-            )
-          ),
-          tabItem(
-            tabName = "tab_regular_expressions",
-            ida_regular_expressions_ui(
-              id = "id_regular_expressions"
-            )
-          ),
-          tabItem(
-            tabName = "tab_visualize",
-            ida_visualize_ui(
-              id = "id_visualize"
-            )
-          ),
-          tabItem(
-            tabName = "tab_design_of_experiments",
-            dqe_design_of_experiments_box(
-              id = "id_design_of_experiments"
-            )
-          ),
-          tabItem(
-            tabName = "tab_deskriptive_statistik",
-            dqe_deskriptive_statistik_box(
-              id = "id_deskriptive_statistik"
-            )
-          ),
-          tabItem(
-            tabName = "tab_modellstrukturen",
-            dqe_modellstrukturen_ui(
-              id = "id_modellstrukturen"
-            )
-          ),
-          tabItem(
-            tabName = "tab_statistische_prozesskontrolle",
-            dqe_statistische_prozesskontrolle_ui(
-              id = "id_statistische_prozesskontrolle"
-            )
-          ),
-          tabItem(
-            tabName = "tab_testtheorie",
-            dqe_testtheorie_ui(
-              id = "id_testtheorie"
-            )
-          ),
-          tabItem(
-            tabName = "tab_verteilungsmodelle",
-            dqe_verteilungsmodelle_box(
-              id = "id_verteilungsmodelle"
-            )
-          ),
-          tabItem(
-            tabName = "tab_wahrscheinlichkeitsrechnung",
-            dqe_wahrscheinlichkeitsrechnung_ui(
-              id = "id_wahrscheinlichkeitsrechnung"
-            )
-          ),
-          tabItem(
-            tabName = "tab_allgemein",
-            einstellungen_allgemein_ui(
-              id = "id_einstellungen_allgemein"
-            )
-          ),
-          tabItem(
-            tabName = "tab_ggplot2",
-            einstellungen_ggplot2_box(
-              id = "id_einstellungen_ggplot2"
-            )
-          ),
-          tabItem(
-            tabName = "tab_plotly",
-            einstellungen_plotly_ui(
-              id = "id_einstellungen_plotly"
-            )
-          )
-        ) # tabItems
+        tabList$container()
       ), # column
       column(
         width = 6,
-        viewer_data$tabBox(collapsible = TRUE),
-        viewer_plot$tabBox(collapsible = TRUE)
+        jqui_sortable(
+          tags$div(
+            viewer_data$tabBox(collapsible = TRUE),
+            viewer_plot$tabBox(collapsible = TRUE)
+          )
+        )
       ) # column
     ) # fluidRow
   )
@@ -263,8 +174,48 @@ server <- function(input, output, session) {
 
   self <- node$new("app", session = session)
 
+
+# SET SESSION ------------------------------------------------------------------
+
+  tabList$set_session(session)
+
   viewer_data$set_session(session)
   viewer_plot$set_session(session)
+
+# CONNECT TABLIST WITH ACTIONBUTTONS
+
+  tabList$add_list_item_by_actionButton(
+    ui = tabList$tabBox(
+      inputId = "tab_deskriptive_statistik",
+      title = "Deskriptive Statistik",
+      tabPanel_list = dqe_deskriptive_statistik_tabPanel(
+        id = "id_deskriptive_statistik"
+      )
+    ),
+    inputId = "tab_deskriptive_statistik"
+  )
+
+  tabList$add_list_item_by_actionButton(
+    ui = tabList$tabBox(
+      inputId = "tab_design_of_experiments",
+      title = "Design of Experiments",
+      tabPanel_list = dqe_design_of_experiments_tabPanel(
+        id = "id_design_of_experiments"
+      )
+    ),
+    inputId = "tab_design_of_experiments"
+  )
+
+  tabList$add_list_item_by_actionButton(
+    ui = tabList$tabBox(
+      inputId = "tab_ggplot2",
+      title = "Einstellungen ggplot2",
+      tabPanel_list = einstellungen_ggplot2_tabPanel(
+        id = "id_einstellungen_ggplot2"
+      )
+    ),
+    inputId = "tab_ggplot2"
+  )
 
 # REACTIVE VALUES --------------------------------------------------------------
 
