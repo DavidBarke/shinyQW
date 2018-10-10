@@ -137,7 +137,7 @@ ui <- dashboardPage(
       )
     )
   ),
-  dashboardBody(
+  full_dashboardBody(
     useShinyjs(),
     tags$head(
       tags$link(

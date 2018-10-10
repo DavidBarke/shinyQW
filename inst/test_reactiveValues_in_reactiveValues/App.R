@@ -1,3 +1,5 @@
+# Hinweis: Grundsätzlich der gleiche Test wie list_of_reactives
+
 ui <- fluidPage(
   actionButton(
     inputId = "a",

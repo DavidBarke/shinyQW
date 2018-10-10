@@ -1,3 +1,7 @@
+# Frage: Eignet sich shinyjqui dazu, boxes sortable zu machen (richtiges drag
+# und drop ist das nicht, aber im weiteren Sinne).
+# Antwort: Ja, siehe app_alternative_layouts
+
 library(shiny)
 library(shinydashboard)
 library(shinyjqui)

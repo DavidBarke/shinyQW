@@ -1,3 +1,6 @@
+# Frage: Wie erzeugt man eine collapsible tabBox?
+# Antwort: Indem man die tabBox in eine collapsible box packt.
+
 ui <- dashboardPage(
   dashboardHeader(
 

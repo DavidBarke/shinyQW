@@ -1,3 +1,15 @@
+# Frage: Kann man die shinydashboard-Sidebar vernünftig manipulieren?
+# Antwort: Ja, man muss jedoch auf die HTML-Struktur von dashboardSidebar
+# achten.
+# Motivation: Alle tabItem in tabItems zu packen, ist nett, aber erlaubt immer
+# nur einen offenen Tab. Eine Idee für einen anderen Test wäre eine Liste aus
+# tabItems zu erzeugen, die dynamisch mit dem jeweiligen anzuzeigenden tabItem
+# befüllt wird. Die jetzige Lösung die Sidebar aus actionButton zusammenzubauen,
+# ermöglicht aber normale Methoden (z.B. observeEvent) anzuwenden, um vollkommen
+# flexibel zu agieren.
+#
+# Hinweis: Aus diesem Test sind actionItem und actionSubItem hervorgegangen.
+
 library(shiny)
 library(shinydashboard)
 library(shinyQW)

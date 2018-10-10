@@ -1,3 +1,10 @@
+# Frage: Kann man eine dashboardPage in einer dashboardPage erzeugen.
+# Antwort: Ja, ist aber keine gute Idee, da sich die Sidebars gleichzeitig
+# schließen.
+
+library(shiny)
+library(shinydashboard)
+
 id_dashboardSidebar <- function(..., disable = FALSE, width = NULL,
                                 collapsed = FALSE, id) {
   h <- dashboardSidebar(..., disable, width, collapsed)
