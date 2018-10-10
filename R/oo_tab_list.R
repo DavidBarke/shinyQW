@@ -149,7 +149,7 @@ tabList_R6 <- R6::R6Class(
           header_ui = ui$children[[1]]$children[[1]]$children
           header_ui[[3]] <- header_ui[[2]]
           header_ui[[2]] <- div(
-            class = "div-btn-close",
+            class = "div-btn-close div-btn-close-tablist",
             actionButton(
               inputId = closeId,
               label = NULL,
@@ -171,11 +171,6 @@ tabList_R6 <- R6::R6Class(
             )
           }
           observeEvent(private$session$input[[closeId]], {
-            # removeUI(
-            #   selector = paste0("#", div_id),
-            #   session = private$session,
-            #   multiple = TRUE
-            # )
             hide(
               selector = paste0("#", div_id)
             )
