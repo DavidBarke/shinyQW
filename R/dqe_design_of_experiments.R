@@ -1,3 +1,7 @@
+#' Display DOE methods in a dashboardPage
+#'
+#' @param id Unique module id.
+#'
 #' @export
 dqe_design_of_experiments_ui <- function(id) {
   ns <- NS(id)
@@ -61,41 +65,41 @@ dqe_design_of_experiments_ui <- function(id) {
   )
 }
 
+#' Display DOE methods in a tabBox
+#'
+#' Shiny module ui containing methods in a \code{\link[shinydashboard]{tabBox}}.
+#'
+#' @param id Unique module id.
+#'
 #' @export
 dqe_design_of_experiments_box <- function(id) {
-   ns <- NS(id)
+  ns <- NS(id)
 
-   collapsible_tabBox(
-     id = ns("id_tabBox"),
-     title = "Design of Experiments",
-     width = 12,
-     tabPanel(
-       title = "Ortsauswahl",
-       dqe_design_of_experiments_projekt_ortsauswahl_ui(
-         id = ns("id_dqe_design_of_experiments_projekt_ortsauswahl")
-       )
-     ),
-     tabPanel(
-       title = "Standardisierung",
-       dqe_design_of_experiments_projekt_standardisierung_ui(
-         id = ns("id_dqe_design_of_experiments_projekt_standardisierung")
-       )
-     ),
-     tabPanel(
-       title = "Versuchsplan",
-       dqe_design_of_experiments_projekt_versuchsplan_ui(
-         id = ns("id_dqe_design_of_experiments_projekt_versuchsplan")
-       )
-     ),
-     tabPanel(
-       title = "Steepest Ascent",
-       dqe_design_of_experiments_projekt_steepest_ascent_ui(
-         id = ns("id_dqe_design_of_experiments_projekt_steepest_ascent")
-       )
-     )
-   )
+  do.call(
+    collapsible_tabBox,
+    c(
+      list(
+        id = ns("id_tabBox"),
+        title = "Design of Experiments",
+        width = 12
+      ),
+      dqe_design_of_experiments_tabPanel(
+        id = id
+      )
+    )
+  )
 }
 
+#' tabPanels containing DOE methods
+#'
+#' This function is especially well suited as tabPanel_list argument in
+#' \code{\link[shinyQW:tabList_R6]{tabList_R6$tabBox}}.
+#'
+#' @param id Unique module id.
+#'
+#' @return A list containing \code{\link[shiny]{tabPanel}} for different methods
+#' regarding Design of Experiments.
+#'
 #' @export
 dqe_design_of_experiments_tabPanel <- function(id) {
   ns <- NS(id)

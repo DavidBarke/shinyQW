@@ -59,35 +59,41 @@ dqe_deskriptive_statistik_ui <- function(id) {
   )
 }
 
+#' Display descriptive statistics methods in a tabBox
+#'
+#' Shiny module ui containing methods in a \code{\link[shinydashboard]{tabBox}}.
+#'
+#' @param id Unique module id.
+#'
 #' @export
 dqe_deskriptive_statistik_box <- function(id) {
   ns <- NS(id)
 
-  collapsible_tabBox(
-    id = ns("id_tabBox"),
-    title = "Deskriptive Statistik",
-    width = 12,
-    tabPanel(
-      title = "Sortierte Daten",
-      dqe_deskriptive_statistik_sortierte_daten_box(
-        id = ns("id_dqe_deskriptive_statistik_sortierte_daten")
-      )
-    ),
-    tabPanel(
-      title = "Gruppierte Daten",
-      dqe_deskriptive_statistik_gruppierte_daten_box(
-        id = ns("id_dqe_deskriptive_statistik_gruppierte_daten")
-      )
-    ),
-    tabPanel(
-      title = "Boxplot",
-      dqe_deskriptive_statistik_boxplot_ui(
-        id = ns("id_dqe_deskriptive_statistik_boxplot")
+  do.call(
+    collapsible_tabBox,
+    c(
+      list(
+        id = ns("id_tabBox"),
+        title = "Deskriptive Statistik",
+        width = 12
+      ),
+      dqe_deskriptive_statistik_tabPanel(
+        id = id
       )
     )
   )
 }
 
+#' tabPanels containing descriptive statistics methods
+#'
+#' This function is especially well suited as tabPanel_list argument in
+#' \code{\link[shinyQW:tabList_R6]{tabList_R6$tabBox}}.
+#'
+#' @param id Unique module id.
+#'
+#' @return A list containing \code{\link[shiny]{tabPanel}} for different methods
+#' regarding descriptive statistics.
+#'
 #' @export
 dqe_deskriptive_statistik_tabPanel <- function(id) {
   ns <- NS(id)

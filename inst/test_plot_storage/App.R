@@ -45,39 +45,48 @@ plot_storage <- R6::R6Class(
       } else {
         plot <- private$plots$session[[session_name$ns(name)]]
       }
+      render_default <- TRUE
       if (type == "guess") {
         if ("jsHooks" %in% names(private$plots[[name]])) {
-          session_output$output[[outputId]] <- renderPlotly({
-            plot
+          render_default <- FALSE
+        }
+      } else if (type == "plotly") {
+        render_default <- FALSE
+      }
+      if (render_default) {
+        if (is.function(plot)) {
+          session_output$output[[outputId]] <- shiny::renderPlot({
+            plot()
           })
         } else {
-          session_output$output[[outputId]] <- renderPlot({
+          session_output$output[[outputId]] <- shiny::renderPlot({
             plot
           })
         }
-      } else if (type == "default") {
-        session_output$output[[outputId]] <- shiny::renderPlot({
-          plot
-        })
       } else {
-        session_output$output[[outputId]] <- plotly::renderPlotly({
-          plot
-        })
+        if (is.function(plot)) {
+          session_output$output[[outputId]] <- plotly::renderPlotly({
+            plot()
+          })
+        } else {
+          session_output$output[[outputId]] <- plotly::renderPlotly({
+            plot
+          })
+        }
       }
     }
   ),
   private = list(
-    plots = list()
+    plots = list(
+      # Wichtig: Kindelemente müssen deklariert sein, da der $-Operator nicht
+      # wie von Listen gewohnt rekursiv angewendet werden kann
+      global = list(),
+      session = list()
+    )
   )
 )
 
 plot_storage <- plot_storage$new()
-
-plot_1 <- ggplot(data.frame(x = 1:10, y = 1:10), aes(x = x, y = y)) + geom_point()
-plot_2 <- ggplot(data.frame(x = 1:10, y = 1:10), aes(x = x, y = y)) + geom_line()
-
-plot_storage$set_plot(plot_1, "point")
-plot_storage$set_plot(plot_2, "line")
 
 ui <- fluidPage(
   plotOutput(
@@ -87,13 +96,29 @@ ui <- fluidPage(
     inputId = "type",
     label = "Typ",
     choices = c("point", "line")
+  ),
+  numericInput(
+    inputId = "x",
+    label = "x",
+    value = 10,
+    min = 2
   )
 )
 
 server <- function(input, output, session) {
 
+  plot_1 <- reactive({
+    ggplot(data.frame(x = 1:input$x, y = 1:input$x), aes(x = x, y = y)) + geom_point()
+  })
+  plot_2 <- reactive({
+    ggplot(data.frame(x = 1:input$x, y = 1:input$x), aes(x = x, y = y)) + geom_line()
+  })
+
+  plot_storage$set_plot(plot_1, "point")
+  plot_storage$set_plot(plot_2, "line")
+
   observeEvent(input$type, {
-    plot_storage$render_plot(input$type, "plot", session_name = NULL)
+    plot_storage$render_plot(input$type, "plot")
   })
 }
 
