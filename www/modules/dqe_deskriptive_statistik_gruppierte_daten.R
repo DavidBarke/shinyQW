@@ -153,7 +153,7 @@ dqe_deskriptive_statistik_gruppierte_daten <- function(
   })
 
   tabellierte_haeufigkeitsverteilung <- reactive({
-    data <- shinyQW::table_frequency_distribution(x = req(x_data()),
+    data <- table_frequency_distribution(x = req(x_data()),
                                               b = b(),
                                               k = k())
     return(data)
@@ -166,7 +166,7 @@ dqe_deskriptive_statistik_gruppierte_daten <- function(
   })
 
   histogramm_relativ <- reactive({
-    plot <- shinyQW::histogram(data = tabellierte_haeufigkeitsverteilung(),
+    plot <- histogram(data = tabellierte_haeufigkeitsverteilung(),
                            frequency_density = "relative",
                            breaks = breaks(),
                            col = .values$einstellungen$ggplot2$col,
@@ -176,7 +176,7 @@ dqe_deskriptive_statistik_gruppierte_daten <- function(
   })
 
   histogramm_absolut <- reactive({
-    plot <- shinyQW::histogram(data = tabellierte_haeufigkeitsverteilung(),
+    plot <- histogram(data = tabellierte_haeufigkeitsverteilung(),
                            frequency_density = "absolute",
                            breaks = breaks(),
                            col = .values$einstellungen$ggplot2$col,
