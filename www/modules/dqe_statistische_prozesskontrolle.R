@@ -1,13 +1,18 @@
 #' @export
-dqe_statistische_prozesskontrolle_ui <- function(id) {
+dqe_statistische_prozesskontrolle_tabPanel <- function(id) {
   ns <- NS(id)
 
-  sidebarLayout(
-    sidebarPanel(
-
+  list(
+    tabPanel(
+      title = label_lang(
+        de = "Zufallsstreubereiche"
+      )
     ),
-    mainPanel(
-
+    tabPanel(
+      title = label_lang(
+        de = "Qualitätsregelkarten",
+        en = "Quality control charts"
+      )
     )
   )
 }

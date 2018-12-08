@@ -22,7 +22,7 @@ sourceDirectory(path = "www/modules", encoding = "UTF-8", modifiedOnly = FALSE)
 
 # Globals ----------------------------------------------------------------------
 
-.language = "en"
+.language = "de"
 
 tabList <- tabList_R6$new(id = "placeholder", sortable = TRUE)
 
@@ -366,6 +366,21 @@ server <- function(input, output, session) {
       )
     ),
     actionButton_id = "tab_data_btn",
+    actionButton_session = session
+  )
+  
+  content_list$add_element_actionButton(
+    content_element = content_tabBox(
+      id = "tab_statistische_prozesskontrolle",
+      title = label_lang(
+        de = "Statistische Prozesskontrolle",
+        en = "Statistical process control"
+      ),
+      tabPanel_list = dqe_statistische_prozesskontrolle_tabPanel(
+        id = "id_statistische_prozesskontrolle"
+      )
+    ),
+    actionButton_id = "tab_statistische_prozesskontrolle_btn",
     actionButton_session = session
   )
 
