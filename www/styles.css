@@ -1,0 +1,91 @@
+.box-body {
+  padding: 0 10px 0 10px;
+}
+
+.sidebar .div-btn-sidebar button.btn {
+  border: 0;
+  padding: 12px 5px 12px 15px;
+  margin: 0;
+  color: #b8c7ce;
+  background-color: #222d32;
+  text-align: left;
+  width: 100%;
+}
+
+.sidebar .div-btn-sidebar-sub button.btn {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  color: #b8c7ce;
+  background-color: #2c3b41;
+  text-align: left;
+  width: 100%;
+}
+
+.sidebar-menu li a {
+  padding: 0;
+}
+
+.skin-blue .treeview-menu>li.active>a>div>button>div {
+  color: #fff;
+}
+
+.skin-blue .treeview-menu>li>a>div>button>div:hover {
+  color: #fff;
+}
+
+.skin-blue .treeview-menu>li>a>div>button>div>i {
+  width: 20px;
+}
+
+div .div-btn-close button {
+  border-color: rgb(255, 255, 255);
+  background-color: rgb(255, 255, 255);
+  padding: 0;
+}
+
+.span-btn-move button {
+  border-color: rgb(255, 255, 255);
+  background-color: rgb(255, 255, 255);
+  padding: 0;
+}
+
+.div-btn-close-tablist button {
+  float: right;
+  position: absolute;
+  right: 40px;
+  top: 9px;
+}
+
+div .div-btn-close {
+  display: inline;
+}
+
+div .collapsible-tab-box {
+  padding: 0;
+}
+
+.ui-sortable-handle {
+  float: left;
+  width: 100%;
+}
+
+.tab-content {
+  /*max-height: 300px;
+  overflow-y: auto;
+  overflow-x: hidden;*/
+}
+
+.box-body>div {
+  padding: 0;
+}
+
+.box {
+  margin-bottom: 10px;
+}
+
+.disabled-anchor {
+  pointer-events: none;
+  opacity: 0.64;
+}
+
