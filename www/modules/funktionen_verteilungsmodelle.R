@@ -17,7 +17,7 @@ hide_all_specific_distribution_inputs <- function(prefix_id) {
   )
 }
 
-# SPECIFIC DISTRIBUTION INPUT --------------------------------------------------------------
+# SPECIFIC DISTRIBUTION INPUT --------------------------------------------------
 # Jede Verteilung besitzt spezifische Verteilungsparameter. prefix_id stellt den Namensraum
 # für die inputIds zur Verfügung
 # ÜBERLEGUNG: Das ganze als eigenes Modul umsetzen
@@ -328,7 +328,10 @@ get_specific_beta_input <- function(session, input, .values, prefix_id) {
         width = 6,
         numericInput(
           inputId = ns(shape1Id),
-          label = "Shape 1",
+          label = label_lang(
+            de = "Form 1",
+            en = "Shape 1"
+          ),
           value = 1,
           min = 0,
           step = 0.01
@@ -338,7 +341,10 @@ get_specific_beta_input <- function(session, input, .values, prefix_id) {
         width = 6,
         numericInput(
           inputId = ns(shape2Id),
-          label = "Shape 2",
+          label = label_lang(
+            de = "Form 2",
+            en = "Shape 2"
+          ),
           value = 1,
           min = 0,
           step = 0.01
@@ -363,7 +369,10 @@ get_specific_cauchy_input <- function(session, input, .values, prefix_id) {
         width = 6,
         numericInput(
           inputId = ns(locationId),
-          label = "Location",
+          label = label_lang(
+            de = "Form",
+            en = "Location"
+          ),
           value = 0
         )
       ),
@@ -371,7 +380,10 @@ get_specific_cauchy_input <- function(session, input, .values, prefix_id) {
         width = 6,
         numericInput(
           inputId = ns(scaleId),
-          label = "Scale",
+          label = label_lang(
+            de = "Skalierung",
+            en = "Scale"
+          ),
           value = 1
         )
       )
@@ -656,12 +668,7 @@ get_specific_weibull_input <- function(session, input, .values, prefix_id) {
   return(ui_element)
 }
 
-# SPECIFIC DISTRIBUTION ARGS --------------------------------------------------------
-# args_list enthält Parameter, die die Erstellung der Plots beeinflussen:
-# distribution_args: spezifische Verteilungsparameter
-# geom_function: Funktion für ggplot2
-# geom_function_args: Argumente für geom_function
-# x_steps: x-Werte, an denen die Plotfunktion ausgewertet werden soll
+# SPECIFIC DISTRIBUTION PLOTS --------------------------------------------------
 
 #' @export
 get_distribution_plot <- function(input, .values, prefix_id, distribution, type, plot_engine) {
@@ -1246,3 +1253,5 @@ get_weibull_plot <- function(input, .values, prefix_id, type, plot_engine) {
   }
   return(plot)
 }
+
+# SPECIFIC DISTRIBUTION RANDOM SCATTERING RANGE --------------------------------

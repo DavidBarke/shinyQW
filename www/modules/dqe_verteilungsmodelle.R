@@ -10,19 +10,29 @@ dqe_verteilungsmodelle_tabPanel <- function(id) {
       ),
       dqe_verteilungsmodelle_verteilungen_box(
         id = ns("id_dqe_verteilungsmodelle_verteilungen")
-      )
+      ),
+      value = "distributions"
+    ),
+    tabPanel(
+      title = "Zufallsstreubereiche",
+      dqe_verteilungsmodelle_zufallsstreubereiche_box(
+        id = ns("id_dqe_verteilungsmodelle_zufallsstreubereiche")
+      ),
+      value = "random_scattering_range"
     ),
     tabPanel(
       title = "Acceptance Sampling",
       dqe_verteilungsmodelle_acceptance_sampling_box(
         id = ns("id_dqe_verteilungsmodelle_acceptance_sampling")
-      )
+      ),
+      value = "acceptance_sampling"
     ),
     tabPanel(
       title = label_lang(
         de = "Wahrscheinlichkeitsnetze",
         en = "Probability Plotting"
-      )
+      ),
+      value = "probability_plotting"
     )
   )
 }
@@ -38,6 +48,14 @@ dqe_verteilungsmodelle <- function(
   call_dqe_verteilungsmodelle_verteilungen <- callModule(
     module = dqe_verteilungsmodelle_verteilungen,
     id = "id_dqe_verteilungsmodelle_verteilungen",
+    .data = .data,
+    .values = .values,
+    parent = self
+  )
+  
+  call_dqe_verteilungsmodelle_zufallsstreubereiche <- callModule(
+    module = dqe_verteilungsmodelle_zufallsstreubereiche,
+    id = "id_dqe_verteilungsmodelle_zufallsstreubereiche",
     .data = .data,
     .values = .values,
     parent = self

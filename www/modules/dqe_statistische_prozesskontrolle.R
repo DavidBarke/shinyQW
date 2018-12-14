@@ -5,14 +5,10 @@ dqe_statistische_prozesskontrolle_tabPanel <- function(id) {
   list(
     tabPanel(
       title = label_lang(
-        de = "Zufallsstreubereiche"
-      )
-    ),
-    tabPanel(
-      title = label_lang(
         de = "Qualitätsregelkarten",
         en = "Quality control charts"
-      )
+      ),
+      value = "qualitaetsregelkarten"
     )
   )
 }
