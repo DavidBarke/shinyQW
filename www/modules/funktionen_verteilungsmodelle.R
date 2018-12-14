@@ -23,645 +23,543 @@ hide_all_specific_distribution_inputs <- function(prefix_id) {
 # ÜBERLEGUNG: Das ganze als eigenes Modul umsetzen
 
 #' @export
-get_specific_distribution_input <- function(session, input, .values, prefix_id, distribution) {
+get_specific_distribution_input <- function(session, input, .values, distribution, index) {
   ui_element <- switch(
     EXPR = distribution,
-    "binom" = get_specific_binom_input(session, input, .values, prefix_id),
-    "geom" = get_specific_geom_input(session, input, .values, prefix_id),
-    "hyper" = get_specific_hyper_input(session, input, .values, prefix_id),
-    "multinom" = get_specific_multinom_input(session, input, .values, prefix_id),
-    "nbinom" = get_specific_nbinom_input(session, input, .values, prefix_id),
-    "pois" = get_specific_pois_input(session, input, .values, prefix_id),
-    "beta" = get_specific_beta_input(session, input, .values, prefix_id),
-    "cauchy" = get_specific_cauchy_input(session, input, .values, prefix_id),
-    "chisq" = get_specific_chisq_input(session, input, .values, prefix_id),
-    "exp" = get_specific_exp_input(session, input, .values, prefix_id),
-    "f" = get_specific_f_input(session, input, .values, prefix_id),
-    "gamma" = get_specific_gamma_input(session, input, .values, prefix_id),
-    "unif" = get_specific_unif_input(session, input, .values, prefix_id),
-    "lnorm" = get_specific_lnorm_input(session, input, .values, prefix_id),
-    "norm" = get_specific_norm_input(session, input, .values, prefix_id),
-    "t" = get_specific_t_input(session, input, .values, prefix_id),
-    "weibull" = get_specific_weibull_input(session, input, .values, prefix_id)
+    "binom" = get_specific_binom_input(session, input, .values, index),
+    "geom" = get_specific_geom_input(session, input, .values, index),
+    "hyper" = get_specific_hyper_input(session, input, .values, index),
+    "multinom" = get_specific_multinom_input(session, input, .values, index),
+    "nbinom" = get_specific_nbinom_input(session, input, .values, index),
+    "pois" = get_specific_pois_input(session, input, .values, index),
+    "beta" = get_specific_beta_input(session, input, .values, index),
+    "cauchy" = get_specific_cauchy_input(session, input, .values, index),
+    "chisq" = get_specific_chisq_input(session, input, .values, index),
+    "exp" = get_specific_exp_input(session, input, .values, index),
+    "f" = get_specific_f_input(session, input, .values, index),
+    "gamma" = get_specific_gamma_input(session, input, .values, index),
+    "unif" = get_specific_unif_input(session, input, .values, index),
+    "lnorm" = get_specific_lnorm_input(session, input, .values, index),
+    "norm" = get_specific_norm_input(session, input, .values, index),
+    "t" = get_specific_t_input(session, input, .values, index),
+    "weibull" = get_specific_weibull_input(session, input, .values, index)
   )
   return(ui_element)
 }
 
-get_specific_binom_input <- function(session, input, .values, prefix_id) {
+get_specific_binom_input <- function(session, input, .values, index) {
   ns <- session$ns
-  divId <- paste(prefix_id, "binom_div", sep = "_")
-  divClass <- paste(prefix_id, "class", sep = "_")
-  sizeInputId <- paste(prefix_id, "binom_size", sep = "_")
-  probInputId <- paste(prefix_id, "binom_prob", sep = "_")
-  ui_element <- div(
-    id = divId,
-    class = divClass,
-    fluidRow(
-      column(
-        width = 6,
-        numericInput(
-          inputId = ns(sizeInputId),
-          label = "n",
-          value = 10,
-          min = 1
-        )
-      ),
-      column(
-        width = 6,
-        sliderInput(
-          inputId = ns(probInputId),
-          label = "p",
-          min = 0,
-          max = 1,
-          value = 0.1,
-          step = 0.01
-        )
+  sizeInputId <- "binom_size" %_% index
+  probInputId <- "binom_prob" %_% index
+  ui_element <- fluidRow(
+    column(
+      width = 6,
+      numericInput(
+        inputId = ns(sizeInputId),
+        label = "n",
+        value = 10,
+        min = 1
+      )
+    ),
+    column(
+      width = 6,
+      sliderInput(
+        inputId = ns(probInputId),
+        label = "p",
+        min = 0,
+        max = 1,
+        value = 0.1,
+        step = 0.01
       )
     )
   )
   return(ui_element)
 }
 
-get_specific_geom_input <- function(session, input, .values, prefix_id) {
+get_specific_geom_input <- function(session, input, .values, index) {
   ns <- session$ns
-  divId <- paste(prefix_id, "geom_div", sep = "_")
-  divClass <- paste(prefix_id, "class", sep = "_")
-  probId <- paste(prefix_id, "geom_prob", sep = "_")
-  xmaxId <- paste(prefix_id, "geom_xmax", sep = "_")
-  ui_element <- div(
-    id = divId,
-    class = divClass,
-    fluidRow(
-      column(
-        width = 6,
-        sliderInput(
-          inputId = ns(probId),
-          label = "p",
-          min = 0,
-          max = 1,
-          value = 0.1,
-          step = 0.01
-        )
-      ),
-      column(
-        width = 6,
-        numericInput(
-          inputId = ns(xmaxId),
-          label = "Xmax",
-          value = qgeom(p = 0.95, prob = 0.1),
-          min = 1,
-          step = 1
-        )
+  prob_id <- "geom_prob" %_% index
+  xmax_id <- "geom_xmax" %_% index
+  ui_element <- fluidRow(
+    column(
+      width = 6,
+      sliderInput(
+        inputId = ns(prob_id),
+        label = "p",
+        min = 0,
+        max = 1,
+        value = 0.1,
+        step = 0.01
+      )
+    ),
+    column(
+      width = 6,
+      numericInput(
+        inputId = ns(xmax_id),
+        label = "Xmax",
+        value = qgeom(p = 0.95, prob = 0.1),
+        min = 1,
+        step = 1
       )
     )
   )
-  observeEvent(input[[probId]], {
+  observeEvent(input[[prob_id]], {
     updateNumericInput(
       session = session,
-      inputId = xmaxId,
-      value = qgeom(p = req(.values$einstellungen$dqe$quantil_xmax), prob = req(input[[probId]]))
+      inputId = xmax_id,
+      value = qgeom(p = req(.values$einstellungen$dqe$quantil_xmax), prob = req(input[[prob_id]]))
     )
   })
   observeEvent(.values$einstellungen$dqe$quantil_xmax, {
     updateNumericInput(
       session = session,
-      inputId = xmaxId,
-      value = qgeom(p = req(.values$einstellungen$dqe$quantil_xmax), prob = req(input[[probId]]))
+      inputId = xmax_id,
+      value = qgeom(p = req(.values$einstellungen$dqe$quantil_xmax), prob = req(input[[prob_id]]))
     )
   })
   return(ui_element)
 }
 
-get_specific_hyper_input <- function(session, input, .values, prefix_id) {
+get_specific_hyper_input <- function(session, input, .values, index) {
   ns <- session$ns
-  divId <- paste(prefix_id, "hyper_div", sep = "_")
-  divClass <- paste(prefix_id, "class", sep = "_")
-  mId <- paste(prefix_id, "hyper_m", sep = "_")
-  nId <- paste(prefix_id, "hyper_n", sep = "_")
-  kId <- paste(prefix_id, "hyper_k", sep = "_")
-  ui_element <- div(
-    id = divId,
-    class = divClass,
-    fluidRow(
-      column(
-        width = 4,
-        numericInput(
-          inputId = ns(mId),
-          label = label_lang(
-            de = "Weisse Bälle",
-            en = "White Balls"
-          ),
-          value = 5,
-          min = 0
-        )
-      ),
-      column(
-        width = 4,
-        numericInput(
-          inputId = ns(nId),
-          label = label_lang(
-            de = "Schwarze Bälle",
-            en = "Black balls"
-          ),
-          value = 5,
-          min = 0
-        )
-      ),
-      column(
-        width = 4,
-        numericInput(
-          inputId = ns(kId),
-          label = label_lang(
-            de = "Gezogene Bälle",
-            en = "Drawn balls"
-          ),
-          value = 5,
-          min = 0
-        )
+  m_id <- "hyper_m" %_% index
+  n_id <- "hyper_n" %_% index
+  k_id <- "hyper_k" %_% index
+  ui_element <- fluidRow(
+    column(
+      width = 4,
+      numericInput(
+        inputId = ns(m_id),
+        label = label_lang(
+          de = "Weisse Bälle",
+          en = "White Balls"
+        ),
+        value = 5,
+        min = 0
+      )
+    ),
+    column(
+      width = 4,
+      numericInput(
+        inputId = ns(n_id),
+        label = label_lang(
+          de = "Schwarze Bälle",
+          en = "Black balls"
+        ),
+        value = 5,
+        min = 0
+      )
+    ),
+    column(
+      width = 4,
+      numericInput(
+        inputId = ns(k_id),
+        label = label_lang(
+          de = "Gezogene Bälle",
+          en = "Drawn balls"
+        ),
+        value = 5,
+        min = 0
       )
     )
   )
   return(ui_element)
 }
 
-get_specific_multinom_input <- function(session, input, .values, prefix_id) {
+get_specific_multinom_input <- function(session, input, .values, index) {
   ns <- session$ns
-  divId <- paste(prefix_id, "multinom_div", sep = "_")
-  divClass <- paste(prefix_id, "class", sep = "_")
   ui_element <- div(
-    id = divId,
-    class = divClass,
     "TODO: Multinomialverteilung, PROBLEM: 1. Argument x, weiterhin keine Verteilungs- und dichtefunktion"
   )
   return(ui_element)
 }
 
-get_specific_nbinom_input <- function(session, input, .values, prefix_id) {
+get_specific_nbinom_input <- function(session, input, .values, index) {
   ns <- session$ns
-  divId <- paste(prefix_id, "nbinom_div", sep = "_")
-  divClass <- paste(prefix_id, "class", sep = "_")
-  sizeId <- paste(prefix_id, "nbinom_size", sep = "_")
-  probId <- paste(prefix_id, "nbinom_prob", sep = "_")
-  xmaxId <- paste(prefix_id, "nbinom_xmax", sep = "_")
-  ui_element <- div(
-    id = divId,
-    class = divClass,
-    fluidRow(
-      column(
-        width = 6,
-        numericInput(
-          inputId = ns(sizeId),
-          label = "n",
-          value = 10,
-          min = 0
-        )
-      ),
-      column(
-        width = 6,
-        sliderInput(
-          inputId = ns(probId),
-          label = "p",
-          value = 0.1,
-          min = 0,
-          max = 1,
-          step = 0.01
-        )
+  size_id <- "nbinom_size" %_% index
+  prob_id <- "nbinom_prob" %_% index
+  xmax_id <- "nbinom_xmax" %_% index
+  ui_element <- fluidRow(
+    column(
+      width = 4,
+      numericInput(
+        inputId = ns(size_id),
+        label = "n",
+        value = 10,
+        min = 0
       )
     ),
-    fluidRow(
-      column(
-        width = 6,
-        numericInput(
-          inputId = ns(xmaxId),
-          label = "Xmax",
-          value = qnbinom(p = 0.95, size = 10, prob = 0.1),
-          min = 1,
-          step = 1
-        )
+    column(
+      width = 4,
+      sliderInput(
+        inputId = ns(prob_id),
+        label = "p",
+        value = 0.1,
+        min = 0,
+        max = 1,
+        step = 0.01
+      )
+    ),
+    column(
+      width = 4,
+      numericInput(
+        inputId = ns(xmax_id),
+        label = "Xmax",
+        value = qnbinom(p = 0.95, size = 10, prob = 0.1),
+        min = 1,
+        step = 1
       )
     )
   )
-  observeEvent(input[[sizeId]], {
+  observeEvent(input[[size_id]], {
     updateNumericInput(
       session = session,
-      inputId = xmaxId,
-      value = qnbinom(p = req(.values$einstellungen$dqe$quantil_xmax), size = req(input[[sizeId]]), prob = req(input[[probId]]))
+      inputId = xmax_id,
+      value = qnbinom(p = req(.values$einstellungen$dqe$quantil_xmax), size = req(input[[size_id]]), prob = req(input[[prob_id]]))
     )
   })
-  observeEvent(input[[probId]], {
+  observeEvent(input[[prob_id]], {
     updateNumericInput(
       session = session,
-      inputId = xmaxId,
-      value = qnbinom(p = req(.values$einstellungen$dqe$quantil_xmax), size = req(input[[sizeId]]), prob = req(input[[probId]]))
-    )
-  })
-  observeEvent(.values$einstellungen$dqe$quantil_xmax, {
-    updateNumericInput(
-      session = session,
-      inputId = xmaxId,
-      value = qnbinom(p = req(.values$einstellungen$dqe$quantil_xmax), size = req(input[[sizeId]]), prob = req(input[[probId]]))
-    )
-  })
-  return(ui_element)
-}
-
-get_specific_pois_input <- function(session, input, .values, prefix_id) {
-  ns <- session$ns
-  divId <- paste(prefix_id, "pois_div", sep = "_")
-  divClass <- paste(prefix_id, "class", sep = "_")
-  lambdaId <- paste(prefix_id, "pois_lambda", sep = "_")
-  xmaxId <- paste(prefix_id, "pois_xmax", sep = "_")
-  ui_element <- div(
-    id = divId,
-    class = divClass,
-    fluidRow(
-      column(
-        width = 6,
-        numericInput(
-          inputId = ns(lambdaId),
-          label = "Lambda",
-          value = 1,
-          min = 0,
-          step = 0.01
-        )
-      ),
-      column(
-        width = 6,
-        numericInput(
-          inputId = ns(xmaxId),
-          label = "Xmax",
-          value = qpois(p = 0.95, lambda = 1),
-          min = 0,
-          step = 1
-        )
-      )
-    )
-  )
-  observeEvent(input[[lambdaId]], {
-    updateNumericInput(
-      session = session,
-      inputId = xmaxId,
-      value = qpois(p = req(.values$einstellungen$dqe$quantil_xmax), lambda = req(input[[lambdaId]]))
+      inputId = xmax_id,
+      value = qnbinom(p = req(.values$einstellungen$dqe$quantil_xmax), size = req(input[[size_id]]), prob = req(input[[prob_id]]))
     )
   })
   observeEvent(.values$einstellungen$dqe$quantil_xmax, {
     updateNumericInput(
       session = session,
-      inputId = xmaxId,
-      value = qpois(p = req(.values$einstellungen$dqe$quantil_xmax), lambda = req(input[[lambdaId]]))
+      inputId = xmax_id,
+      value = qnbinom(p = req(.values$einstellungen$dqe$quantil_xmax), size = req(input[[size_id]]), prob = req(input[[prob_id]]))
     )
   })
   return(ui_element)
 }
 
-get_specific_beta_input <- function(session, input, .values, prefix_id) {
+get_specific_pois_input <- function(session, input, .values, index) {
   ns <- session$ns
-  divId <- paste(prefix_id, "beta_div", sep = "_")
-  divClass <- paste(prefix_id, "class", sep = "_")
-  shape1Id <- paste(prefix_id, "beta_shape1", sep = "_")
-  shape2Id <- paste(prefix_id, "beta_shape2", sep = "_")
-  ui_element <- div(
-    id = divId,
-    class = divClass,
-    fluidRow(
-      column(
-        width = 6,
-        numericInput(
-          inputId = ns(shape1Id),
-          label = label_lang(
-            de = "Form 1",
-            en = "Shape 1"
-          ),
-          value = 1,
-          min = 0,
-          step = 0.01
-        )
-      ),
-      column(
-        width = 6,
-        numericInput(
-          inputId = ns(shape2Id),
-          label = label_lang(
-            de = "Form 2",
-            en = "Shape 2"
-          ),
-          value = 1,
-          min = 0,
-          step = 0.01
-        )
+  lambda_id <- "pois_lambda" %_% index
+  xmax_id <- "pois_xmax" %_% index
+  ui_element <- fluidRow(
+    column(
+      width = 6,
+      numericInput(
+        inputId = ns(lambda_id),
+        label = "Lambda",
+        value = 1,
+        min = 0,
+        step = 0.01
+      )
+    ),
+    column(
+      width = 6,
+      numericInput(
+        inputId = ns(xmax_id),
+        label = "Xmax",
+        value = qpois(p = 0.95, lambda = 1),
+        min = 0,
+        step = 1
+      )
+    )
+  )
+  observeEvent(input[[lambda_id]], {
+    updateNumericInput(
+      session = session,
+      inputId = xmax_id,
+      value = qpois(p = req(.values$einstellungen$dqe$quantil_xmax), lambda = req(input[[lambda_id]]))
+    )
+  })
+  observeEvent(.values$einstellungen$dqe$quantil_xmax, {
+    updateNumericInput(
+      session = session,
+      inputId = xmax_id,
+      value = qpois(p = req(.values$einstellungen$dqe$quantil_xmax), lambda = req(input[[lambda_id]]))
+    )
+  })
+  return(ui_element)
+}
+
+get_specific_beta_input <- function(session, input, .values, index) {
+  ns <- session$ns
+  shape1_id <- "beta_shape_1" %_% index
+  shape2_id <- "beta_shape_2" %_% index
+  ui_element <- fluidRow(
+    column(
+      width = 6,
+      numericInput(
+        inputId = ns(shape1_id),
+        label = label_lang(
+          de = "Form 1",
+          en = "Shape 1"
+        ),
+        value = 1,
+        min = 0,
+        step = 0.01
+      )
+    ),
+    column(
+      width = 6,
+      numericInput(
+        inputId = ns(shape2_id),
+        label = label_lang(
+          de = "Form 2",
+          en = "Shape 2"
+        ),
+        value = 1,
+        min = 0,
+        step = 0.01
       )
     )
   )
   return(ui_element)
 }
 
-get_specific_cauchy_input <- function(session, input, .values, prefix_id) {
+get_specific_cauchy_input <- function(session, input, .values, index) {
   ns <- session$ns
-  divId <- paste(prefix_id, "cauchy_div", sep = "_")
-  divClass <- paste(prefix_id, "class", sep = "_")
-  locationId <- paste(prefix_id, "cauchy_location", sep = "_")
-  scaleId <- paste(prefix_id, "cauchy_scale", sep = "_")
-  ui_element <- div(
-    id = divId,
-    class = divClass,
-    fluidRow(
-      column(
-        width = 6,
-        numericInput(
-          inputId = ns(locationId),
-          label = label_lang(
-            de = "Form",
-            en = "Location"
-          ),
-          value = 0
-        )
-      ),
-      column(
-        width = 6,
-        numericInput(
-          inputId = ns(scaleId),
-          label = label_lang(
-            de = "Skalierung",
-            en = "Scale"
-          ),
-          value = 1
-        )
+  location_id <- "cauchy_location" %_% index
+  scale_id <- "cauchy_scale" %_% index
+  ui_element <- fluidRow(
+    column(
+      width = 6,
+      numericInput(
+        inputId = ns(location_id),
+        label = label_lang(
+          de = "Form",
+          en = "Location"
+        ),
+        value = 0
+      )
+    ),
+    column(
+      width = 6,
+      numericInput(
+        inputId = ns(scale_id),
+        label = label_lang(
+          de = "Skalierung",
+          en = "Scale"
+        ),
+        value = 1
       )
     )
   )
   return(ui_element)
 }
 
-get_specific_chisq_input <- function(session, input, .values, prefix_id) {
+get_specific_chisq_input <- function(session, input, .values, index) {
   ns <- session$ns
-  divId <- paste(prefix_id, "chisq_div", sep = "_")
-  divClass <- paste(prefix_id, "class", sep = "_")
-  dfId <- paste(prefix_id, "chisq_df", sep = "_")
-  ui_element <- div(
-    id = divId,
-    class = divClass,
-    fluidRow(
-      column(
-        width = 6,
-        numericInput(
-          inputId = ns(dfId),
-          label = label_lang(
-            de = "Freiheitsgrade",
-            en = "Degrees of freedom"
-          ),
-          value = 1,
-          min = 1
-        )
+  df_id <- "chisq_df" %_% index
+  ui_element <- fluidRow(
+    column(
+      width = 6,
+      numericInput(
+        inputId = ns(df_id),
+        label = label_lang(
+          de = "Freiheitsgrade",
+          en = "Degrees of freedom"
+        ),
+        value = 1,
+        min = 1
       )
     )
   )
   return(ui_element)
 }
 
-get_specific_exp_input <- function(session, input, .values, prefix_id) {
+get_specific_exp_input <- function(session, input, .values, index) {
   ns <- session$ns
-  divId <- paste(prefix_id, "exp_div", sep = "_")
-  divClass <- paste(prefix_id, "class", sep = "_")
-  rateId <- paste(prefix_id, "exp_rate", sep = "_")
-  ui_element <- div(
-    id = divId,
-    class = divClass,
-    fluidRow(
-      column(
-        width = 6,
-        numericInput(
-          inputId = ns(rateId),
-          label = "Rate",
-          value = 1,
-          min = 0,
-          step = 0.01
-        )
+  rate_id <- "exp_rate" %_% index
+  ui_element <- fluidRow(
+    column(
+      width = 6,
+      numericInput(
+        inputId = ns(rate_id),
+        label = "Rate",
+        value = 1,
+        min = 0,
+        step = 0.01
       )
     )
   )
   return(ui_element)
 }
 
-get_specific_f_input <- function(session, input, .values, prefix_id) {
+get_specific_f_input <- function(session, input, .values, index) {
   ns <- session$ns
-  divId <- paste(prefix_id, "f_div", sep = "_")
-  divClass <- paste(prefix_id, "class", sep = "_")
-  df1Id <- paste(prefix_id, "f_df1", sep = "_")
-  df2Id <- paste(prefix_id, "f_df2", sep = "_")
-  ui_element <- div(
-    id = divId,
-    class = divClass,
-    fluidRow(
-      column(
-        width = 6,
-        numericInput(
-          inputId = ns(df1Id),
-          label = "df1",
-          value = 1,
-          min = 0
-        )
-      ),
-      column(
-        width = 6,
-        numericInput(
-          inputId = ns(df2Id),
-          label = "df2",
-          value = 1,
-          min = 0
-        )
+  df1_id <- "f_df1" %_% index
+  df2_id <- "f_df2" %_% index
+  ui_element <- fluidRow(
+    column(
+      width = 6,
+      numericInput(
+        inputId = ns(df1_id),
+        label = "df1",
+        value = 1,
+        min = 0
+      )
+    ),
+    column(
+      width = 6,
+      numericInput(
+        inputId = ns(df2_id),
+        label = "df2",
+        value = 1,
+        min = 0
       )
     )
   )
   return(ui_element)
 }
 
-get_specific_gamma_input <- function(session, input, .values, prefix_id) {
+get_specific_gamma_input <- function(session, input, .values, index) {
   ns <- session$ns
-  divId <- paste(prefix_id, "gamma_div", sep = "_")
-  divClass <- paste(prefix_id, "class", sep = "_")
-  shapeId <- paste(prefix_id, "gamma_shape", sep = "_")
-  scaleId <- paste(prefix_id, "gamma_scale", sep = "_")
-  ui_element <- div(
-    id = divId,
-    class = divClass,
-    fluidRow(
-      column(
-        width = 6,
-        numericInput(
-          inputId = ns(shapeId),
-          label = "Form",
-          value = 1,
-          min = 0,
-          step = 0.01
-        )
-      ),
-      column(
-        width = 6,
-        numericInput(
-          inputId = ns(scaleId),
-          label = label_lang(
-            de = "Skalierung",
-            en = "Scale"
-          ),
-          value = 1,
-          min = 0.01,
-          step = 0.01
-        )
+  shape_id <- "gamma_shape" %_% index
+  scale_id <- "gamma_scale" %_% index
+  ui_element <- fluidRow(
+    column(
+      width = 6,
+      numericInput(
+        inputId = ns(shape_id),
+        label = "Form",
+        value = 1,
+        min = 0,
+        step = 0.01
+      )
+    ),
+    column(
+      width = 6,
+      numericInput(
+        inputId = ns(scale_id),
+        label = label_lang(
+          de = "Skalierung",
+          en = "Scale"
+        ),
+        value = 1,
+        min = 0.01,
+        step = 0.01
       )
     )
   )
   return(ui_element)
 }
 
-get_specific_unif_input <- function(session, input, .values, prefix_id) {
+get_specific_unif_input <- function(session, input, .values, index) {
   ns <- session$ns
-  divId <- paste(prefix_id, "unif_div", sep = "_")
-  divClass <- paste(prefix_id, "class", sep = "_")
-  minId <- paste(prefix_id, "unif_min", sep = "_")
-  maxId <- paste(prefix_id, "unif_max", sep = "_")
-  ui_element <- div(
-    id = divId,
-    class = divClass,
-    fluidRow(
-      column(
-        width = 6,
-        numericInput(
-          inputId = ns(minId),
-          "Min",
-          value = 0
-        )
-      ),
-      column(
-        width = 6,
-        numericInput(
-          inputId = ns(maxId),
-          "Max",
-          value = 1
-        )
+  min_id <- "unif_min" %_% index
+  max_id <- "unif_max" %_% index
+  ui_element <- fluidRow(
+    column(
+      width = 6,
+      numericInput(
+        inputId = ns(min_id),
+        "Min",
+        value = 0
+      )
+    ),
+    column(
+      width = 6,
+      numericInput(
+        inputId = ns(max_id),
+        "Max",
+        value = 1
       )
     )
   )
   return(ui_element)
 }
 
-get_specific_lnorm_input <- function(session, input, .values, prefix_id) {
+get_specific_lnorm_input <- function(session, input, .values, index) {
   ns <- session$ns
-  divId <- paste(prefix_id, "lnorm_div", sep = "_")
-  divClass <- paste(prefix_id, "class", sep = "_")
-  meanlogId <- paste(prefix_id, "lnorm_meanlog", sep = "_")
-  sdlogId <- paste(prefix_id, "lnorm_sdlog", sep = "_")
-  ui_element <- div(
-    id = divId,
-    class = divClass,
-    fluidRow(
-      column(
-        width = 6,
-        numericInput(
-          inputId = ns(meanlogId),
-          label = "mu",
-          value = 0
-        )
-      ),
-      column(
-        width = 6,
-        numericInput(
-          inputId = ns(sdlogId),
-          label = "sigma",
-          value = 1,
-          min = 0.01
-        )
+  meanlog_id <- "lnorm_meanlog" %_% index
+  sdlog_id <- "lnorm_sdlog" %_% index
+  ui_element <- fluidRow(
+    column(
+      width = 6,
+      numericInput(
+        inputId = ns(meanlog_id),
+        label = "mu",
+        value = 0
+      )
+    ),
+    column(
+      width = 6,
+      numericInput(
+        inputId = ns(sdlog_id),
+        label = "sigma",
+        value = 1,
+        min = 0.01
       )
     )
   )
   return(ui_element)
 }
 
-get_specific_norm_input <- function(session, input, .values, prefix_id) {
+get_specific_norm_input <- function(session, input, .values, index) {
   ns <- session$ns
-  divId <- paste(prefix_id, "norm_div", sep = "_")
-  divClass <- paste(prefix_id, "class", sep = "_")
-  meanId <- paste(prefix_id, "norm_mean", sep = "_")
-  sdId <- paste(prefix_id, "norm_sd", sep = "_")
-  ui_element <- div(
-    id = divId,
-    class = divClass,
-    fluidRow(
-      column(
-        width = 6,
-        numericInput(
-          inputId = ns(meanId),
-          label = "mu",
-          value = 0
-        )
-      ),
-      column(
-        width = 6,
-        numericInput(
-          inputId = ns(sdId),
-          label = "sigma",
-          value = 1,
-          min = 0.01
-        )
+  mean_id <- "norm_mean" %_% index
+  sd_id <- "norm_sd" %_% index
+  ui_element <- fluidRow(
+    column(
+      width = 6,
+      numericInput(
+        inputId = ns(mean_id),
+        label = "mu",
+        value = 0
+      )
+    ),
+    column(
+      width = 6,
+      numericInput(
+        inputId = ns(sd_id),
+        label = "sigma",
+        value = 1,
+        min = 0.01
       )
     )
   )
   return(ui_element)
 }
 
-get_specific_t_input <- function(session, input, .values, prefix_id) {
+get_specific_t_input <- function(session, input, .values, index) {
   ns <- session$ns
-  divId <- paste(prefix_id, "t_div", sep = "_")
-  divClass <- paste(prefix_id, "class", sep = "_")
-  dfId <- paste(prefix_id, "t_df", sep = "_")
-  ui_element <- div(
-    id = divId,
-    class = divClass,
-    fluidRow(
-      column(
-        width = 6,
-        numericInput(
-          inputId = ns(dfId),
-          label = label_lang(
-            de = "Freiheitsgrade",
-            en = "Degrees of freedom"
-          ),
-          value = 1,
-          min = 0
-        )
+  df_id <- "t_df" %_% index
+  ui_element <- fluidRow(
+    column(
+      width = 6,
+      numericInput(
+        inputId = ns(df_id),
+        label = label_lang(
+          de = "Freiheitsgrade",
+          en = "Degrees of freedom"
+        ),
+        value = 1,
+        min = 0
       )
     )
   )
   return(ui_element)
 }
 
-get_specific_weibull_input <- function(session, input, .values, prefix_id) {
+get_specific_weibull_input <- function(session, input, .values, index) {
   ns <- session$ns
-  divId <- paste(prefix_id, "weibull_div", sep = "_")
-  divClass <- paste(prefix_id, "class", sep = "_")
-  shapeId <- paste(prefix_id, "weibull_shape", sep = "_")
-  scaleId <- paste(prefix_id, "weibull_scale", sep = "_")
-  ui_element <- div(
-    id = divId,
-    class = divClass,
-    fluidRow(
-      column(
-        width = 6,
-        numericInput(
-          inputId = ns(shapeId),
-          label = "Form",
-          value = 1
-        )
-      ),
-      column(
-        width = 6,
-        numericInput(
-          inputId = ns(scaleId),
-          label = label_lang(
-            de = "Skalierung",
-            en = "Scale"
-          ),
-          value = 1
-        )
+  shape_id <- "weibull_shape" %_% index
+  scale_id <- "weibull_scale" %_% index
+  ui_element <- fluidRow(
+    column(
+      width = 6,
+      numericInput(
+        inputId = ns(shape_id),
+        label = "Form",
+        value = 1
+      )
+    ),
+    column(
+      width = 6,
+      numericInput(
+        inputId = ns(scale_id),
+        label = label_lang(
+          de = "Skalierung",
+          en = "Scale"
+        ),
+        value = 1
       )
     )
   )

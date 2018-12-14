@@ -201,3 +201,12 @@ label_lang_list <- function(..., value) {
   names(label_list) <- label
   label_list
 }
+
+#' @export
+fallback <- function(x, y) {
+  if (is.null(x)) {
+    return(y)
+  } else {
+    return(x)
+  }
+}

@@ -114,7 +114,7 @@ dqe_verteilungsmodelle_verteilungen <- function(
       session = session,
       input = input,
       .values = .values,
-      prefix_id = NULL,
+      index = NULL,
       distribution = input$distribution
     )
   })
