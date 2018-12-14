@@ -280,8 +280,8 @@ get_specific_pois_input <- function(session, input, .values, index) {
 
 get_specific_beta_input <- function(session, input, .values, index) {
   ns <- session$ns
-  shape1_id <- "beta_shape_1" %_% index
-  shape2_id <- "beta_shape_2" %_% index
+  shape1_id <- "beta_shape1" %_% index
+  shape2_id <- "beta_shape2" %_% index
   ui_element <- fluidRow(
     column(
       width = 6,
@@ -1152,4 +1152,164 @@ get_weibull_plot <- function(input, .values, prefix_id, type, plot_engine) {
   return(plot)
 }
 
-# SPECIFIC DISTRIBUTION RANDOM SCATTERING RANGE --------------------------------
+# GET ARG VALUES --------------------------------
+
+get_arg_values <- function(session, distribution, index) {
+  arg_values <- switch(
+    EXPR = distribution,
+    "binom" = get_binom_arg_values(session, index),
+    "geom" = get_geom_arg_values(session, index),
+    "hyper" = get_hyper_arg_values(session, index),
+    "multinom" = get_multinom_arg_values(session, index),
+    "nbinom" = get_nbinom_arg_values(session, index),
+    "pois" = get_pois_arg_values(session, index),
+    "beta" = get_beta_arg_values(session, index),
+    "cauchy" = get_cauchy_arg_values(session, index),
+    "chisq" = get_chisq_arg_values(session, index),
+    "exp" = get_exp_arg_values(session, index),
+    "f" = get_f_arg_values(session, index),
+    "gamma" = get_gamma_arg_values(session, index),
+    "unif" = get_unif_arg_values(session, index),
+    "lnorm" = get_lnorm_arg_values(session, index),
+    "norm" = get_norm_arg_values(session, index),
+    "t" = get_t_arg_values(session, index),
+    "weibull" = get_weibull_arg_values(session, index)
+  )
+  return(arg_values)
+}
+
+get_binom_arg_values <- function(session, index) {
+  input <- session$input
+  arg_values <- list(
+    size = input[["binom_size" %_% index]],
+    prob = input[["binom_prob" %_% index]]
+  )
+}
+
+get_geom_arg_values <- function(session, index) {
+  input <- session$input
+  arg_values <- list(
+    prob = input[["geom_prob" %_% index]],
+    xmax = input[["geom_xmax" %_% index]]
+  )
+}
+
+get_hyper_arg_values <- function(session, index) {
+  input <- session$input
+  arg_values <- list(
+    m = input[["hyper_m" %_% index]],
+    n = input[["hyper_n" %_% index]],
+    k = input[["hyper_k" %_% index]]
+  )
+}
+
+get_multinom_arg_values <- function(session, index) {
+  input <- session$input
+  arg_values <- list(
+  )
+}
+
+get_nbinom_arg_values <- function(session, index) {
+  input <- session$input
+  arg_values <- list(
+    size = input[["nbinom_size" %_% index]],
+    prob = input[["nbinom_prob" %_% index]],
+    xmax = input[["nbinom_xmax" %_% index]]
+  ) 
+}
+
+get_pois_arg_values <- function(session, index) {
+  input <- session$input
+  arg_values <- list(
+    lambda = input[["pois_lambda" %_% index]],
+    xmax = input[["pois_xmax" %_% index]]
+  )
+}
+
+get_beta_arg_values <- function(session, index) {
+  input <- session$input
+  arg_values <- list(
+    shape1 = input[["beta_shape1" %_% index]],
+    shape2 = input[["beta_shape2" %_% index]]
+  )
+}
+
+get_cauchy_arg_values <- function(session, index) {
+  input <- session$input
+  arg_values <- list(
+    location = input[["cauchy_location" %_% index]],
+    scale = input[["cauchy_scale" %_% index]]
+  )
+}
+
+get_chisq_arg_values <- function(session, index) {
+  input <- session$input
+  arg_values <- list(
+    df = input[["chisq_df" %_% index]]
+  )
+}
+
+get_exp_arg_values <- function(session, index) {
+  input <- session$input
+  arg_values <- list(
+    rate = input[["exp_rate" %_% index]]
+  )
+}
+
+get_f_arg_values <- function(session, index) {
+  input <- session$input
+  arg_values <- list(
+    df1 = input[["f_df2" %_% index]],
+    df2 = input[["f_df1" %_% index]]
+  )
+}
+
+get_gamma_arg_values <- function(session, index) {
+  input <- session$input
+  arg_values <- list(
+    shape = input[["gamma_shape" %_% index]],
+    scale = input[["gamma_scale" %_% index]]
+  )
+}
+
+get_unif_arg_values <- function(session, index) {
+  input <- session$input
+  arg_values <- list(
+    min = input[["unif_min" %_% index]],
+    max = input[["unif_max" %_% index]]
+  )
+}
+
+get_lnorm_arg_values <- function(session, index) {
+  input <- session$input
+  arg_values <- list(
+    meanlog = input[["lnorm_meanlog" %_% index]],
+    sdlog = input[["lnorm_sdlog" %_% index]]
+  )
+}
+
+get_norm_arg_values <- function(session, index) {
+  input <- session$input
+  arg_values <- list(
+    mean = input[["norm_mean" %_% index]],
+    sd = input[["norm_sd" %_% index]]
+  )
+}
+
+get_t_arg_values <- function(session, index) {
+  input <- session$input
+  arg_values <- list(
+    df = input[["t_df" %_% index]]
+  )
+}
+
+get_weibull_arg_values <- function(session, index) {
+  input <- session$input
+  arg_values <- list(
+    shape = input[["weibull_shape" %_% index]],
+    scale = input[["weibull_scale" %_% index]]
+  )
+}
+
+
+

@@ -13,7 +13,7 @@ library(DT)
 library(patchwork)
 library(readr)
 library(data.table)
-#library(listviewer)
+library(listviewer)
 
 # SOURCE -----------------------------------------------------------------------
 # Damit nicht nach jeder Veränderung shinyQW neu gebuilded werden muss

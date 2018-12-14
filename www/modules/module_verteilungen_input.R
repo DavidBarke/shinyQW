@@ -1,8 +1,13 @@
 module_verteilungen_input_ui <- function(id) {
   ns <- NS(id)
   
-  uiOutput(
-    outputId = ns("input_rows")
+  tagList(
+    jsoneditOutput(
+      outputId = ns("listviewer")
+    ),
+    uiOutput(
+      outputId = ns("input_rows")
+    )
   )
 }
 
@@ -98,4 +103,29 @@ module_verteilungen_input <- function(
     }
     ui
   })
+  
+  input_table <- reactive({
+    data <- data.table(distribution = character(rvs$nrow), args = list(list()))
+    distributions <- character(rvs$nrow)
+    args <- list(rvs$nrow)
+    for (i in seq_len(rvs$nrow)) {
+      distributions[i] <- req(input[["select_distribution" %_% i]])
+      args[[i]] <- get_arg_values(
+        session = session,
+        distribution = distributions[i],
+        index = i
+      )
+    }
+    set(data, j = "distribution", value = distributions)
+    data[,2] <- list(args)
+    data
+  })
+  
+  output$listviewer <- renderJsonedit({
+    jsonedit(input_table())
+  })
+  
+  return(list(
+    input_table = input_table
+  ))
 }
