@@ -1155,34 +1155,80 @@ get_weibull_plot <- function(input, .values, prefix_id, type, plot_engine) {
 # GET ARG VALUES --------------------------------
 
 get_arg_values <- function(session, distribution, index) {
-  arg_values <- switch(
-    EXPR = distribution,
-    "binom" = get_binom_arg_values(session, index),
-    "geom" = get_geom_arg_values(session, index),
-    "hyper" = get_hyper_arg_values(session, index),
-    "multinom" = get_multinom_arg_values(session, index),
-    "nbinom" = get_nbinom_arg_values(session, index),
-    "pois" = get_pois_arg_values(session, index),
-    "beta" = get_beta_arg_values(session, index),
-    "cauchy" = get_cauchy_arg_values(session, index),
-    "chisq" = get_chisq_arg_values(session, index),
-    "exp" = get_exp_arg_values(session, index),
-    "f" = get_f_arg_values(session, index),
-    "gamma" = get_gamma_arg_values(session, index),
-    "unif" = get_unif_arg_values(session, index),
-    "lnorm" = get_lnorm_arg_values(session, index),
-    "norm" = get_norm_arg_values(session, index),
-    "t" = get_t_arg_values(session, index),
-    "weibull" = get_weibull_arg_values(session, index)
+  # arg_values <- switch(
+  #   EXPR = distribution,
+  #   "binom" = get_binom_arg_values(session, index),
+  #   "geom" = get_geom_arg_values(session, index),
+  #   "hyper" = get_hyper_arg_values(session, index),
+  #   "multinom" = get_multinom_arg_values(session, index),
+  #   "nbinom" = get_nbinom_arg_values(session, index),
+  #   "pois" = get_pois_arg_values(session, index),
+  #   "beta" = get_beta_arg_values(session, index),
+  #   "cauchy" = get_cauchy_arg_values(session, index),
+  #   "chisq" = get_chisq_arg_values(session, index),
+  #   "exp" = get_exp_arg_values(session, index),
+  #   "f" = get_f_arg_values(session, index),
+  #   "gamma" = get_gamma_arg_values(session, index),
+  #   "unif" = get_unif_arg_values(session, index),
+  #   "lnorm" = get_lnorm_arg_values(session, index),
+  #   "norm" = get_norm_arg_values(session, index),
+  #   "t" = get_t_arg_values(session, index),
+  #   "weibull" = get_weibull_arg_values(session, index)
+  # )
+  arg_names <- switch(
+    distribution,
+    "binom" = c("size", "prob"),
+    "geom" = c("prob", "xmax"),
+    "hyper" = c("m", "n", "k"),
+    "nbinom" = c("size", "prob", "xmax"),
+    "pois" = c("lambda", "xmax"),
+    "beta" = c("shape1", "shape2"),
+    "cauchy" = c("location", "scale"),
+    "chisq" = c("df"),
+    "exp" = c("rate"),
+    "f" = c("df1", "df2"),
+    "gamma" = c("shape", "scale"),
+    "unif" = c("min", "max"),
+    "lnorm" = c("meanlog", "sdlog"),
+    "norm" = c("mean", "sd"),
+    "t" = c("df"),
+    "weibull" = c("shape", "scale")
+  )
+  discrete <- ifelse(distribution %in% c("binom", "geom", "hyper", "nbinom", "pois"), TRUE, FALSE)
+  arg_values <- get_arg_values_data_table(
+    session = session,
+    index = index,
+    distribution = distribution,
+    name = arg_names,
+    discrete = discrete
   )
   return(arg_values)
 }
 
-get_binom_arg_values <- function(session, index) {
+get_arg_values_data_table <- function(session, index, distribution, name, discrete) {
   input <- session$input
+  arg_values <- data.table(
+    index = index,
+    distribution = distribution,
+    name = name,
+    value = map_dbl(name, function(name) {
+      req(input[[distribution %_% name %_% index]])
+    }),
+    discrete = discrete
+  )
+}
+
+get_binom_arg_values <- function(session, index) {
   arg_values <- list(
     size = input[["binom_size" %_% index]],
     prob = input[["binom_prob" %_% index]]
+  )
+  arg_values <- data.table(
+    index = index,
+    distribution = "binom",
+    name = c("size", "prob"),
+    value = c(input[["binom_size" %_% index]],
+              input[["binom_prob" %_% index]])
   )
 }
 

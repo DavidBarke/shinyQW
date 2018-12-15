@@ -2,11 +2,11 @@ module_verteilungen_input_ui <- function(id) {
   ns <- NS(id)
   
   tagList(
-    jsoneditOutput(
-      outputId = ns("listviewer")
-    ),
     uiOutput(
       outputId = ns("input_rows")
+    ),
+    verbatimTextOutput(
+      outputId = ns("printer")
     )
   )
 }
@@ -19,6 +19,18 @@ module_verteilungen_input_add_row_button <- function(id) {
     label = label_lang(
       de = "Neue Zeile",
       en = "Add row"
+    )
+  )
+}
+
+module_verteilungen_input_add_plot_button <- function(id) {
+  ns <- NS(id)
+  
+  actionButton(
+    inputId = ns("add_plot"),
+    label = label_lang(
+      de = "Neuer Plot",
+      en = "Add plot"
     )
   )
 }
@@ -58,11 +70,44 @@ module_verteilungen_input <- function(
   )
   
   rvs <- reactiveValues(
-    nrow = 1
+    nrow = 1,
+    nplot = 0
   )
   
   observeEvent(input$add_row, {
     rvs$nrow <- rvs$nrow + 1
+  })
+  
+  observeEvent(input$add_plot, {
+    rvs$nplot <- rvs$nplot + 1
+    .values$viewer$plot$append_tab(
+      tab = tabPanel(
+        title = label_lang(
+          de = paste0("Verteilung: ", rvs$nplot),
+          en = paste0("Distribution: ", rvs$nplot)
+        ),
+        plotlyOutput(
+          outputId = ns("distribution_plot" %_% rvs$nplot)
+        ),
+        value = ns("plot" %_% rvs$nplot)
+      )
+    )
+    output[["plot" %_% rvs$nplot]] <- renderPlot({
+      return(distribution_plot())
+    })
+  })
+  
+  distribution_plot <- reactive({
+    input_table <- input_table()
+    xmax_rows <- input_table[, name == "xmax"]
+    xmax_indices <- xmax_rows$index
+    for (i in unique(input_table$index)) {
+      if (i %in% xmax_indices) {
+        
+      } else {
+        
+      }
+    }
   })
   
   output$input_rows <- renderUI({
@@ -105,27 +150,22 @@ module_verteilungen_input <- function(
   })
   
   input_table <- reactive({
-    data <- data.table(distribution = character(rvs$nrow), args = list(list()))
-    distributions <- character(rvs$nrow)
-    args <- list(rvs$nrow)
+    data_list <- list()
     for (i in seq_len(rvs$nrow)) {
-      distributions[i] <- req(input[["select_distribution" %_% i]])
-      args[[i]] <- get_arg_values(
+      data_list[[i]] <- get_arg_values(
         session = session,
-        distribution = distributions[i],
+        distribution = req(input[["select_distribution" %_% i]]),
         index = i
       )
     }
-    set(data, j = "distribution", value = distributions)
-    data[,2] <- list(args)
-    data
+    data <- rbindlist(data_list)
+    print(data)
   })
   
-  output$listviewer <- renderJsonedit({
-    jsonedit(input_table())
+  output$printer <- renderText({
+    input_table()
+    distribution_plot()
+    return("Printer")
   })
   
-  return(list(
-    input_table = input_table
-  ))
 }
