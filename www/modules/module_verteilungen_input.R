@@ -1,3 +1,5 @@
+# TODO: unique(indices) durch seq_len(max(indices)) ersetzen
+
 module_verteilungen_input_ui <- function(id) {
   ns <- NS(id)
   
@@ -92,22 +94,88 @@ module_verteilungen_input <- function(
         value = ns("plot" %_% rvs$nplot)
       )
     )
-    output[["plot" %_% rvs$nplot]] <- renderPlot({
+    output[["distribution_plot" %_% rvs$nplot]] <- renderPlotly({
       return(distribution_plot())
     })
   })
   
   distribution_plot <- reactive({
+    p_min = 0.01
+    p_max = 0.99
     input_table <- input_table()
-    xmax_rows <- input_table[, name == "xmax"]
+    indices <- input_table$index
+    xmax_rows <- input_table[name == "xmax"]
     xmax_indices <- xmax_rows$index
-    for (i in unique(input_table$index)) {
+    x_min <- numeric(length(unique(indices)))
+    x_max <- numeric(length(unique(indices)))
+    for (i in seq_len(max(indices))) {
+      subset_table <- input_table[index == i]
       if (i %in% xmax_indices) {
-        
+        arg_values <- subset_table[name != "xmax", value]
+        names(arg_values) <- subset_table[name != "xmax", name]
+        subset_args <- as.list(arg_values)
+        x_min[i] <- 0
+        x_max[i] <- subset_table[name == "xmax", value]
       } else {
-        
+        arg_values <- subset_table[, value]
+        names(arg_values) <- subset_table[, name]
+        subset_args <- as.list(arg_values)
+        if (any(subset_table[, discrete])) {
+          x_min[i] <- 0
+          x_max[i] <- do.call(
+            what = paste0("q", subset_table[, distribution][1]),
+            args = c(list(p = 1), subset_args)
+          )
+        } else {
+          x_min[i] <- do.call(
+            what = paste0("q", subset_table[, distribution][1]),
+            args = c(list(p = p_min), subset_args)
+          )
+          x_max[i] <- do.call(
+            what = paste0("q", subset_table[, distribution][1]),
+            args = c(list(p = p_max), subset_args)
+          )
+        }
       }
     }
+    x_min_min <- floor(min(x_min))
+    x_max_max <- ceiling(max(x_max))
+    x_int <- x_min_min:x_max_max
+    data <- tibble(x = x_int)
+    for (i in seq_len(max(indices))) {
+      subset_table <- input_table[index == i]
+      arg_values <- subset_table[name != "xmax", value]
+      names(arg_values) <- subset_table[name != "xmax", name]
+      subset_args <- as.list(arg_values)
+      data[["y" %_% i]] <- do.call(
+        what = paste0("d", subset_table[, distribution][1]),
+        args = c(list(x = x_int), subset_args)
+      )
+      # Für den Fall, dass zwischen x_int und x_seq für diskrete bzw. stetige
+      # Verteilungen unterschieden wird
+      # assign(
+      #   "data" %_% i, 
+      #   data.table(
+      #     x = x_int,
+      #     y = do.call(
+      #       what = paste0("d", subset_table[, distribution][1]),
+      #       args = c(list(x = x_int), subset_args)
+      #     )
+      #   )
+      # )
+    }
+    print(data)
+    p <- plot_ly(data = data, x = ~x)
+    for (i in seq_len(max(indices))) {
+      p <- add_trace(
+        p = p,
+        y = data[["y" %_% i]],
+        name = input_table[index == i, distribution][1] %_% i,
+        type = "scatter",
+        mode = "lines"
+      )
+    }
+    p
   })
   
   output$input_rows <- renderUI({

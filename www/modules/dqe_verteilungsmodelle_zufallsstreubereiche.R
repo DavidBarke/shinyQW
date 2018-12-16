@@ -39,12 +39,8 @@ dqe_verteilungsmodelle_zufallsstreubereiche_box <- function(id) {
     fluidRow(
       column(
         width = 4,
-        actionButton(
-          inputId = ns("add_plot"),
-          label = label_lang(
-            de = "Plot",
-            en = "Plot"
-          )
+        module_verteilungen_input_add_plot_button(
+          id = ns("id_module_verteilungen_input")
         )
       ),
       column(
@@ -71,32 +67,4 @@ dqe_verteilungsmodelle_zufallsstreubereiche <- function(
     .values = .values,
     parent = self
   )
-  
-  observeEvent(input$add_plot, {
-    .values$viewer$plot$append_tab(
-      tab = tabPanel(
-        title = label_lang(
-          de = "Zufallsstreubereich",
-          en = "Random scattering range"
-        ),
-        plotlyOutput(
-          outputId = ns("plot_zufallsstreubereich")
-        )
-      )
-    )
-  })
-  
-  output$plot_zufallsstreubereich <- renderPlotly({
-    p <- plot_ly(data = data, x = ~x, y = ~density, type = "scatter", 
-                 mode = "lines", fill = "tozeroy") %>%
-      layout(
-        xaxis = list(
-          title = "x"
-        ),
-        yaxis = list(
-          title = "f(x)"
-        )
-      )
-    return(p)
-  })
 }
