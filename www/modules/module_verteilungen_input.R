@@ -103,6 +103,7 @@ module_verteilungen_input <- function(
     p_min = 0.01
     p_max = 0.99
     input_table <- input_table()
+    input_short_table <- input_short_table()
     indices <- input_table$index
     xmax_rows <- input_table[name == "xmax"]
     xmax_indices <- xmax_rows$index
@@ -123,16 +124,16 @@ module_verteilungen_input <- function(
         if (any(subset_table[, discrete])) {
           x_min[i] <- 0
           x_max[i] <- do.call(
-            what = paste0("q", subset_table[, distribution][1]),
+            what = paste0("q", input_short_table[i, distribution]),
             args = c(list(p = 1), subset_args)
           )
         } else {
           x_min[i] <- do.call(
-            what = paste0("q", subset_table[, distribution][1]),
+            what = paste0("q", input_short_table[i, distribution]),
             args = c(list(p = p_min), subset_args)
           )
           x_max[i] <- do.call(
-            what = paste0("q", subset_table[, distribution][1]),
+            what = paste0("q", input_short_table[i, distribution]),
             args = c(list(p = p_max), subset_args)
           )
         }
@@ -148,7 +149,7 @@ module_verteilungen_input <- function(
       names(arg_values) <- subset_table[name != "xmax", name]
       subset_args <- as.list(arg_values)
       data[["y" %_% i]] <- do.call(
-        what = paste0("d", subset_table[, distribution][1]),
+        what = paste0("d", input_short_table[i, distribution]),
         args = c(list(x = x_int), subset_args)
       )
       # Für den Fall, dass zwischen x_int und x_seq für diskrete bzw. stetige
@@ -164,14 +165,19 @@ module_verteilungen_input <- function(
       #   )
       # )
     }
-    print(data)
     p <- plot_ly(data = data, x = ~x)
     for (i in seq_len(max(indices))) {
+      discrete = input_short_table[i, discrete]
+      if (discrete) {
+        type <- "bar"
+      } else {
+        type <- "scatter"
+      }
       p <- add_trace(
         p = p,
         y = data[["y" %_% i]],
         name = input_table[index == i, distribution][1] %_% i,
-        type = "scatter",
+        type = type,
         mode = "lines"
       )
     }
@@ -227,7 +233,13 @@ module_verteilungen_input <- function(
       )
     }
     data <- rbindlist(data_list)
-    print(data)
+  })
+  
+  input_short_table <- reactive({
+    input_table <- input_table()
+    input_short_table <- input_table[,.(index, distribution, discrete)][
+      , head(.SD, 1), by = index
+    ]
   })
   
   output$printer <- renderText({
