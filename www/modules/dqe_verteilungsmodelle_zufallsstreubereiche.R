@@ -48,6 +48,12 @@ dqe_verteilungsmodelle_zufallsstreubereiche_box <- function(id) {
         module_verteilungen_input_add_row_button(
           id = ns("id_module_verteilungen_input")
         )
+      ),
+      column(
+        width = 4,
+        module_verteilungen_input_remove_row_button(
+          id = ns("id_module_verteilungen_input")
+        )
       )
     )
   )

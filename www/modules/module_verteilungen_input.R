@@ -6,9 +6,6 @@ module_verteilungen_input_ui <- function(id) {
   tagList(
     uiOutput(
       outputId = ns("input_rows")
-    ),
-    verbatimTextOutput(
-      outputId = ns("printer")
     )
   )
 }
@@ -33,6 +30,18 @@ module_verteilungen_input_add_plot_button <- function(id) {
     label = label_lang(
       de = "Neuer Plot",
       en = "Add plot"
+    )
+  )
+}
+
+module_verteilungen_input_remove_row_button <- function(id) {
+  ns <- NS(id)
+  
+  actionButton(
+    inputId = ns("remove_row"),
+    label = label_lang(
+      de = "Entferne Zeile",
+      en = "Remove row"
     )
   )
 }
@@ -80,6 +89,10 @@ module_verteilungen_input <- function(
     rvs$nrow <- rvs$nrow + 1
   })
   
+  observeEvent(input$remove_row, {
+    rvs$nrow <- max(1, rvs$nrow - 1)
+  })
+  
   observeEvent(input$add_plot, {
     rvs$nplot <- rvs$nplot + 1
     .values$viewer$plot$append_tab(
@@ -87,6 +100,20 @@ module_verteilungen_input <- function(
         title = label_lang(
           de = paste0("Verteilung: ", rvs$nplot),
           en = paste0("Distribution: ", rvs$nplot)
+        ),
+        fluidRow(
+          column(
+            width = 4,
+            numericInput(
+              inputId = ns("continous_steps" %_% rvs$nplot),
+              label = label_lang(
+                de = "Stetige Stützstellen",
+                en = "Continous support points"
+              ),
+              value = 50,
+              min = 2
+            )
+          )
         ),
         plotlyOutput(
           outputId = ns("distribution_plot" %_% rvs$nplot)
@@ -142,43 +169,48 @@ module_verteilungen_input <- function(
     x_min_min <- floor(min(x_min))
     x_max_max <- ceiling(max(x_max))
     x_int <- x_min_min:x_max_max
-    data <- tibble(x = x_int)
+    x_seq <- seq(x_min_min, x_max_max, 
+                 length.out = fallback(input$continous_steps_1, 50))
     for (i in seq_len(max(indices))) {
       subset_table <- input_table[index == i]
       arg_values <- subset_table[name != "xmax", value]
       names(arg_values) <- subset_table[name != "xmax", name]
       subset_args <- as.list(arg_values)
-      data[["y" %_% i]] <- do.call(
-        what = paste0("d", input_short_table[i, distribution]),
-        args = c(list(x = x_int), subset_args)
-      )
-      # Für den Fall, dass zwischen x_int und x_seq für diskrete bzw. stetige
-      # Verteilungen unterschieden wird
-      # assign(
-      #   "data" %_% i, 
-      #   data.table(
-      #     x = x_int,
-      #     y = do.call(
-      #       what = paste0("d", subset_table[, distribution][1]),
-      #       args = c(list(x = x_int), subset_args)
-      #     )
-      #   )
-      # )
-    }
-    p <- plot_ly(data = data, x = ~x)
-    for (i in seq_len(max(indices))) {
-      discrete = input_short_table[i, discrete]
+      discrete <- input_short_table[i, discrete]
       if (discrete) {
-        type <- "bar"
+        x <- x_int
       } else {
-        type <- "scatter"
+        x <- x_seq
       }
-      p <- add_trace(
+      assign(
+        "data" %_% i,
+        data.table(
+          x = x,
+          y = do.call(
+            what = paste0("d", input_short_table[i, distribution]),
+            args = c(list(x = x), subset_args)
+          )
+        )
+      )
+    }
+    p <- plot_ly(type = "scatter", mode = "lines")
+    for (i in seq_len(max(indices))) {
+      discrete <- input_short_table[i, discrete]
+      trace_args <- list(
         p = p,
-        y = data[["y" %_% i]],
-        name = input_table[index == i, distribution][1] %_% i,
-        type = type,
-        mode = "lines"
+        x = get("data" %_% i)$x,
+        y = get("data" %_% i)$y,
+        name = input_short_table[i, distribution] %_% i,
+        inherit = FALSE
+      )
+      if (discrete) {
+        trace_args <- c(trace_args, list(type = "bar"))
+      } else {
+        trace_args <- c(trace_args, list(type = "scatter", mode = "lines"))
+      }
+      p <- do.call(
+        what = add_trace,
+        args = trace_args
       )
     }
     p
@@ -240,12 +272,6 @@ module_verteilungen_input <- function(
     input_short_table <- input_table[,.(index, distribution, discrete)][
       , head(.SD, 1), by = index
     ]
-  })
-  
-  output$printer <- renderText({
-    input_table()
-    distribution_plot()
-    return("Printer")
   })
   
 }
