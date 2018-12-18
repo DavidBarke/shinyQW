@@ -4,7 +4,7 @@ dqe_verteilungsmodelle_zufallsstreubereiche_box <- function(id) {
   tagList(
     fluidRow(
       column(
-        width = 6,
+        width = 3,
         radioButtons(
           inputId = ns("nseitig"),
           label = label_lang(
@@ -16,11 +16,11 @@ dqe_verteilungsmodelle_zufallsstreubereiche_box <- function(id) {
             en = c("One-sided", "Two-sided"),
             value = c("one_sided", "two_sided")
           ),
-          inline = TRUE
+          inline = FALSE
         )
       ),
       column(
-        width = 6,
+        width = 3,
         numericInput(
           inputId = ns("alpha"),
           label = label_lang(
@@ -31,30 +31,16 @@ dqe_verteilungsmodelle_zufallsstreubereiche_box <- function(id) {
           min = 0,
           max = 1
         )
+      ),
+      column(
+        width = 6,
+        module_verteilungen_input_header(
+          id = ns("id_module_verteilungen_input")
+        )
       )
     ),
-    module_verteilungen_input_ui(
+    module_verteilungen_input_tables(
       id = ns("id_module_verteilungen_input")
-    ),
-    fluidRow(
-      column(
-        width = 4,
-        module_verteilungen_input_add_plot_button(
-          id = ns("id_module_verteilungen_input")
-        )
-      ),
-      column(
-        width = 4,
-        module_verteilungen_input_add_row_button(
-          id = ns("id_module_verteilungen_input")
-        )
-      ),
-      column(
-        width = 4,
-        module_verteilungen_input_remove_row_button(
-          id = ns("id_module_verteilungen_input")
-        )
-      )
     )
   )
 }

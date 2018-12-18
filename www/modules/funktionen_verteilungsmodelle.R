@@ -49,26 +49,26 @@ get_specific_distribution_input <- function(session, input, .values, distributio
 
 get_specific_binom_input <- function(session, input, .values, index) {
   ns <- session$ns
-  sizeInputId <- "binom_size" %_% index
-  probInputId <- "binom_prob" %_% index
+  size_input_id <- "binom_size" %_% index
+  prob_input_id <- "binom_prob" %_% index
   ui_element <- fluidRow(
     column(
       width = 6,
       numericInput(
-        inputId = ns(sizeInputId),
+        inputId = ns(size_input_id),
         label = "n",
-        value = 10,
+        value = fallback(input[["binom_size" %_% index]], 10),
         min = 1
       )
     ),
     column(
       width = 6,
       sliderInput(
-        inputId = ns(probInputId),
+        inputId = ns(prob_input_id),
         label = "p",
         min = 0,
         max = 1,
-        value = 0.1,
+        value = fallback(input[["binom_prob" %_% index]], 0.1),
         step = 0.01
       )
     )
@@ -88,7 +88,7 @@ get_specific_geom_input <- function(session, input, .values, index) {
         label = "p",
         min = 0,
         max = 1,
-        value = 0.1,
+        value = fallback(input[["geom_prob" %_% index]], 0.1),
         step = 0.01
       )
     ),
@@ -97,7 +97,7 @@ get_specific_geom_input <- function(session, input, .values, index) {
       numericInput(
         inputId = ns(xmax_id),
         label = "Xmax",
-        value = qgeom(p = 0.95, prob = 0.1),
+        value = fallback(input[["geom_xmax" %_% index]], qgeom(p = 0.95, prob = 0.1)),
         min = 1,
         step = 1
       )
@@ -134,7 +134,7 @@ get_specific_hyper_input <- function(session, input, .values, index) {
           de = "Weisse Bälle",
           en = "White Balls"
         ),
-        value = 5,
+        value = fallback(input[["hyper_m" %_% index]], 5),
         min = 0
       )
     ),
@@ -146,7 +146,7 @@ get_specific_hyper_input <- function(session, input, .values, index) {
           de = "Schwarze Bälle",
           en = "Black balls"
         ),
-        value = 5,
+        value = fallback(input[["hyper_n" %_% index]], 5),
         min = 0
       )
     ),
@@ -158,7 +158,7 @@ get_specific_hyper_input <- function(session, input, .values, index) {
           de = "Gezogene Bälle",
           en = "Drawn balls"
         ),
-        value = 5,
+        value = fallback(input[["hyper_k" %_% index]], 5),
         min = 0
       )
     )
@@ -185,7 +185,7 @@ get_specific_nbinom_input <- function(session, input, .values, index) {
       numericInput(
         inputId = ns(size_id),
         label = "n",
-        value = 10,
+        value = fallback(input[["nbinom_size" %_% index]], 10),
         min = 0
       )
     ),
@@ -194,7 +194,7 @@ get_specific_nbinom_input <- function(session, input, .values, index) {
       sliderInput(
         inputId = ns(prob_id),
         label = "p",
-        value = 0.1,
+        value = fallback(input[["nbinom_prob" %_% index]], 0.1),
         min = 0,
         max = 1,
         step = 0.01
@@ -205,7 +205,10 @@ get_specific_nbinom_input <- function(session, input, .values, index) {
       numericInput(
         inputId = ns(xmax_id),
         label = "Xmax",
-        value = qnbinom(p = 0.95, size = 10, prob = 0.1),
+        value = fallback(
+          input[["nbinom_xmax" %_% index]],
+          qnbinom(p = 0.95, size = 10, prob = 0.1)
+        ),
         min = 1,
         step = 1
       )
@@ -245,7 +248,7 @@ get_specific_pois_input <- function(session, input, .values, index) {
       numericInput(
         inputId = ns(lambda_id),
         label = "Lambda",
-        value = 1,
+        value = fallback(input[["pois_lambda" %_% index]], 1),
         min = 0,
         step = 0.01
       )
@@ -255,7 +258,10 @@ get_specific_pois_input <- function(session, input, .values, index) {
       numericInput(
         inputId = ns(xmax_id),
         label = "Xmax",
-        value = qpois(p = 0.95, lambda = 1),
+        value = fallback(
+          input[["pois_xmax" %_% index]],
+          qpois(p = 0.95, lambda = 1)
+        ),
         min = 0,
         step = 1
       )
@@ -291,7 +297,7 @@ get_specific_beta_input <- function(session, input, .values, index) {
           de = "Form 1",
           en = "Shape 1"
         ),
-        value = 1,
+        value = fallback(input[["beta_shape1" %_% index]], 1),
         min = 0,
         step = 0.01
       )
@@ -304,7 +310,7 @@ get_specific_beta_input <- function(session, input, .values, index) {
           de = "Form 2",
           en = "Shape 2"
         ),
-        value = 1,
+        value = fallback(input[["beta_shape2" %_% index]], 1),
         min = 0,
         step = 0.01
       )
@@ -326,7 +332,7 @@ get_specific_cauchy_input <- function(session, input, .values, index) {
           de = "Form",
           en = "Location"
         ),
-        value = 0
+        value = fallback(input[["cauchy_location" %_% index]], 0)
       )
     ),
     column(
@@ -337,7 +343,7 @@ get_specific_cauchy_input <- function(session, input, .values, index) {
           de = "Skalierung",
           en = "Scale"
         ),
-        value = 1
+        value = fallback(input[["cauchy_scale" %_% index]], 1)
       )
     )
   )
@@ -356,7 +362,7 @@ get_specific_chisq_input <- function(session, input, .values, index) {
           de = "Freiheitsgrade",
           en = "Degrees of freedom"
         ),
-        value = 1,
+        value = fallback(input[["chisq_df" %_% index]], 1),
         min = 1
       )
     )
@@ -373,7 +379,7 @@ get_specific_exp_input <- function(session, input, .values, index) {
       numericInput(
         inputId = ns(rate_id),
         label = "Rate",
-        value = 1,
+        value = fallback(input[["exp_rate" %_% index]], 1),
         min = 0,
         step = 0.01
       )
@@ -392,7 +398,7 @@ get_specific_f_input <- function(session, input, .values, index) {
       numericInput(
         inputId = ns(df1_id),
         label = "df1",
-        value = 1,
+        value = fallback(input[["f_df1" %_% index]], 1),
         min = 0
       )
     ),
@@ -401,7 +407,7 @@ get_specific_f_input <- function(session, input, .values, index) {
       numericInput(
         inputId = ns(df2_id),
         label = "df2",
-        value = 1,
+        value = fallback(input[["f_df2" %_% index]], 1),
         min = 0
       )
     )
@@ -419,7 +425,7 @@ get_specific_gamma_input <- function(session, input, .values, index) {
       numericInput(
         inputId = ns(shape_id),
         label = "Form",
-        value = 1,
+        value = fallback(input[["gamma_shape" %_% index]], 1),
         min = 0,
         step = 0.01
       )
@@ -432,7 +438,7 @@ get_specific_gamma_input <- function(session, input, .values, index) {
           de = "Skalierung",
           en = "Scale"
         ),
-        value = 1,
+        value = fallback(input[["gamma_scale" %_% index]], 1),
         min = 0.01,
         step = 0.01
       )
@@ -451,7 +457,7 @@ get_specific_unif_input <- function(session, input, .values, index) {
       numericInput(
         inputId = ns(min_id),
         "Min",
-        value = 0
+        value = fallback(input[["unif_min" %_% index]], 0)
       )
     ),
     column(
@@ -459,7 +465,7 @@ get_specific_unif_input <- function(session, input, .values, index) {
       numericInput(
         inputId = ns(max_id),
         "Max",
-        value = 1
+        value = fallback(input[["unif_max" %_% index]], 1)
       )
     )
   )
@@ -476,7 +482,7 @@ get_specific_lnorm_input <- function(session, input, .values, index) {
       numericInput(
         inputId = ns(meanlog_id),
         label = "mu",
-        value = 0
+        value = fallback(input[["lnorm_meanlog" %_% index]], 0)
       )
     ),
     column(
@@ -484,7 +490,7 @@ get_specific_lnorm_input <- function(session, input, .values, index) {
       numericInput(
         inputId = ns(sdlog_id),
         label = "sigma",
-        value = 1,
+        value = fallback(input[["lnorm_sdlog" %_% index]], 1),
         min = 0.01
       )
     )
@@ -502,7 +508,7 @@ get_specific_norm_input <- function(session, input, .values, index) {
       numericInput(
         inputId = ns(mean_id),
         label = "mu",
-        value = 0
+        value = fallback(input[["norm_mean" %_% index]], 0)
       )
     ),
     column(
@@ -510,7 +516,7 @@ get_specific_norm_input <- function(session, input, .values, index) {
       numericInput(
         inputId = ns(sd_id),
         label = "sigma",
-        value = 1,
+        value = fallback(input[["norm_sd" %_% index]], 1),
         min = 0.01
       )
     )
@@ -530,7 +536,7 @@ get_specific_t_input <- function(session, input, .values, index) {
           de = "Freiheitsgrade",
           en = "Degrees of freedom"
         ),
-        value = 1,
+        value = fallback(input[["t_df" %_% index]], 1),
         min = 0
       )
     )
@@ -548,7 +554,7 @@ get_specific_weibull_input <- function(session, input, .values, index) {
       numericInput(
         inputId = ns(shape_id),
         label = "Form",
-        value = 1
+        value = fallback(input[["weibull_shape" %_% index]], 1)
       )
     ),
     column(
@@ -559,7 +565,7 @@ get_specific_weibull_input <- function(session, input, .values, index) {
           de = "Skalierung",
           en = "Scale"
         ),
-        value = 1
+        value = fallback(input[["weibull_scale" %_% index]], 1)
       )
     )
   )

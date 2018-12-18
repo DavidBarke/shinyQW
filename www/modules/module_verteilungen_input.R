@@ -1,36 +1,38 @@
 # TODO: unique(indices) durch seq_len(max(indices)) ersetzen
 
-module_verteilungen_input_ui <- function(id) {
+module_verteilungen_input_header <- function(id) {
   ns <- NS(id)
   
-  tagList(
-    uiOutput(
-      outputId = ns("input_rows")
+  fluidRow(
+    column(
+      width = 6,
+      selectInput(
+        inputId = ns("select_input_table"),
+        label = label_lang(
+          de = "Wähle Tabelle",
+          en = "Select table"
+        ),
+        choices = NULL
+      )
+    ),
+    column(
+      width = 6,
+      actionButton(
+        inputId = ns("add_table"),
+        label = label_lang(
+          de = "Neue Tabelle",
+          en = "Add table"
+        )
+      )
     )
   )
 }
 
-module_verteilungen_input_add_row_button <- function(id) {
+module_verteilungen_input_tables <- function(id) {
   ns <- NS(id)
   
-  actionButton(
-    inputId = ns("add_row"),
-    label = label_lang(
-      de = "Neue Zeile",
-      en = "Add row"
-    )
-  )
-}
-
-module_verteilungen_input_add_plot_button <- function(id) {
-  ns <- NS(id)
-  
-  actionButton(
-    inputId = ns("add_plot"),
-    label = label_lang(
-      de = "Neuer Plot",
-      en = "Add plot"
-    )
+  div(
+    id = ns("input_tables")
   )
 }
 
@@ -81,183 +83,290 @@ module_verteilungen_input <- function(
   )
   
   rvs <- reactiveValues(
-    nrow = 1,
-    nplot = 0
+    n_row = 0,
+    n_plot = 0,
+    n_table = 0,
+    open_table = 0
   )
   
-  observeEvent(input$add_row, {
-    rvs$nrow <- rvs$nrow + 1
-  })
-  
-  observeEvent(input$remove_row, {
-    rvs$nrow <- max(1, rvs$nrow - 1)
-  })
-  
-  observeEvent(input$add_plot, {
-    rvs$nplot <- rvs$nplot + 1
-    .values$viewer$plot$append_tab(
-      tab = tabPanel(
-        title = label_lang(
-          de = paste0("Verteilung: ", rvs$nplot),
-          en = paste0("Distribution: ", rvs$nplot)
-        ),
-        fluidRow(
-          column(
-            width = 4,
-            numericInput(
-              inputId = ns("continous_steps" %_% rvs$nplot),
-              label = label_lang(
-                de = "Stetige Stützstellen",
-                en = "Continous support points"
-              ),
-              value = 50,
-              min = 2
-            )
-          )
-        ),
-        plotlyOutput(
-          outputId = ns("distribution_plot" %_% rvs$nplot)
-        ),
-        value = ns("plot" %_% rvs$nplot)
+  observeEvent(input$add_table, {
+    rvs$n_table <- rvs$n_table + 1
+    n_table <- rvs$n_table
+    rvs$n_row[n_table] <- 1
+    rvs$n_plot[n_table] <- 0
+    rvs$open_table <- n_table
+    updateSelectInput(
+      session = session,
+      inputId = "select_input_table",
+      choices = label_lang_list(
+        de = paste("Tabelle", seq_len(n_table), sep = " "),
+        en = paste("Table", seq_len(n_table), sep = " "),
+        value = seq_len(n_table)
+      ),
+      selected = n_table
+    )
+    insertUI(
+      selector = paste0("#", ns("input_tables")),
+      where = "afterBegin",
+      ui = uiOutput(
+        outputId = ns("input_table" %_% n_table)
       )
     )
-    output[["distribution_plot" %_% rvs$nplot]] <- renderPlotly({
-      return(distribution_plot())
-    })
-  })
-  
-  distribution_plot <- reactive({
-    p_min = 0.01
-    p_max = 0.99
-    input_table <- input_table()
-    input_short_table <- input_short_table()
-    indices <- input_table$index
-    xmax_rows <- input_table[name == "xmax"]
-    xmax_indices <- xmax_rows$index
-    x_min <- numeric(length(unique(indices)))
-    x_max <- numeric(length(unique(indices)))
-    for (i in seq_len(max(indices))) {
-      subset_table <- input_table[index == i]
-      if (i %in% xmax_indices) {
-        arg_values <- subset_table[name != "xmax", value]
-        names(arg_values) <- subset_table[name != "xmax", name]
-        subset_args <- as.list(arg_values)
-        x_min[i] <- 0
-        x_max[i] <- subset_table[name == "xmax", value]
-      } else {
-        arg_values <- subset_table[, value]
-        names(arg_values) <- subset_table[, name]
-        subset_args <- as.list(arg_values)
-        if (any(subset_table[, discrete])) {
-          x_min[i] <- 0
-          x_max[i] <- do.call(
-            what = paste0("q", input_short_table[i, distribution]),
-            args = c(list(p = 1), subset_args)
-          )
-        } else {
-          x_min[i] <- do.call(
-            what = paste0("q", input_short_table[i, distribution]),
-            args = c(list(p = p_min), subset_args)
-          )
-          x_max[i] <- do.call(
-            what = paste0("q", input_short_table[i, distribution]),
-            args = c(list(p = p_max), subset_args)
+    output[["input_table" %_% n_table]] <- renderUI({
+      if (input$select_input_table == n_table) {
+        n_row <- rvs$n_row[n_table]
+        ui <- tagList()
+        selected_distributions <- vector("list", n_row)
+        for (i in seq_len(n_row)) {
+          selected_distributions[[i]] <- fallback(
+            input[["select_distribution" %_% n_table %_% i]], 
+            "binom"
           )
         }
-      }
-    }
-    x_min_min <- floor(min(x_min))
-    x_max_max <- ceiling(max(x_max))
-    x_int <- x_min_min:x_max_max
-    x_seq <- seq(x_min_min, x_max_max, 
-                 length.out = fallback(input$continous_steps_1, 50))
-    for (i in seq_len(max(indices))) {
-      subset_table <- input_table[index == i]
-      arg_values <- subset_table[name != "xmax", value]
-      names(arg_values) <- subset_table[name != "xmax", name]
-      subset_args <- as.list(arg_values)
-      discrete <- input_short_table[i, discrete]
-      if (discrete) {
-        x <- x_int
-      } else {
-        x <- x_seq
-      }
-      assign(
-        "data" %_% i,
-        data.table(
-          x = x,
-          y = do.call(
-            what = paste0("d", input_short_table[i, distribution]),
-            args = c(list(x = x), subset_args)
+        for (i in seq_len(n_row)) {
+          ui[[i]] <- div(
+            fluidRow(
+              column(
+                width = 4,
+                selectInput(
+                  inputId = ns("select_distribution" %_% n_table %_% i),
+                  label = label_lang(
+                    de = "Verteilung",
+                    en = "Distribution"
+                  ),
+                  choices = label_lang_list(
+                    de = c("Diskrete Verteilungen", "Stetige Verteilungen"),
+                    en = c("Discrete distributions", "Contiuous distributions"),
+                    value = list(diskrete_verteilungen, stetige_verteilungen)
+                  ),
+                  selected = fallback(selected_distributions[[i]], "binom")
+                )
+              ),
+              column(
+                width = 8,
+                get_specific_distribution_input(
+                  session = session, 
+                  input = input, 
+                  .values = .values, 
+                  index = n_table %_% i, 
+                  distribution = fallback(selected_distributions[[i]], "binom")
+                )
+              )
+            )
+          )
+        }
+        ui <- div(
+          ui,
+          fluidRow(
+            column(
+              width = 4,
+              actionButton(
+                inputId = ns("add_plot" %_% n_table),
+                label = label_lang(
+                  de = "Neuer Plot",
+                  en = "Add plot"
+                )
+              )
+            ),
+            column(
+              width = 4,
+              actionButton(
+                inputId = ns("add_row" %_% n_table),
+                label = label_lang(
+                  de = "Neue Zeile",
+                  en = "Add row"
+                )
+              )
+            )
           )
         )
-      )
-    }
-    p <- plot_ly(type = "scatter", mode = "lines")
-    for (i in seq_len(max(indices))) {
-      discrete <- input_short_table[i, discrete]
-      trace_args <- list(
-        p = p,
-        x = get("data" %_% i)$x,
-        y = get("data" %_% i)$y,
-        name = input_short_table[i, distribution] %_% i,
-        inherit = FALSE
-      )
-      if (discrete) {
-        trace_args <- c(trace_args, list(type = "bar"))
-      } else {
-        trace_args <- c(trace_args, list(type = "scatter", mode = "lines"))
       }
-      p <- do.call(
-        what = add_trace,
-        args = trace_args
-      )
-    }
-    p
-  })
-  
-  output$input_rows <- renderUI({
-    ui <- tagList()
-    selected_distributions <- list(rvs$nrow)
-    for (i in seq_len(rvs$nrow)) {
-      selected_distributions[i] <- list(input[["select_distribution" %_% i]])
-    }
-    for (i in seq_len(rvs$nrow)) {
-      ui[[i]] <- fluidRow(
-        column(
-          width = 4,
-          selectInput(
-            inputId = ns("select_distribution" %_% i),
-            label = label_lang(
-              de = "Verteilung",
-              en = "Distribution"
+    })
+    observeEvent(input[["add_row" %_% n_table]], {
+      rvs$n_row[n_table] <- rvs$n_row[n_table] + 1
+    })
+    observeEvent(input[["add_plot" %_% n_table]], {
+      if (!.values$viewer$plot$is_value(
+        ns("value_plot" %_% n_table %_% rvs$n_plot[n_table])
+        )) {
+        rvs$n_plot[n_table] <- rvs$n_plot[n_table] + 1
+        assign(
+          "distribution_plot" %_% n_table %_% rvs$n_plot[n_table],
+          reactive({
+            p_min = 0.01
+            p_max = 0.99
+            type <- fallback(
+              input[["select_plot_type" %_% n_table %_% rvs$n_plot[n_table]]], 
+              "d"
+            )
+            input_table <- input_table()
+            input_short_table <- input_short_table()
+            indices <- input_table$index
+            if (type != "q") {
+              xmax_rows <- input_table[name == "xmax"]
+              xmax_indices <- xmax_rows$index
+              x_min <- numeric(length(unique(indices)))
+              x_max <- numeric(length(unique(indices)))
+              for (i in seq_len(max(indices))) {
+                subset_table <- input_table[index == i]
+                if (i %in% xmax_indices) {
+                  arg_values <- subset_table[name != "xmax", value]
+                  names(arg_values) <- subset_table[name != "xmax", name]
+                  subset_args <- as.list(arg_values)
+                  x_min[i] <- 0
+                  x_max[i] <- subset_table[name == "xmax", value]
+                } else {
+                  arg_values <- subset_table[, value]
+                  names(arg_values) <- subset_table[, name]
+                  subset_args <- as.list(arg_values)
+                  if (any(subset_table[, discrete])) {
+                    x_min[i] <- 0
+                    x_max[i] <- do.call(
+                      what = paste0("q", input_short_table[i, distribution]),
+                      args = c(list(p = 1), subset_args)
+                    )
+                  } else {
+                    x_min[i] <- do.call(
+                      what = paste0("q", input_short_table[i, distribution]),
+                      args = c(list(p = p_min), subset_args)
+                    )
+                    x_max[i] <- do.call(
+                      what = paste0("q", input_short_table[i, distribution]),
+                      args = c(list(p = p_max), subset_args)
+                    )
+                  }
+                }
+              }
+              x_min_min <- floor(min(x_min))
+              x_max_max <- ceiling(max(x_max))
+              x_int <- x_min_min:x_max_max
+              x_seq <- seq(
+                x_min_min, x_max_max, 
+                length.out = fallback(
+                  input[["continous_steps" %_% n_table %_% rvs$n_plot[n_table]]], 
+                  50
+                )
+              )
+            } else {
+              p <- seq(0, 1, length.out = 100)
+            }
+            for (i in seq_len(max(indices))) {
+              subset_table <- input_table[index == i]
+              arg_values <- subset_table[name != "xmax", value]
+              names(arg_values) <- subset_table[name != "xmax", name]
+              subset_args <- as.list(arg_values)
+              if (type != "q") {
+                discrete <- input_short_table[i, discrete]
+                if (discrete) {
+                  x <- x_int
+                } else {
+                  x <- x_seq
+                }
+                x_var <- "x"
+                if (type == "d") {
+                  first_arg_list <- list(x = x)
+                } else {
+                  first_arg_list <- list(q = x)
+                }
+              } else {
+                first_arg_list <- list(p = p)
+                x_var <- "p"
+              }
+              assign(
+                "data" %_% i,
+                data.table(
+                  x = get(x_var),
+                  y = do.call(
+                    what = paste0(type, input_short_table[i, distribution]),
+                    args = c(first_arg_list, subset_args)
+                  )
+                )
+              )
+            }
+            p <- plot_ly(type = "scatter", mode = "lines")
+            for (i in seq_len(max(indices))) {
+              discrete <- input_short_table[i, discrete]
+              trace_args <- list(
+                p = p,
+                x = get("data" %_% i)$x,
+                y = get("data" %_% i)$y,
+                name = input_short_table[i, distribution] %_% i,
+                inherit = FALSE
+              )
+              if (discrete) {
+                trace_args <- c(trace_args, list(type = "bar"))
+              } else {
+                trace_args <- c(trace_args, list(type = "scatter", mode = "lines"))
+              }
+              p <- do.call(
+                what = add_trace,
+                args = trace_args
+              )
+            }
+            p
+          })
+        )
+        output[["distribution_plot" %_% n_table %_% rvs$n_plot[n_table]]] <- renderPlotly({
+          return(get("distribution_plot" %_% n_table %_% rvs$n_plot[n_table])())
+        })
+      }
+      .values$viewer$plot$append_tab(
+        tab = tabPanel(
+          title = label_lang(
+            de = paste0("Verteilung: ", n_table, " ", rvs$n_plot[n_table]),
+            en = paste0("Distribution: ", n_table, " ", rvs$n_plot[n_table])
+          ),
+          fluidRow(
+            column(
+              width = 4,
+              selectInput(
+                inputId = ns("select_plot_type" %_% n_table %_% rvs$n_plot[n_table]),
+                label = label_lang(
+                  de = "Plottyp",
+                  en = "Plot type"
+                ),
+                choices = label_lang_list(
+                  de = c(
+                    "Wahrscheinlichkeitsdichtefunktion", 
+                    "Verteilungsfunktion",
+                    "Quantilsfunktion"
+                  ),
+                  en = c(
+                    "Density function",
+                    "Cumulative distribution function",
+                    "Quantile function"
+                  ),
+                  value = c("d", "p", "q")
+                )
+              )
             ),
-            choices = label_lang_list(
-              de = c("Diskrete Verteilungen", "Stetige Verteilungen"),
-              en = c("Discrete distributions", "Contiuous distributions"),
-              value = list(diskrete_verteilungen, stetige_verteilungen)
-            ),
-            selected = fallback(selected_distributions[[i]], "binom")
-          )
-        ),
-        column(
-          width = 8,
-          get_specific_distribution_input(
-            session = session, 
-            input = input, 
-            .values = .values, 
-            index = i, 
-            distribution = fallback(selected_distributions[[i]], "binom")
-          )
+            column(
+              width = 4,
+              numericInput(
+                inputId = ns("continous_steps" %_% n_table %_% rvs$n_plot[n_table]),
+                label = label_lang(
+                  de = "Stetige Stützstellen",
+                  en = "Continous support points"
+                ),
+                value = 50,
+                min = 2
+              )
+            )
+          ),
+          plotlyOutput(
+            outputId = ns(
+              "distribution_plot" %_% n_table %_% rvs$n_plot[n_table]
+            )
+          ),
+          value = ns("value_plot" %_% n_table %_% rvs$n_plot[n_table])
         )
       )
-    }
-    ui
+    })
   })
   
   input_table <- reactive({
     data_list <- list()
-    for (i in seq_len(rvs$nrow)) {
+    for (i in seq_len(rvs$n_row)) {
       data_list[[i]] <- get_arg_values(
         session = session,
         distribution = req(input[["select_distribution" %_% i]]),

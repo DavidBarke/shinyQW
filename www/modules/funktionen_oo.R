@@ -232,13 +232,14 @@ tabBox_R6 <- R6::R6Class(
     append_tab = function(tab, select = TRUE, closeable = TRUE) {
       private$tabCounter <- private$tabCounter + 1
       data_value <- tab$attribs[["data-value"]]
-      if (data_value %in% private$tab_values) {
+      if (data_value %in% private$open_tab_values) {
         updateTabsetPanel(
           session = private$session,
           inputId = private$id,
           selected = data_value
         )
       } else {
+        private$open_tab_values <- c(private$open_tab_values, data_value)
         private$tab_values <- c(private$tab_values, data_value)
         shiny::appendTab(
           inputId = private$id,
@@ -260,13 +261,14 @@ tabBox_R6 <- R6::R6Class(
                          select = FALSE, closeable = TRUE) {
       private$tabCounter <- private$tabCounter + 1
       data_value <- tab$attribs[["data-value"]]
-      if (data_value %in% private$tab_values) {
+      if (data_value %in% private$open_tab_values) {
         updateTabsetPanel(
           session = private$session,
           inputId = private$id,
           selected = data_value
         )
       } else {
+        private$open_tab_values <- c(private$open_tab_values, data_value)
         private$tab_values <- c(private$tab_values, data_value)
         shiny::insertTab(
           inputId = private$id,
@@ -280,17 +282,26 @@ tabBox_R6 <- R6::R6Class(
       }
       invisible(self)
     },
+    
+    is_open = function(value) {
+      value %in% private$open_tab_values
+    },
+    
+    is_value = function(value) {
+      value %in% private$tab_values
+    },
 
     prepend_tab = function(tab, select = FALSE, closeable = TRUE) {
       private$tabCounter <- private$tabCounter + 1
       data_value <- tab$attribs[["data-value"]]
-      if (data_value %in% private$tab_values) {
+      if (data_value %in% private$open_tab_values) {
         updateTabsetPanel(
           session = private$session,
           inputId = private$id,
           selected = data_value
         )
       } else {
+        private$open_tab_values <- c(private$open_tab_values, data_value)
         private$tab_values <- c(private$tab_values, data_value)
         shiny::prependTab(
           inputId = private$id,
@@ -305,8 +316,8 @@ tabBox_R6 <- R6::R6Class(
     },
 
     remove_tab = function(target) {
-      index <- which(private$tab_values == target)
-      private$tab_values <- private$tab_values[-index]
+      index <- which(private$open_tab_values == target)
+      private$open_tab_values <- private$open_tab_values[-index]
       shiny::removeTab(
         inputId = private$id,
         target = target,
@@ -363,6 +374,7 @@ tabBox_R6 <- R6::R6Class(
     once = FALSE,
     session = NULL,
     tabCounter = 0,
+    open_tab_values = character(),
     tab_values = character(),
 
     createActionButton = function(data_value) {
