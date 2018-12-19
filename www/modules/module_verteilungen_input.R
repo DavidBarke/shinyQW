@@ -55,6 +55,8 @@ module_verteilungen_input <- function(
   
   ns <- session$ns
   
+  # Möglicherweise können die Verteilungen auf Dauer als globale Variablen
+  # definiert wird
   diskrete_verteilungen <- label_lang_list(
     de = c("Binomialverteilung", "Geometrische Verteilung",
            "Hypergeometrische Verteilung", "Multinomialverteilung",
@@ -83,16 +85,18 @@ module_verteilungen_input <- function(
   )
   
   rvs <- reactiveValues(
-    n_row = numeric(max_n_table),
-    n_table = 0,
-    open_table = 0
+    # n_row ist ein Integer-Vektor, der für jede Tabelle die Anzahl der
+    # verschiedenen Inputzeilen enthält
+    n_row = integer(),
+    n_table = 0
   )
   
   observeEvent(input$add_table, {
+    # Anpassen der rvs
     rvs$n_table <- rvs$n_table + 1
     n_table <- rvs$n_table
     rvs$n_row[n_table] <- 1
-    rvs$open_table <- n_table
+    # Anpassen der Tabellenauswahl
     updateSelectInput(
       session = session,
       inputId = "select_input_table",
@@ -103,6 +107,7 @@ module_verteilungen_input <- function(
       ),
       selected = n_table
     )
+    # Einfügen in die Liste der möglichen Tabellen
     insertUI(
       selector = paste0("#", ns("input_tables")),
       where = "afterBegin",
@@ -111,16 +116,10 @@ module_verteilungen_input <- function(
       )
     )
     output[["input_table" %_% n_table]] <- renderUI({
-      if (input$select_input_table == n_table) {
+      if (input$select_input_table == n_table) { # Nur die ausgewählte Tabelle
+        # wird angezeigt
         n_row <- rvs$n_row[n_table]
         ui <- tagList()
-        selected_distributions <- vector("list", n_row)
-        for (i in seq_len(n_row)) {
-          selected_distributions[[i]] <- fallback(
-            input[["select_distribution" %_% n_table %_% i]], 
-            "binom"
-          )
-        }
         for (i in seq_len(n_row)) {
           ui[[i]] <- div(
             fluidRow(
@@ -137,7 +136,10 @@ module_verteilungen_input <- function(
                     en = c("Discrete distributions", "Contiuous distributions"),
                     value = list(diskrete_verteilungen, stetige_verteilungen)
                   ),
-                  selected = fallback(selected_distributions[[i]], "binom")
+                  selected = fallback(
+                    input[["select_distribution" %_% n_table %_% i]], 
+                    "binom"
+                  )
                 )
               ),
               column(
@@ -147,7 +149,10 @@ module_verteilungen_input <- function(
                   input = input, 
                   .values = .values,
                   index = n_table %_% i,
-                  distribution = fallback(selected_distributions[[i]], "binom")
+                  distribution = fallback(
+                    input[["select_distribution" %_% n_table %_% i]], 
+                    "binom"
+                  )
                 )
               )
             )
@@ -184,12 +189,16 @@ module_verteilungen_input <- function(
       rvs$n_row[n_table] <- rvs$n_row[n_table] + 1
     })
     observeEvent(input[["add_plot" %_% n_table]], {
+      # Stelle sicher, dass die reactive() nur einmal erzeugt werden
       if (!.values$viewer$plot$is_value(
         ns("value_plot" %_% n_table)
         )) {
         assign(
           "input_table" %_% n_table,
           reactive({
+            # Die einzelnen Inputs der Tabellenzeilen werden als data.table von
+            # get_arg_values() zurückgegeben und danach zu einer einzigen
+            # data.table zusammengesetzt
             data_list <- list()
             for (i in seq_len(rvs$n_row[n_table])) {
               data_list[[i]] <- get_arg_values(
@@ -205,6 +214,9 @@ module_verteilungen_input <- function(
         assign(
           "input_short_table" %_% n_table,
           reactive({
+            # input_short_table extrahiert aus den einzelnen Tabellenzeilen die
+            # allgemeinen Werte wie Index, Verteilung und ob die Verteilung
+            # diskret ist
             input_table <- get("input_table" %_% n_table)()
             input_short_table <- input_table[,.(index, distribution, discrete)][
               , head(.SD, 1), by = index
@@ -224,6 +236,12 @@ module_verteilungen_input <- function(
             input_short_table <- get("input_short_table" %_% n_table)()
             indices <- input_table$index
             if (type != "q") {
+              # Für Dichte- und Verteilungsfunktion müssen die Grenzen des Plots
+              # basierend auf allen Tabellenzeilen erstellt werden. Dabei muss
+              # zwischen diskreten und stetigen Verteilungen unterschieden
+              # werden und innerhalb der diskreten Verteilungen zwischen Vertei-
+              # lungen deren Definitionsbereich beschränkt bzw. unbeschränkt
+              # sind
               xmax_rows <- input_table[name == "xmax"]
               xmax_indices <- xmax_rows$index
               x_min <- numeric(length(unique(indices)))
@@ -269,8 +287,12 @@ module_verteilungen_input <- function(
                 )
               )
             } else {
+              # Für die Quantilsfunktion sind die Grenzen der x-Achse trivial
               p <- seq(0, 1, length.out = 100)
             }
+            # Für die einzelnen Tabellenzeilen werden basierend auf den Input-
+            # werten Datensätze erzeugt, die später in add_trace() verwendet
+            # werden
             for (i in seq_len(max(indices))) {
               subset_table <- input_table[index == i]
               arg_values <- subset_table[name != "xmax", value]
@@ -306,22 +328,13 @@ module_verteilungen_input <- function(
             }
             p <- plot_ly(type = "scatter", mode = "lines")
             for (i in seq_len(max(indices))) {
-              discrete <- input_short_table[i, discrete]
-              trace_args <- list(
+              p <- get_distribution_trace(
                 p = p,
                 x = get("data" %_% i)$x,
                 y = get("data" %_% i)$y,
                 name = input_short_table[i, distribution] %_% i,
-                inherit = FALSE
-              )
-              if (discrete) {
-                trace_args <- c(trace_args, list(type = "bar"))
-              } else {
-                trace_args <- c(trace_args, list(type = "scatter", mode = "lines"))
-              }
-              p <- do.call(
-                what = add_trace,
-                args = trace_args
+                discrete =input_short_table[i, discrete]
+
               )
             }
             return(p)
