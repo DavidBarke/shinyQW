@@ -1160,7 +1160,7 @@ get_weibull_plot <- function(input, .values, prefix_id, type, plot_engine) {
 
 # GET ARG VALUES --------------------------------
 
-get_arg_values <- function(session, distribution, index) {
+get_arg_values <- function(session, distribution, index, ending) {
   # arg_values <- switch(
   #   EXPR = distribution,
   #   "binom" = get_binom_arg_values(session, index),
@@ -1204,6 +1204,7 @@ get_arg_values <- function(session, distribution, index) {
   arg_values <- get_arg_values_data_table(
     session = session,
     index = index,
+    ending = ending,
     distribution = distribution,
     name = arg_names,
     discrete = discrete
@@ -1211,14 +1212,15 @@ get_arg_values <- function(session, distribution, index) {
   return(arg_values)
 }
 
-get_arg_values_data_table <- function(session, index, distribution, name, discrete) {
+get_arg_values_data_table <- function(session, index, ending, distribution, name, discrete) {
   input <- session$input
   arg_values <- data.table(
     index = index,
     distribution = distribution,
     name = name,
     value = map_dbl(name, function(name) {
-      req(input[[distribution %_% name %_% index]])
+      # req wird benötigt, wenn neue Zeile angelegt wird
+      req(input[[distribution %_% name %_% ending]])
     }),
     discrete = discrete
   )

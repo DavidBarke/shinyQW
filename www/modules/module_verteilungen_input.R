@@ -83,8 +83,7 @@ module_verteilungen_input <- function(
   )
   
   rvs <- reactiveValues(
-    n_row = 0,
-    n_plot = 0,
+    n_row = numeric(max_n_table),
     n_table = 0,
     open_table = 0
   )
@@ -93,7 +92,6 @@ module_verteilungen_input <- function(
     rvs$n_table <- rvs$n_table + 1
     n_table <- rvs$n_table
     rvs$n_row[n_table] <- 1
-    rvs$n_plot[n_table] <- 0
     rvs$open_table <- n_table
     updateSelectInput(
       session = session,
@@ -147,8 +145,8 @@ module_verteilungen_input <- function(
                 get_specific_distribution_input(
                   session = session, 
                   input = input, 
-                  .values = .values, 
-                  index = n_table %_% i, 
+                  .values = .values,
+                  index = n_table %_% i,
                   distribution = fallback(selected_distributions[[i]], "binom")
                 )
               )
@@ -187,20 +185,43 @@ module_verteilungen_input <- function(
     })
     observeEvent(input[["add_plot" %_% n_table]], {
       if (!.values$viewer$plot$is_value(
-        ns("value_plot" %_% n_table %_% rvs$n_plot[n_table])
+        ns("value_plot" %_% n_table)
         )) {
-        rvs$n_plot[n_table] <- rvs$n_plot[n_table] + 1
         assign(
-          "distribution_plot" %_% n_table %_% rvs$n_plot[n_table],
+          "input_table" %_% n_table,
+          reactive({
+            data_list <- list()
+            for (i in seq_len(rvs$n_row[n_table])) {
+              data_list[[i]] <- get_arg_values(
+                session = session,
+                distribution = fallback(input[["select_distribution" %_% n_table %_% i]], "binom"),
+                index = i,
+                ending = n_table %_% i
+              )
+            }
+            data <- rbindlist(data_list)
+          })
+        )
+        assign(
+          "input_short_table" %_% n_table,
+          reactive({
+            input_table <- get("input_table" %_% n_table)()
+            input_short_table <- input_table[,.(index, distribution, discrete)][
+              , head(.SD, 1), by = index
+              ]
+          })
+        )
+        assign(
+          "distribution_plot" %_% n_table,
           reactive({
             p_min = 0.01
             p_max = 0.99
             type <- fallback(
-              input[["select_plot_type" %_% n_table %_% rvs$n_plot[n_table]]], 
+              input[["select_plot_type" %_% n_table]], 
               "d"
             )
-            input_table <- input_table()
-            input_short_table <- input_short_table()
+            input_table <- get("input_table" %_% n_table)()
+            input_short_table <- get("input_short_table" %_% n_table)()
             indices <- input_table$index
             if (type != "q") {
               xmax_rows <- input_table[name == "xmax"]
@@ -243,7 +264,7 @@ module_verteilungen_input <- function(
               x_seq <- seq(
                 x_min_min, x_max_max, 
                 length.out = fallback(
-                  input[["continous_steps" %_% n_table %_% rvs$n_plot[n_table]]], 
+                  input[["continous_steps" %_% n_table]], 
                   50
                 )
               )
@@ -303,24 +324,25 @@ module_verteilungen_input <- function(
                 args = trace_args
               )
             }
-            p
+            return(p)
           })
         )
-        output[["distribution_plot" %_% n_table %_% rvs$n_plot[n_table]]] <- renderPlotly({
-          return(get("distribution_plot" %_% n_table %_% rvs$n_plot[n_table])())
+        output[["distribution_plot" %_% n_table]] <- renderPlotly({
+          p <- get("distribution_plot" %_% n_table)()
+          return(p)
         })
       }
       .values$viewer$plot$append_tab(
         tab = tabPanel(
           title = label_lang(
-            de = paste0("Verteilung: ", n_table, " ", rvs$n_plot[n_table]),
-            en = paste0("Distribution: ", n_table, " ", rvs$n_plot[n_table])
+            de = paste0("Verteilung: ", n_table),
+            en = paste0("Distribution: ", n_table)
           ),
           fluidRow(
             column(
               width = 4,
               selectInput(
-                inputId = ns("select_plot_type" %_% n_table %_% rvs$n_plot[n_table]),
+                inputId = ns("select_plot_type" %_% n_table),
                 label = label_lang(
                   de = "Plottyp",
                   en = "Plot type"
@@ -343,7 +365,7 @@ module_verteilungen_input <- function(
             column(
               width = 4,
               numericInput(
-                inputId = ns("continous_steps" %_% n_table %_% rvs$n_plot[n_table]),
+                inputId = ns("continous_steps" %_% n_table),
                 label = label_lang(
                   de = "Stetige Stützstellen",
                   en = "Continous support points"
@@ -355,32 +377,13 @@ module_verteilungen_input <- function(
           ),
           plotlyOutput(
             outputId = ns(
-              "distribution_plot" %_% n_table %_% rvs$n_plot[n_table]
+              "distribution_plot" %_% n_table
             )
           ),
-          value = ns("value_plot" %_% n_table %_% rvs$n_plot[n_table])
+          value = ns("value_plot" %_% n_table)
         )
       )
     })
-  })
-  
-  input_table <- reactive({
-    data_list <- list()
-    for (i in seq_len(rvs$n_row)) {
-      data_list[[i]] <- get_arg_values(
-        session = session,
-        distribution = req(input[["select_distribution" %_% i]]),
-        index = i
-      )
-    }
-    data <- rbindlist(data_list)
-  })
-  
-  input_short_table <- reactive({
-    input_table <- input_table()
-    input_short_table <- input_table[,.(index, distribution, discrete)][
-      , head(.SD, 1), by = index
-    ]
   })
   
 }
