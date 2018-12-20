@@ -86,7 +86,7 @@ get_specific_geom_input <- function(session, input, .values, index) {
       sliderInput(
         inputId = ns(prob_id),
         label = "p",
-        min = 0,
+        min = 0.01,
         max = 1,
         value = fallback(input[["geom_prob" %_% index]], 0.1),
         step = 0.01
@@ -572,7 +572,7 @@ get_specific_weibull_input <- function(session, input, .values, index) {
   return(ui_element)
 }
 
-# SPECIFIC DISTRIBUTION PLOTS --------------------------------------------------
+# SPECIFIC DISTRIBUTION PLOTS 
 
 #' @export
 
@@ -1209,7 +1209,7 @@ get_arg_values_data_table <- function(session, index, ending, distribution, name
 
 # GET DISTRIBUTION TRACE --------------------------------------------------------
 
-get_distribution_trace <- function(p, x, y, name, discrete) {
+get_distribution_trace <- function(p, type, x, y, name, discrete) {
   trace_args <- list(
     p = p,
     x = x,
@@ -1217,7 +1217,7 @@ get_distribution_trace <- function(p, x, y, name, discrete) {
     name = name,
     inherit = FALSE
   )
-  if (discrete) {
+  if (discrete && type == "d") {
     trace_args <- c(trace_args, list(type = "bar"))
   } else {
     trace_args <- c(trace_args, list(type = "scatter", mode = "lines"))
@@ -1228,5 +1228,101 @@ get_distribution_trace <- function(p, x, y, name, discrete) {
   )
 }
 
+# GET DISTRIBUTION DATA
+
+get_distribution_data <- function(
+  i, input, type, n_table, input_table, input_short_table, x_limits
+) {
+  subset_table <- input_table[index == i]
+  arg_values <- subset_table[name != "xmax", value]
+  names(arg_values) <- subset_table[name != "xmax", name]
+  subset_args <- as.list(arg_values)
+  if (type != "q") {
+    discrete <- input_short_table[i, discrete]
+    x_int <- x_limits[1]:x_limits[2]
+    x_seq <- seq(
+      x_limits[1], x_limits[2], 
+      length.out = fallback(
+        input[["continous_steps" %_% n_table]], 
+        50
+      )
+    )
+    if (type == "d") {
+      if (discrete) {
+        x <- x_int
+      } else {
+        x <- x_seq
+      }
+      first_arg_list <- list(x = x)
+    } else {
+      if (discrete) {
+        x <- c(rbind(x_int[1:length(x_int)], x_int[2:(length(x_int) + 1)], NA))
+        y_x <- c(rbind(x_int, x_int, NA))
+        first_arg_list <- list(q = y_x)
+      } else {
+        x <- x_seq
+        first_arg_list <- list(q = x)
+      }
+    }
+  } else {
+    x <- seq(0, 1, length.out = 100)
+    first_arg_list <- list(p = x)
+  }
+  data.table(
+    x = x,
+    y = do.call(
+      what = paste0(type, input_short_table[i, distribution]),
+      args = c(first_arg_list, subset_args)
+    )
+  )
+}
+
+# GET X LIMITS
+
+get_x_limits <- function(indices, input_table, input_short_table, p_limits) {
+  # Für Dichte- und Verteilungsfunktion müssen die Grenzen des Plots
+  # basierend auf allen Tabellenzeilen erstellt werden. Dabei muss
+  # zwischen diskreten und stetigen Verteilungen unterschieden
+  # werden und innerhalb der diskreten Verteilungen zwischen Vertei-
+  # lungen deren Definitionsbereich beschränkt bzw. unbeschränkt
+  # sind
+  xmax_rows <- input_table[name == "xmax"]
+  xmax_indices <- xmax_rows$index
+  x_min <- numeric(length(unique(indices)))
+  x_max <- numeric(length(unique(indices)))
+  for (i in seq_len(max(indices))) {
+    subset_table <- input_table[index == i]
+    if (i %in% xmax_indices) {
+      arg_values <- subset_table[name != "xmax", value]
+      names(arg_values) <- subset_table[name != "xmax", name]
+      subset_args <- as.list(arg_values)
+      x_min[i] <- 0
+      x_max[i] <- subset_table[name == "xmax", value]
+    } else {
+      arg_values <- subset_table[, value]
+      names(arg_values) <- subset_table[, name]
+      subset_args <- as.list(arg_values)
+      if (any(subset_table[, discrete])) {
+        x_min[i] <- 0
+        x_max[i] <- do.call(
+          what = paste0("q", input_short_table[i, distribution]),
+          args = c(list(p = 1), subset_args)
+        )
+      } else {
+        x_min[i] <- do.call(
+          what = paste0("q", input_short_table[i, distribution]),
+          args = c(list(p = p_limits[1]), subset_args)
+        )
+        x_max[i] <- do.call(
+          what = paste0("q", input_short_table[i, distribution]),
+          args = c(list(p = p_limits[2]), subset_args)
+        )
+      }
+    }
+  }
+  x_min_min <- floor(min(x_min))
+  x_max_max <- ceiling(max(x_max))
+  c(x_min_min, x_max_max)
+}
 
 

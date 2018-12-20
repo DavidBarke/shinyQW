@@ -226,8 +226,6 @@ module_verteilungen_input <- function(
         assign(
           "distribution_plot" %_% n_table,
           reactive({
-            p_min = 0.01
-            p_max = 0.99
             type <- fallback(
               input[["select_plot_type" %_% n_table]], 
               "d"
@@ -236,93 +234,38 @@ module_verteilungen_input <- function(
             input_short_table <- get("input_short_table" %_% n_table)()
             indices <- input_table$index
             if (type != "q") {
-              # Für Dichte- und Verteilungsfunktion müssen die Grenzen des Plots
-              # basierend auf allen Tabellenzeilen erstellt werden. Dabei muss
-              # zwischen diskreten und stetigen Verteilungen unterschieden
-              # werden und innerhalb der diskreten Verteilungen zwischen Vertei-
-              # lungen deren Definitionsbereich beschränkt bzw. unbeschränkt
-              # sind
-              xmax_rows <- input_table[name == "xmax"]
-              xmax_indices <- xmax_rows$index
-              x_min <- numeric(length(unique(indices)))
-              x_max <- numeric(length(unique(indices)))
-              for (i in seq_len(max(indices))) {
-                subset_table <- input_table[index == i]
-                if (i %in% xmax_indices) {
-                  arg_values <- subset_table[name != "xmax", value]
-                  names(arg_values) <- subset_table[name != "xmax", name]
-                  subset_args <- as.list(arg_values)
-                  x_min[i] <- 0
-                  x_max[i] <- subset_table[name == "xmax", value]
-                } else {
-                  arg_values <- subset_table[, value]
-                  names(arg_values) <- subset_table[, name]
-                  subset_args <- as.list(arg_values)
-                  if (any(subset_table[, discrete])) {
-                    x_min[i] <- 0
-                    x_max[i] <- do.call(
-                      what = paste0("q", input_short_table[i, distribution]),
-                      args = c(list(p = 1), subset_args)
-                    )
-                  } else {
-                    x_min[i] <- do.call(
-                      what = paste0("q", input_short_table[i, distribution]),
-                      args = c(list(p = p_min), subset_args)
-                    )
-                    x_max[i] <- do.call(
-                      what = paste0("q", input_short_table[i, distribution]),
-                      args = c(list(p = p_max), subset_args)
-                    )
-                  }
-                }
-              }
-              x_min_min <- floor(min(x_min))
-              x_max_max <- ceiling(max(x_max))
-              x_int <- x_min_min:x_max_max
-              x_seq <- seq(
-                x_min_min, x_max_max, 
-                length.out = fallback(
-                  input[["continous_steps" %_% n_table]], 
-                  50
-                )
+              method <- fallback(
+                input[["select_method_axes_limits" %_% n_table]],
+                "quantile"
               )
-            } else {
-              # Für die Quantilsfunktion sind die Grenzen der x-Achse trivial
-              p <- seq(0, 1, length.out = 100)
+              if (method == "quantile") {
+                x_limits <- get_x_limits(
+                  indices = indices, 
+                  input_table = input_table,
+                  input_short_table = input_short_table,
+                  p_limits = input[["p_limits"]] %_% n_table
+                )
+              } else {
+                x_limits <- c(
+                  input[["x_min" %_% n_table]], 
+                  input[["x_max" %_% n_table]]
+                )
+              }
             }
             # Für die einzelnen Tabellenzeilen werden basierend auf den Input-
             # werten Datensätze erzeugt, die später in add_trace() verwendet
             # werden
             for (i in seq_len(max(indices))) {
-              subset_table <- input_table[index == i]
-              arg_values <- subset_table[name != "xmax", value]
-              names(arg_values) <- subset_table[name != "xmax", name]
-              subset_args <- as.list(arg_values)
-              if (type != "q") {
-                discrete <- input_short_table[i, discrete]
-                if (discrete) {
-                  x <- x_int
-                } else {
-                  x <- x_seq
-                }
-                x_var <- "x"
-                if (type == "d") {
-                  first_arg_list <- list(x = x)
-                } else {
-                  first_arg_list <- list(q = x)
-                }
-              } else {
-                first_arg_list <- list(p = p)
-                x_var <- "p"
-              }
               assign(
                 "data" %_% i,
-                data.table(
-                  x = get(x_var),
-                  y = do.call(
-                    what = paste0(type, input_short_table[i, distribution]),
-                    args = c(first_arg_list, subset_args)
-                  )
+                get_distribution_data(
+                  i = i,
+                  input = input,
+                  type = type,
+                  n_table = n_table,
+                  input_table = input_table,
+                  input_short_table = input_short_table,
+                  x_limits = x_limits
                 )
               )
             }
@@ -330,10 +273,11 @@ module_verteilungen_input <- function(
             for (i in seq_len(max(indices))) {
               p <- get_distribution_trace(
                 p = p,
+                type = type,
                 x = get("data" %_% i)$x,
                 y = get("data" %_% i)$y,
                 name = input_short_table[i, distribution] %_% i,
-                discrete =input_short_table[i, discrete]
+                discrete = input_short_table[i, discrete]
 
               )
             }
@@ -386,6 +330,16 @@ module_verteilungen_input <- function(
                 value = 50,
                 min = 2
               )
+            ),
+            column(
+              width = 4,
+              actionButton(
+                inputId = ns("select_axes_limits" %_% n_table),
+                label = label_lang(
+                  de = "Achsenbegrenzungen",
+                  en = "Set axes limits"
+                )
+              )
             )
           ),
           plotlyOutput(
@@ -396,6 +350,78 @@ module_verteilungen_input <- function(
           value = ns("value_plot" %_% n_table)
         )
       )
+      observeEvent(input[["select_axes_limits" %_% n_table]], {
+        showModal(
+          ui = modalDialog(
+            title = label_lang(
+              de = "Achsenbegrenzungen",
+              en = "Set axes limits"
+            ),
+            footer = modalButton(
+              label = label_lang(
+                de = "Schließen",
+                en = "Dismiss"
+              )
+            ),
+            selectInput(
+              inputId = ns("select_method_axes_limits" %_% n_table),
+              label = label_lang(
+                de = "Setze Begrenzungen basierend auf",
+                en = "Set limits according to"
+              ),
+              choices = label_lang_list(
+                de = c("Konkreten Werten", "Quantilen stetiger Verteilungen"),
+                en = c("Concrete values", "Quantiles of continous distributions"),
+                value = c("concrete", "quantile")
+              ),
+              selected = "quantile"
+            ),
+            uiOutput(
+              outputId = ns("select_axes_limits_ui" %_% n_table)
+            )
+          )
+        )
+      })
+      output[["select_axes_limits_ui" %_% n_table]] <- renderUI({
+        if (input[["select_method_axes_limits" %_% n_table]] == "concrete") {
+          fluidRow(
+            column(
+              width = 6,
+              numericInput(
+                inputId = ns("x_min" %_% n_table),
+                label = label_lang(
+                  de = "Minimaler Wert",
+                  en = "Minimal value"
+                ),
+                value = 0
+              )
+            ),
+            column(
+              width = 6,
+              numericInput(
+                inputId = ns("x_max" %_% n_table),
+                label = label_lang(
+                  de = "Maximaler Wert",
+                  en = "Maximal value"
+                ),
+                value = 10
+              )
+            )
+          )
+        } else {
+          sliderInput(
+            inputId = ns("p_limits" %_% n_table),
+            label = label_lang(
+              de = "Quantile für stetige Verteilungen",
+              en = "Quantile of continous distributions"
+            ),
+            value = c(0.01, 0.99),
+            min = 0.01,
+            max = 0.99,
+            step = 0.01
+          )
+        }
+      })
     })
   })
   
