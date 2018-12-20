@@ -177,6 +177,13 @@ ui <- dashboardPage(
           "tab_plotly_btn",
           "plotly"
         )
+      ),
+      actionItem(
+        inputId = "development_btn",
+        label = label_lang(
+          de = "Entwicklung",
+          en = "Development"
+        )
       )
     )
   ),
@@ -189,10 +196,6 @@ ui <- dashboardPage(
         href = "styles.css"
       )
     ),
-    menubar_ui(
-      id = "id_menubar",
-      title = "Menu"
-    ),
     fluidRow(
       column(
         width  = 6,
@@ -201,12 +204,8 @@ ui <- dashboardPage(
       ), # column
       column(
         width = 6,
-        jqui_sortable(
-          tags$div(
-            viewer_data$tabBox(collapsible = TRUE),
-            viewer_plot$tabBox(collapsible = TRUE)
-          )
-        )
+        viewer_data$tabBox(collapsible = TRUE),
+        viewer_plot$tabBox(collapsible = TRUE)
       ) # column
     ) # fluidRow
   )
@@ -371,6 +370,21 @@ server <- function(input, output, session) {
   
   content_list$add_element_actionButton(
     content_element = content_tabBox(
+      id = "tab_development_element",
+      title = label_lang(
+        de = "Entwicklung",
+        en = "Development"
+      ),
+      tabPanel_list = development_tabPanel(
+        id = "id_development"
+      )
+    ),
+    actionButton_id = "development_btn",
+    actionButton_session = session
+  )
+  
+  content_list$add_element_actionButton(
+    content_element = content_tabBox(
       id = "tab_statistische_prozesskontrolle",
       title = label_lang(
         de = "Statistische Prozesskontrolle",
@@ -405,9 +419,9 @@ server <- function(input, output, session) {
                           .values = .values,
                           parent = self)
 
-  call_menubar <- callModule(
-    module = menubar,
-    id = "id_menubar",
+  call_development <- callModule(
+    module = development,
+    id = "id_development",
     .data = .data,
     .values = .values,
     parent = self

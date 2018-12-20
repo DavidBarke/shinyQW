@@ -104,7 +104,7 @@ dqe_deskriptive_statistik_sortierte_daten <- function(
     rvs_data$counter <- rvs_data$counter + 1
     rvs_data$laenge <- input$laenge
     rvs_data$minmax <- input$minmax
-    .values$viewer$data$appendTab(
+    .values$viewer$data$append_tab(
       tab = tabPanel(
         title = "Tabellierte Häufigkeitsverteilung",
         DT::dataTableOutput(

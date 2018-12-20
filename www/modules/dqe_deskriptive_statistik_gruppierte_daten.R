@@ -234,7 +234,7 @@ dqe_deskriptive_statistik_gruppierte_daten <- function(
     #   title = "Grafik",
     #   plot_reactive = plot_group
     # )
-    .values$viewer$plot$appendTab(
+    .values$viewer$plot$append_tab(
       tab = tabPanel(
         title = "Grafische Häufigkeitsverteilung",
         plotOutput(

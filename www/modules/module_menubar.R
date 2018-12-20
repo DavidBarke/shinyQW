@@ -1,3 +1,5 @@
+# Zurzeit nicht in Verwendung
+
 #' @export
 menubar_ui <- function(id, title) {
   ns <- NS(id)
