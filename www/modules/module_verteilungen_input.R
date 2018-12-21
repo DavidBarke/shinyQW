@@ -107,6 +107,10 @@ module_verteilungen_input <- function(
     rvs$p_min[n_table] <- 0.01
     rvs$p_max[n_table] <- 0.99
     rvs$select_method_axes_limits[n_table] <- "quantile"
+    # trigger_x_limits_* triggert den reactive, der die x_limits berechnet. Der 
+    # Umweg über die reactiveVal bzw. -Values (x/p_min/max) muss beschritten 
+    # werden, da die Inputs in renderUI nur dann erreichbar sind, wenn diese 
+    # auch dargestellt werden
     assign(
       envir = .envir,
       "trigger_x_limits" %_% n_table,
