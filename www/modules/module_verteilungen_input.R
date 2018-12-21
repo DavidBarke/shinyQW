@@ -6,6 +6,16 @@ module_verteilungen_input_header <- function(id) {
   fluidRow(
     column(
       width = 6,
+      actionButton(
+        inputId = ns("add_table"),
+        label = label_lang(
+          de = "Neue Tabelle",
+          en = "Add table"
+        )
+      )
+    ),
+    column(
+      width = 6,
       selectInput(
         inputId = ns("select_input_table"),
         label = label_lang(
@@ -13,16 +23,6 @@ module_verteilungen_input_header <- function(id) {
           en = "Select table"
         ),
         choices = NULL
-      )
-    ),
-    column(
-      width = 6,
-      actionButton(
-        inputId = ns("add_table"),
-        label = label_lang(
-          de = "Neue Tabelle",
-          en = "Add table"
-        )
       )
     )
   )
@@ -49,7 +49,8 @@ module_verteilungen_input_remove_row_button <- function(id) {
 }
 
 module_verteilungen_input <- function(
-  input, output, session, .data, .values, parent, ...
+  input, output, session, .data, .values, parent, 
+  .mode, ...
 ) {
   self <- node$new("verteilungen_input", parent, session)
   
@@ -180,13 +181,60 @@ module_verteilungen_input <- function(
                   en = "Add row"
                 )
               )
+            ),
+            column(
+              width = 4,
+              actionButton(
+                inputId = ns("remove_row" %_% n_table),
+                label = label_lang(
+                  de = "Entferne Zeile",
+                  en = "Remove row"
+                )
+              )
             )
           )
         )
+        if (.mode == "rsr") {
+          ui <- div(
+            fluidRow(
+              column(
+                width = 6,
+                radioButtons(
+                  inputId = ns("n_sided" %_% n_table),
+                  label = label_lang(
+                    de = "Zufallsstreubereich",
+                    en = "Random scattering range"
+                  ),
+                  choices = label_lang_list(
+                    de = c("Einseitig", "Zweiseitig"),
+                    en = c("One-sided", "Two-sided"),
+                    value = c("one", "two")
+                  )
+                )
+              ),
+              column(
+                width = 6,
+                sliderInput(
+                  inputId = ns("alpha" %_% n_table),
+                  label = "Alpha",
+                  min = 0,
+                  max = 1,
+                  value = 0.05,
+                  step = 0.01
+                )
+              )
+            ),
+            ui
+          )
+        }
+        ui
       }
     })
     observeEvent(input[["add_row" %_% n_table]], {
       rvs$n_row[n_table] <- rvs$n_row[n_table] + 1
+    })
+    observeEvent(input[["remove_row" %_% n_table]], {
+      rvs$n_row[n_table] <- max(1, rvs$n_row[ntable] - 1)
     })
     observeEvent(input[["add_plot" %_% n_table]], {
       # Stelle sicher, dass die reactive() nur einmal erzeugt werden
@@ -243,7 +291,7 @@ module_verteilungen_input <- function(
                   indices = indices, 
                   input_table = input_table,
                   input_short_table = input_short_table,
-                  p_limits = input[["p_limits"]] %_% n_table
+                  p_limits = input[["p_limits" %_% n_table]]
                 )
               } else {
                 x_limits <- c(
