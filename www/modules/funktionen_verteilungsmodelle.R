@@ -1309,6 +1309,8 @@ get_x_limits <- function(indices, input_table, input_short_table, p_limits) {
           args = c(list(p = 1), subset_args)
         )
       } else {
+        print(p_limits)
+        print(subset_args)
         x_min[i] <- do.call(
           what = paste0("q", input_short_table[i, distribution]),
           args = c(list(p = p_limits[1]), subset_args)

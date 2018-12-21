@@ -1,5 +1,3 @@
-# TODO: unique(indices) durch seq_len(max(indices)) ersetzen
-
 module_verteilungen_input_header <- function(id) {
   ns <- NS(id)
   
@@ -89,7 +87,12 @@ module_verteilungen_input <- function(
     # n_row ist ein Integer-Vektor, der für jede Tabelle die Anzahl der
     # verschiedenen Inputzeilen enthält
     n_row = integer(),
-    n_table = 0
+    n_table = 0,
+    envir = environment(),
+    x_min = integer(),
+    x_max = integer(),
+    p_min = integer(),
+    p_max = integer()
   )
   
   observeEvent(input$add_table, {
@@ -97,6 +100,15 @@ module_verteilungen_input <- function(
     rvs$n_table <- rvs$n_table + 1
     n_table <- rvs$n_table
     rvs$n_row[n_table] <- 1
+    rvs$x_min[n_table] <- 0
+    rvs$x_max[n_table] <- 10
+    rvs$p_min[n_table] <- 0.01
+    rvs$p_max[n_table] <- 0.99
+    assign(
+      envir = rvs$envir,
+      "trigger_x_limits" %_% n_table,
+      reactiveVal(0)
+    )
     # Anpassen der Tabellenauswahl
     updateSelectInput(
       session = session,
@@ -234,7 +246,7 @@ module_verteilungen_input <- function(
       rvs$n_row[n_table] <- rvs$n_row[n_table] + 1
     })
     observeEvent(input[["remove_row" %_% n_table]], {
-      rvs$n_row[n_table] <- max(1, rvs$n_row[ntable] - 1)
+      rvs$n_row[n_table] <- max(1, rvs$n_row[n_table] - 1)
     })
     observeEvent(input[["add_plot" %_% n_table]], {
       # Stelle sicher, dass die reactive() nur einmal erzeugt werden
@@ -242,6 +254,7 @@ module_verteilungen_input <- function(
         ns("value_plot" %_% n_table)
         )) {
         assign(
+          envir = rvs$envir,
           "input_table" %_% n_table,
           reactive({
             # Die einzelnen Inputs der Tabellenzeilen werden als data.table von
@@ -260,6 +273,7 @@ module_verteilungen_input <- function(
           })
         )
         assign(
+          envir = rvs$envir,
           "input_short_table" %_% n_table,
           reactive({
             # input_short_table extrahiert aus den einzelnen Tabellenzeilen die
@@ -272,6 +286,39 @@ module_verteilungen_input <- function(
           })
         )
         assign(
+          envir = rvs$envir,
+          "x_limits" %_% n_table,
+          reactive({
+            get("trigger_x_limits" %_% n_table)()
+            isolate({
+              method <- fallback(
+                input[["select_method_axes_limits" %_% n_table]],
+                "quantile"
+              )
+              if (method == "quantile") {
+                input_table <- get("input_table" %_% n_table)()
+                indices <- input_table$index
+                x_limits <- get_x_limits(
+                  indices = indices, 
+                  input_table = input_table,
+                  input_short_table = get("input_short_table" %_% n_table)(),
+                  p_limits = fallback(
+                    input[["p_limits" %_% n_table]],
+                    c(0.01, 0.99)
+                  )
+                )
+              } else {
+                x_limits <- c(
+                  req(input[["x_min" %_% n_table]]), 
+                  req(input[["x_max" %_% n_table]])
+                )
+              }
+            })
+            x_limits
+          })
+        )
+        assign(
+          envir = rvs$envir,
           "distribution_plot" %_% n_table,
           reactive({
             type <- fallback(
@@ -282,23 +329,7 @@ module_verteilungen_input <- function(
             input_short_table <- get("input_short_table" %_% n_table)()
             indices <- input_table$index
             if (type != "q") {
-              method <- fallback(
-                input[["select_method_axes_limits" %_% n_table]],
-                "quantile"
-              )
-              if (method == "quantile") {
-                x_limits <- get_x_limits(
-                  indices = indices, 
-                  input_table = input_table,
-                  input_short_table = input_short_table,
-                  p_limits = input[["p_limits" %_% n_table]]
-                )
-              } else {
-                x_limits <- c(
-                  input[["x_min" %_% n_table]], 
-                  input[["x_max" %_% n_table]]
-                )
-              }
+              x_limits <- get("x_limits" %_% n_table)()
             }
             # Für die einzelnen Tabellenzeilen werden basierend auf den Input-
             # werten Datensätze erzeugt, die später in add_trace() verwendet
@@ -335,6 +366,124 @@ module_verteilungen_input <- function(
         output[["distribution_plot" %_% n_table]] <- renderPlotly({
           p <- get("distribution_plot" %_% n_table)()
           return(p)
+        })
+        observeEvent(input[["select_axes_limits" %_% n_table]], {
+          showModal(
+            ui = modalDialog(
+              title = label_lang(
+                de = "Achsenbegrenzungen",
+                en = "Set axes limits"
+              ),
+              selectInput(
+                inputId = ns("select_method_axes_limits" %_% n_table),
+                label = label_lang(
+                  de = "Setze Begrenzungen basierend auf",
+                  en = "Set limits according to"
+                ),
+                choices = label_lang_list(
+                  de = c("Konkreten Werten", "Quantilen stetiger Verteilungen"),
+                  en = c("Concrete values", "Quantiles of continous distributions"),
+                  value = c("concrete", "quantile")
+                ),
+                selected = fallback(
+                  input[["select_method_axes_limits" %_% n_table]],
+                  "quantile"
+                )
+              ),
+              uiOutput(
+                outputId = ns("select_axes_limits_ui" %_% n_table)
+              ),
+              footer = div(
+                modalButton(
+                  label = label_lang(
+                    de = "Verwerfen",
+                    en = "Dismiss"
+                  )
+                ),
+                actionButton(
+                  inputId = ns("apply_axes_limits" %_% n_table),
+                  label = label_lang(
+                    de = "Anwenden",
+                    en = "Apply"
+                  )
+                ),
+                actionButton(
+                  inputId = ns("apply_all_axes_limits" %_% n_table),
+                  label = label_lang(
+                    de = "Auf alle Verteilungsplots anwenden",
+                    en = "Apply to all distribution plots"
+                  )
+                )
+              )
+            )
+          )
+        })
+        observeEvent(input[["apply_axes_limits" %_% n_table]], {
+          get("trigger_x_limits" %_% n_table)(get("trigger_x_limits" %_% n_table)() + 1)
+          removeModal()
+        })
+        observeEvent(input[["apply_all_axes_limits" %_% n_table]], {
+          method <- input[["select_method_axes_limits" %_% n_table]]
+          if (method == "concrete") {
+            rvs$x_min <- rep(input[["x_min" %_% n_table]], times = rvs$n_table)
+            rvs$x_max <- rep(input[["x_max" %_% n_table]], times = rvs$n_table)
+          } else {
+            rvs$p_min <- rep(input[["p_limits" %_% n_table]][1], times = rvs$n_table)
+            rvs$p_max <- rep(input[["p_limits" %_% n_table]][2], times = rvs$n_table)
+          }
+          for (i in seq_len(rvs$n_table)) {
+            get("trigger_x_limits" %_% i)(get("trigger_x_limits" %_% i)() + 1)
+          }
+          removeModal()
+        })
+        output[["select_axes_limits_ui" %_% n_table]] <- renderUI({
+          if (input[["select_method_axes_limits" %_% n_table]] == "concrete") {
+            fluidRow(
+              column(
+                width = 6,
+                numericInput(
+                  inputId = ns("x_min" %_% n_table),
+                  label = label_lang(
+                    de = "Minimaler Wert",
+                    en = "Minimal value"
+                  ),
+                  value = fallback(
+                    rvs$x_min[n_table],
+                    0
+                  )
+                )
+              ),
+              column(
+                width = 6,
+                numericInput(
+                  inputId = ns("x_max" %_% n_table),
+                  label = label_lang(
+                    de = "Maximaler Wert",
+                    en = "Maximal value"
+                  ),
+                  value = fallback(
+                    rvs$x_max[n_table],
+                    10
+                  )
+                )
+              )
+            )
+          } else {
+            sliderInput(
+              inputId = ns("p_limits" %_% n_table),
+              label = label_lang(
+                de = "Quantile für stetige Verteilungen",
+                en = "Quantile of continous distributions"
+              ),
+              value = fallback(
+                c(rvs$p_min[n_table], rvs$p_max[n_table]),
+                c(0.01, 0.99)
+              ),
+              min = 0.01,
+              max = 0.99,
+              step = 0.01
+            )
+          }
         })
       }
       .values$viewer$plot$append_tab(
@@ -398,78 +547,6 @@ module_verteilungen_input <- function(
           value = ns("value_plot" %_% n_table)
         )
       )
-      observeEvent(input[["select_axes_limits" %_% n_table]], {
-        showModal(
-          ui = modalDialog(
-            title = label_lang(
-              de = "Achsenbegrenzungen",
-              en = "Set axes limits"
-            ),
-            footer = modalButton(
-              label = label_lang(
-                de = "Schließen",
-                en = "Dismiss"
-              )
-            ),
-            selectInput(
-              inputId = ns("select_method_axes_limits" %_% n_table),
-              label = label_lang(
-                de = "Setze Begrenzungen basierend auf",
-                en = "Set limits according to"
-              ),
-              choices = label_lang_list(
-                de = c("Konkreten Werten", "Quantilen stetiger Verteilungen"),
-                en = c("Concrete values", "Quantiles of continous distributions"),
-                value = c("concrete", "quantile")
-              ),
-              selected = "quantile"
-            ),
-            uiOutput(
-              outputId = ns("select_axes_limits_ui" %_% n_table)
-            )
-          )
-        )
-      })
-      output[["select_axes_limits_ui" %_% n_table]] <- renderUI({
-        if (input[["select_method_axes_limits" %_% n_table]] == "concrete") {
-          fluidRow(
-            column(
-              width = 6,
-              numericInput(
-                inputId = ns("x_min" %_% n_table),
-                label = label_lang(
-                  de = "Minimaler Wert",
-                  en = "Minimal value"
-                ),
-                value = 0
-              )
-            ),
-            column(
-              width = 6,
-              numericInput(
-                inputId = ns("x_max" %_% n_table),
-                label = label_lang(
-                  de = "Maximaler Wert",
-                  en = "Maximal value"
-                ),
-                value = 10
-              )
-            )
-          )
-        } else {
-          sliderInput(
-            inputId = ns("p_limits" %_% n_table),
-            label = label_lang(
-              de = "Quantile für stetige Verteilungen",
-              en = "Quantile of continous distributions"
-            ),
-            value = c(0.01, 0.99),
-            min = 0.01,
-            max = 0.99,
-            step = 0.01
-          )
-        }
-      })
     })
   })
   
