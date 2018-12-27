@@ -24,6 +24,6 @@ dqe_verteilungsmodelle_verteilungen <- function(
     .data = .data,
     .values = .values,
     parent = self,
-    .mode = "standard"
+    .mode = "ideal"
   )
 }

@@ -1,3 +1,8 @@
+# Übersicht
+# type: Art des Funktion (Dichte-, Verteilungs-, Quantilsfunktion)
+# x_limits_method: Bestimmung der Achsenbegrenzungen (über Quantile oder über konkrete Werte)
+# .mode: Art des Plots ("ideal", "rsr" (Zufallsstreubereiche))
+
 module_verteilungen_input_header <- function(id) {
   ns <- NS(id)
   
@@ -94,7 +99,8 @@ module_verteilungen_input <- function(
     x_max = integer(),
     p_min = integer(),
     p_max = integer(),
-    select_method_axes_limits = character()
+    select_method_axes_limits = character(),
+    .mode = .mode
   )
   
   observeEvent(input$add_table, {
@@ -139,6 +145,15 @@ module_verteilungen_input <- function(
       if (input$select_input_table == n_table) { # Nur die ausgewählte Tabelle
         # wird angezeigt
         n_row <- rvs$n_row[n_table]
+        if (rvs$.mode == "ideal") {
+          distribution_choices <- label_lang_list(
+            de = c("Diskrete Verteilungen", "Stetige Verteilungen"),
+            en = c("Discrete distributions", "Contiuous distributions"),
+            value = list(diskrete_verteilungen, stetige_verteilungen)
+          )
+        } else {
+          distribution_choices <- stetige_verteilungen
+        }
         ui <- tagList()
         for (i in seq_len(n_row)) {
           ui[[i]] <- div(
@@ -151,11 +166,7 @@ module_verteilungen_input <- function(
                     de = "Verteilung",
                     en = "Distribution"
                   ),
-                  choices = label_lang_list(
-                    de = c("Diskrete Verteilungen", "Stetige Verteilungen"),
-                    en = c("Discrete distributions", "Contiuous distributions"),
-                    value = list(diskrete_verteilungen, stetige_verteilungen)
-                  ),
+                  choices = distribution_choices,
                   selected = fallback(
                     input[["select_distribution" %_% n_table %_% i]], 
                     "binom"
@@ -168,6 +179,7 @@ module_verteilungen_input <- function(
                   session = session, 
                   input = input, 
                   .values = .values,
+                  .mode = rvs$.mode,
                   index = n_table %_% i,
                   distribution = fallback(
                     input[["select_distribution" %_% n_table %_% i]], 
@@ -213,40 +225,6 @@ module_verteilungen_input <- function(
             )
           )
         )
-        if (.mode == "rsr") {
-          ui <- div(
-            fluidRow(
-              column(
-                width = 6,
-                radioButtons(
-                  inputId = ns("n_sided" %_% n_table),
-                  label = label_lang(
-                    de = "Zufallsstreubereich",
-                    en = "Random scattering range"
-                  ),
-                  choices = label_lang_list(
-                    de = c("Einseitig", "Zweiseitig"),
-                    en = c("One-sided", "Two-sided"),
-                    value = c("one", "two")
-                  )
-                )
-              ),
-              column(
-                width = 6,
-                sliderInput(
-                  inputId = ns("alpha" %_% n_table),
-                  label = "Alpha",
-                  min = 0,
-                  max = 1,
-                  value = 0.05,
-                  step = 0.01
-                )
-              )
-            ),
-            ui
-          )
-        }
-        ui
       }
     })
     observeEvent(input[["add_row" %_% n_table]], {
@@ -283,7 +261,7 @@ module_verteilungen_input <- function(
           envir = .envir,
           "input_short_table" %_% n_table,
           reactive({
-            # input_short_table extrahiert aus den einzelnen Tabellenzeilen die
+            # input_short_table aggregiert aus den einzelnen Tabellenzeilen die
             # allgemeinen Werte wie Index, Verteilung und ob die Verteilung
             # diskret ist
             input_table <- get("input_table" %_% n_table)()
@@ -294,27 +272,40 @@ module_verteilungen_input <- function(
         )
         assign(
           envir = .envir,
+          "input_rsr_table" %_% n_table,
+          reactive({
+            if (rvs$.mode == "rsr") {
+              data_list <- list()
+              for (i in seq_len(rvs$n_row[n_table])) {
+                data_list[[i]] <- input_rsr_table <- get_input_rsr_table(
+                  session = session, 
+                  index = i, 
+                  ending = n_table %_% i
+                )
+              }
+              data <- rbindlist(data_list)
+              print(data)
+            }
+          })
+        )
+        assign(
+          envir = .envir,
           "x_limits" %_% n_table,
           reactive({
             get("trigger_x_limits" %_% n_table)()
             print("Trigger" %_% n_table)
             isolate({
-              method <- rvs$select_method_axes_limits[n_table]
-              if (method == "quantile") {
-                input_table <- get("input_table" %_% n_table)()
-                indices <- input_table$index
-                x_limits <- get_x_limits(
-                  indices = indices, 
-                  input_table = input_table,
-                  input_short_table = get("input_short_table" %_% n_table)(),
-                  p_limits = c(rvs$p_min[n_table], rvs$p_max[n_table])
-                )
-              } else {
-                x_limits <- c(
-                  rvs$x_min[n_table], 
-                  rvs$x_max[n_table]
-                )
-              }
+              x_limits_method <- rvs$select_method_axes_limits[n_table]
+              input_table <- get("input_table" %_% n_table)()
+              indices <- input_table$index
+              x_limits <- get_x_limits(
+                method = x_limits_method,
+                indices = indices, 
+                input_table = input_table,
+                input_short_table = get("input_short_table" %_% n_table)(),
+                rvs = rvs,
+                n_table = n_table
+              )
             })
             x_limits
           })
@@ -329,6 +320,7 @@ module_verteilungen_input <- function(
             )
             input_table <- get("input_table" %_% n_table)()
             input_short_table <- get("input_short_table" %_% n_table)()
+            input_rsr_table <- get("input_rsr_table" %_% n_table)()
             indices <- input_table$index
             if (type != "q") {
               x_limits <- get("x_limits" %_% n_table)()
@@ -336,30 +328,27 @@ module_verteilungen_input <- function(
             # Für die einzelnen Tabellenzeilen werden basierend auf den Input-
             # werten Datensätze erzeugt, die später in add_trace() verwendet
             # werden
-            for (i in seq_len(max(indices))) {
-              assign(
-                "data" %_% i,
-                get_distribution_data(
-                  i = i,
-                  input = input,
-                  type = type,
-                  n_table = n_table,
-                  input_table = input_table,
-                  input_short_table = input_short_table,
-                  x_limits = x_limits
-                )
-              )
-            }
             p <- plot_ly(type = "scatter", mode = "lines")
             for (i in seq_len(max(indices))) {
-              p <- get_distribution_trace(
+              data <- get_distribution_data(
+                i = i,
+                input = input,
+                type = type,
+                n_table = n_table,
+                input_table = input_table,
+                input_short_table = input_short_table,
+                input_rsr_table = input_rsr_table,
+                x_limits = x_limits,
+                .mode = rvs$.mode
+              )
+              p <- add_distribution_trace(
+                index = i,
                 p = p,
                 type = type,
-                x = get("data" %_% i)$x,
-                y = get("data" %_% i)$y,
+                .mode = rvs$.mode,
+                data = data,
                 name = input_short_table[i, distribution] %_% i,
                 discrete = input_short_table[i, discrete]
-
               )
             }
             return(p)
@@ -419,9 +408,9 @@ module_verteilungen_input <- function(
         })
         observeEvent(input[["apply_axes_limits" %_% n_table]], {
           get("trigger_x_limits" %_% n_table)(get("trigger_x_limits" %_% n_table)() + 1)
-          method <- input[["select_method_axes_limits" %_% n_table]]
-          rvs$select_method_axes_limits[n_table] <- method
-          if (method == "concrete") {
+          x_limits_method <- input[["select_method_axes_limits" %_% n_table]]
+          rvs$select_method_axes_limits[n_table] <- x_limits_method
+          if (x_limits_method == "concrete") {
             rvs$x_min[n_table] <- input[["x_min" %_% n_table]]
             rvs$x_max[n_table] <- input[["x_max" %_% n_table]]
           } else {
@@ -431,9 +420,9 @@ module_verteilungen_input <- function(
           removeModal()
         })
         observeEvent(input[["apply_all_axes_limits" %_% n_table]], {
-          method <- input[["select_method_axes_limits" %_% n_table]]
-          rvs$select_method_axes_limits <- rep(method, times = rvs$n_table)
-          if (method == "concrete") {
+          x_limits_method <- input[["select_method_axes_limits" %_% n_table]]
+          rvs$select_method_axes_limits <- rep(x_limits_method, times = rvs$n_table)
+          if (x_limits_method == "concrete") {
             rvs$x_min <- rep(input[["x_min" %_% n_table]], times = rvs$n_table)
             rvs$x_max <- rep(input[["x_max" %_% n_table]], times = rvs$n_table)
           } else {
@@ -495,6 +484,33 @@ module_verteilungen_input <- function(
           }
         })
       }
+      if (rvs$.mode == "ideal") {
+        select_plot_type_col <- column(
+          width = 4,
+          selectInput(
+            inputId = ns("select_plot_type" %_% n_table),
+            label = label_lang(
+              de = "Plottyp",
+              en = "Plot type"
+            ),
+            choices = label_lang_list(
+              de = c(
+                "Wahrscheinlichkeitsdichtefunktion", 
+                "Verteilungsfunktion",
+                "Quantilsfunktion"
+              ),
+              en = c(
+                "Density function",
+                "Cumulative distribution function",
+                "Quantile function"
+              ),
+              value = c("d", "p", "q")
+            )
+          )
+        )
+      } else {
+        select_plot_type_col <- NULL
+      }
       .values$viewer$plot$append_tab(
         tab = tabPanel(
           title = label_lang(
@@ -502,29 +518,7 @@ module_verteilungen_input <- function(
             en = paste0("Distribution: ", n_table)
           ),
           fluidRow(
-            column(
-              width = 4,
-              selectInput(
-                inputId = ns("select_plot_type" %_% n_table),
-                label = label_lang(
-                  de = "Plottyp",
-                  en = "Plot type"
-                ),
-                choices = label_lang_list(
-                  de = c(
-                    "Wahrscheinlichkeitsdichtefunktion", 
-                    "Verteilungsfunktion",
-                    "Quantilsfunktion"
-                  ),
-                  en = c(
-                    "Density function",
-                    "Cumulative distribution function",
-                    "Quantile function"
-                  ),
-                  value = c("d", "p", "q")
-                )
-              )
-            ),
+            select_plot_type_col,
             column(
               width = 4,
               numericInput(

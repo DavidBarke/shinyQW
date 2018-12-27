@@ -23,7 +23,9 @@ hide_all_specific_distribution_inputs <- function(prefix_id) {
 # ÜBERLEGUNG: Das ganze als eigenes Modul umsetzen
 
 #' @export
-get_specific_distribution_input <- function(session, input, .values, distribution, index) {
+get_specific_distribution_input <- function(
+  session, input, .values, .mode, distribution, index
+) {
   ui_element <- switch(
     EXPR = distribution,
     "binom" = get_specific_binom_input(session, input, .values, index),
@@ -44,6 +46,41 @@ get_specific_distribution_input <- function(session, input, .values, distributio
     "t" = get_specific_t_input(session, input, .values, index),
     "weibull" = get_specific_weibull_input(session, input, .values, index)
   )
+  if (.mode == "rsr") {
+    ns <- session$ns
+    ui_element <- div(
+      ui_element,
+      fluidRow(
+        column(
+          width = 6,
+          radioButtons(
+            inputId = ns("n_sided" %_% index),
+            label = label_lang(
+              de = "Zufallsstreubereich",
+              en = "Random scattering range"
+            ),
+            choices = label_lang_list(
+              de = c("Einseitig links", "Einseitig rechts", "Zweiseitig"),
+              en = c("One-sided left", "One-sided right", "Two-sided"),
+              value = c("one_left", "one_right", "two")
+            ),
+            selected = fallback(input[["n_sided" %_% index]], "two")
+          )
+        ),
+        column(
+          width = 6,
+          sliderInput(
+            inputId = ns("alpha" %_% index),
+            label = "Alpha",
+            min = 0,
+            max = 1,
+            value = fallback(input[["alpha" %_% index]], 0.05),
+            step = 0.01
+          )
+        )
+      )
+    )
+  }
   return(ui_element)
 }
 
@@ -1193,7 +1230,9 @@ get_arg_values <- function(session, distribution, index, ending) {
   return(arg_values)
 }
 
-get_arg_values_data_table <- function(session, index, ending, distribution, name, discrete) {
+get_arg_values_data_table <- function(
+  session, index, ending, distribution, name, discrete
+) {
   input <- session$input
   arg_values <- data.table(
     index = index,
@@ -1207,124 +1246,260 @@ get_arg_values_data_table <- function(session, index, ending, distribution, name
   )
 }
 
-# GET DISTRIBUTION TRACE --------------------------------------------------------
+# GET INPUT RSR TABLE ----------------------------------------------------------
 
-get_distribution_trace <- function(p, type, x, y, name, discrete) {
-  trace_args <- list(
-    p = p,
-    x = x,
-    y = y,
+get_input_rsr_table <- function(session, index, ending) {
+  input <- session$input
+  name <- c("n_sided", "alpha")
+  input_rsr_table <- data.table(
+    index = index,
     name = name,
-    inherit = FALSE
-  )
-  if (discrete && type == "d") {
-    trace_args <- c(trace_args, list(type = "bar"))
-  } else {
-    trace_args <- c(trace_args, list(type = "scatter", mode = "lines"))
-  }
-  p <- do.call(
-    what = add_trace,
-    args = trace_args
+    value = map_chr(name, function(name) {
+      req(input[[name %_% ending]])
+    })
   )
 }
 
-# GET DISTRIBUTION DATA
+# GET DISTRIBUTION TRACE -------------------------------------------------------
+
+add_distribution_trace <- function(
+  index, p, .mode, type, data, name, discrete
+) {
+  if (.mode == "ideal") {
+    trace_args <- list(
+      p = p,
+      x = data$x,
+      y = data$y,
+      name = name,
+      inherit = FALSE
+    )
+    if (discrete && type == "d") {
+      trace_args <- c(trace_args, list(type = "bar"))
+    } else {
+      trace_args <- c(trace_args, list(type = "scatter", mode = "lines"))
+    }
+    p <- do.call(
+      what = add_trace,
+      args = trace_args
+    )
+    return(p)
+  } else if (.mode == "rsr") {
+    data_list <- data$data_list
+    area_info <- data$area_info
+    colorway <- plotly:::Schema$layout$layoutAttributes$colorway$dflt
+    for (i in seq_along(data_list)) {
+      if (index %% 10 == 0) {
+        colorway_index <- 10
+      } else {
+        colorway_index <- index %% 10 
+      }
+      trace_args <- list(
+        p = p,
+        type = "scatter",
+        mode = "lines",
+        x = data_list[[i]]$x,
+        y = data_list[[i]]$y,
+        name = name %_% i,
+        line = list(color = colorway[colorway_index]),
+        inherit = FALSE
+      )
+      if (area_info[i]) {
+        trace_args <- c(list(fill = "tozeroy"), trace_args)
+      }
+      p <- do.call(
+        what = add_trace,
+        args = trace_args
+      )
+    }
+    return(p)
+  }
+}
+
+# GET DISTRIBUTION DATA --------------------------------------------------------
 
 get_distribution_data <- function(
-  i, input, type, n_table, input_table, input_short_table, x_limits
+  i, input, type, n_table, x_limits, .mode,
+  input_table, input_short_table, input_rsr_table
 ) {
   subset_table <- input_table[index == i]
   arg_values <- subset_table[name != "xmax", value]
   names(arg_values) <- subset_table[name != "xmax", name]
   subset_args <- as.list(arg_values)
-  if (type != "q") {
-    discrete <- input_short_table[i, discrete]
-    x_int <- x_limits[1]:x_limits[2]
-    x_seq <- seq(
-      x_limits[1], x_limits[2], 
-      length.out = fallback(
-        input[["continous_steps" %_% n_table]], 
-        50
+  if (.mode == "ideal") {
+    if (type != "q") {
+      discrete <- input_short_table[i, discrete]
+      x_int <- x_limits[1]:x_limits[2]
+      x_seq <- seq(
+        x_limits[1], x_limits[2], 
+        length.out = fallback(
+          input[["continous_steps" %_% n_table]], 
+          50
+        )
+      )
+      if (type == "d") {
+        if (discrete) {
+          x <- x_int
+        } else {
+          x <- x_seq
+        }
+        first_arg_list <- list(x = x)
+      } else {
+        if (discrete) {
+          x <- c(rbind(x_int[1:length(x_int)], x_int[2:(length(x_int) + 1)], NA))
+          y_x <- c(rbind(x_int, x_int, NA))
+          first_arg_list <- list(q = y_x)
+        } else {
+          x <- x_seq
+          first_arg_list <- list(q = x)
+        }
+      }
+    } else {
+      x <- seq(0, 1, length.out = 100)
+      first_arg_list <- list(p = x)
+    }
+    data <- data.table(
+      x = x,
+      y = do.call(
+        what = paste0(type, input_short_table[i, distribution]),
+        args = c(first_arg_list, subset_args)
       )
     )
-    if (type == "d") {
-      if (discrete) {
-        x <- x_int
-      } else {
-        x <- x_seq
-      }
-      first_arg_list <- list(x = x)
+    return(data)
+  } else if (.mode == "rsr") {
+    subset_rsr_table <- input_rsr_table[index == i]
+    n_sided <- subset_rsr_table[name == "n_sided", value]
+    if (n_sided == "one_left") {
+      alpha <- 1 - as.numeric(subset_rsr_table[name == "alpha", value])
+    } else if (n_sided == "one_right") {
+      alpha <- as.numeric(subset_rsr_table[name == "alpha", value])
     } else {
-      if (discrete) {
-        x <- c(rbind(x_int[1:length(x_int)], x_int[2:(length(x_int) + 1)], NA))
-        y_x <- c(rbind(x_int, x_int, NA))
-        first_arg_list <- list(q = y_x)
+      alpha_input <- as.numeric(subset_rsr_table[name == "alpha", value])
+      alpha <- c(alpha_input / 2, 1 - alpha_input / 2)
+    }
+    alpha_quantiles <- do.call(
+      what = paste0("q", input_short_table[i, distribution]),
+      args = c(list(p = alpha), subset_args)
+    )
+    alpha_quantiles <- alpha_quantiles[alpha_quantiles > x_limits[1] & 
+                                         alpha_quantiles < x_limits[2]]
+    a <- alpha_quantiles[1]
+    x_1 <- x_limits[1]
+    x_2 <- x_limits[2]
+    if (n_sided == "one_left") {
+      if (a < x_1) {
+        area_info <- FALSE
+      } else if (a > x_2) {
+        area_info <- TRUE
       } else {
-        x <- x_seq
-        first_arg_list <- list(q = x)
+        area_info <- c(TRUE, FALSE)
+      }
+    } else if (n_sided == "one_right") {
+      if (a < x_1) {
+        area_info <- TRUE
+      } else if (a > x_2) {
+        area_info <- FALSE
+      } else {
+        area_info <- c(FALSE, TRUE)
+      }
+    } else {
+      b <- alpha_quantiles[2]
+      if (a < x_1 & b < x_1) {
+        area_info <- FALSE
+      } else if (a < x_1 && b < x_2 && b > x_1) {
+        area_info <- c(TRUE, FALSE)
+      } else if (a < x_1 && b > x_2) {
+        area_info <- TRUE
+      } else if (a < x_2 && a > x_1 && b < x_2) {
+        area_info <- c(FALSE, TRUE, FALSE)
+      } else if (a < x_2 && a > x_1 && b > x_2) {
+        area_info <- c(FALSE, TRUE)
+      } else if (a > x_2 && b > x_2) {
+        area_info <- FALSE
       }
     }
-  } else {
-    x <- seq(0, 1, length.out = 100)
-    first_arg_list <- list(p = x)
+    x_limits <- c(x_limits[1], alpha_quantiles, x_limits[2])
+    x_diffs <- diff(x_limits)
+    total_diff <- x_limits[length(x_limits)] - x_limits[1]
+    rel_diffs <- x_diffs / total_diff
+    x <- numeric()
+    data_list <- list()
+    for (j in seq_along(x_limits[-1])) {
+      x_j <- seq(x_limits[j], x_limits[j + 1], 
+                    length.out = ceiling(rel_diffs[j] * 100))
+      data_list[[j]] <- data.table(
+        x = x_j,
+        y = do.call(
+          what = paste0("d", input_short_table[i, distribution]),
+          args = c(list(x = x_j), subset_args)
+        )
+      )
+    }
+    return(list(
+      data_list = data_list,
+      area_info = area_info
+    ))
   }
-  data.table(
-    x = x,
-    y = do.call(
-      what = paste0(type, input_short_table[i, distribution]),
-      args = c(first_arg_list, subset_args)
-    )
-  )
 }
 
-# GET X LIMITS
+# GET X LIMITS -----------------------------------------------------------------
 
-get_x_limits <- function(indices, input_table, input_short_table, p_limits) {
+get_x_limits <- function(
+  method, indices, input_table, input_short_table, rvs, n_table
+) {
   # Für Dichte- und Verteilungsfunktion müssen die Grenzen des Plots
   # basierend auf allen Tabellenzeilen erstellt werden. Dabei muss
   # zwischen diskreten und stetigen Verteilungen unterschieden
   # werden und innerhalb der diskreten Verteilungen zwischen Vertei-
   # lungen deren Definitionsbereich beschränkt bzw. unbeschränkt
   # sind
-  xmax_rows <- input_table[name == "xmax"]
-  xmax_indices <- xmax_rows$index
-  x_min <- numeric(length(unique(indices)))
-  x_max <- numeric(length(unique(indices)))
-  for (i in seq_len(max(indices))) {
-    subset_table <- input_table[index == i]
-    if (i %in% xmax_indices) {
-      arg_values <- subset_table[name != "xmax", value]
-      names(arg_values) <- subset_table[name != "xmax", name]
-      subset_args <- as.list(arg_values)
-      x_min[i] <- 0
-      x_max[i] <- subset_table[name == "xmax", value]
-    } else {
-      arg_values <- subset_table[, value]
-      names(arg_values) <- subset_table[, name]
-      subset_args <- as.list(arg_values)
-      if (any(subset_table[, discrete])) {
+  # Für die Quantilsfunktionen können die Grenzen nur zwischen 0 und 1 liegen
+  if (method == "concrete") {
+    x_limits <- c(
+      rvs$x_min[n_table], 
+      rvs$x_max[n_table]
+    )
+  } else {
+    xmax_rows <- input_table[name == "xmax"]
+    xmax_indices <- xmax_rows$index
+    x_min <- numeric(length(unique(indices)))
+    x_max <- numeric(length(unique(indices)))
+    p_limits = c(rvs$p_min[n_table], rvs$p_max[n_table])
+    for (i in seq_len(max(indices))) {
+      subset_table <- input_table[index == i]
+      if (i %in% xmax_indices) {
+        # Falls i eine stetige Verteilung ist, deren Dichtefunktion sich asymp-
+        # totisch der x-Achse nähert
+        arg_values <- subset_table[name != "xmax", value]
+        names(arg_values) <- subset_table[name != "xmax", name]
+        subset_args <- as.list(arg_values)
         x_min[i] <- 0
-        x_max[i] <- do.call(
-          what = paste0("q", input_short_table[i, distribution]),
-          args = c(list(p = 1), subset_args)
-        )
+        x_max[i] <- subset_table[name == "xmax", value]
       } else {
-        print(p_limits)
-        print(subset_args)
-        x_min[i] <- do.call(
-          what = paste0("q", input_short_table[i, distribution]),
-          args = c(list(p = p_limits[1]), subset_args)
-        )
-        x_max[i] <- do.call(
-          what = paste0("q", input_short_table[i, distribution]),
-          args = c(list(p = p_limits[2]), subset_args)
-        )
+        arg_values <- subset_table[, value]
+        names(arg_values) <- subset_table[, name]
+        subset_args <- as.list(arg_values)
+        if (any(subset_table[, discrete])) {
+          x_min[i] <- 0
+          x_max[i] <- do.call(
+            what = paste0("q", input_short_table[i, distribution]),
+            args = c(list(p = 1), subset_args)
+          )
+        } else {
+          x_min[i] <- do.call(
+            what = paste0("q", input_short_table[i, distribution]),
+            args = c(list(p = p_limits[1]), subset_args)
+          )
+          x_max[i] <- do.call(
+            what = paste0("q", input_short_table[i, distribution]),
+            args = c(list(p = p_limits[2]), subset_args)
+          )
+        }
       }
     }
+    x_min_min <- floor(min(x_min))
+    x_max_max <- ceiling(max(x_max))
+    x_limits <- c(x_min_min, x_max_max)
   }
-  x_min_min <- floor(min(x_min))
-  x_max_max <- ceiling(max(x_max))
-  c(x_min_min, x_max_max)
+  x_limits
 }
-
 
