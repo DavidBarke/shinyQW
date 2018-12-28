@@ -163,8 +163,8 @@ module_verteilungen_input <- function(
                 selectInput(
                   inputId = ns("select_distribution" %_% n_table %_% i),
                   label = label_lang(
-                    de = "Verteilung",
-                    en = "Distribution"
+                    de = paste0("Verteilung ", i),
+                    en = paste0("Distribution ", i)
                   ),
                   choices = distribution_choices,
                   selected = fallback(
@@ -284,7 +284,6 @@ module_verteilungen_input <- function(
                 )
               }
               data <- rbindlist(data_list)
-              print(data)
             }
           })
         )
@@ -293,10 +292,9 @@ module_verteilungen_input <- function(
           "x_limits" %_% n_table,
           reactive({
             get("trigger_x_limits" %_% n_table)()
-            print("Trigger" %_% n_table)
+            input_table <- get("input_table" %_% n_table)()
             isolate({
               x_limits_method <- rvs$select_method_axes_limits[n_table]
-              input_table <- get("input_table" %_% n_table)()
               indices <- input_table$index
               x_limits <- get_x_limits(
                 method = x_limits_method,

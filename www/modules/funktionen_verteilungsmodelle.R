@@ -1293,6 +1293,11 @@ add_distribution_trace <- function(
       } else {
         colorway_index <- index %% 10 
       }
+      if (i == 1) {
+        showlegend <- TRUE
+      } else {
+        showlegend <- FALSE
+      }
       trace_args <- list(
         p = p,
         type = "scatter",
@@ -1301,7 +1306,9 @@ add_distribution_trace <- function(
         y = data_list[[i]]$y,
         name = name %_% i,
         line = list(color = colorway[colorway_index]),
-        inherit = FALSE
+        inherit = FALSE,
+        legendgroup = index,
+        showlegend = showlegend
       )
       if (area_info[i]) {
         trace_args <- c(list(fill = "tozeroy"), trace_args)
@@ -1326,9 +1333,15 @@ get_distribution_data <- function(
   names(arg_values) <- subset_table[name != "xmax", name]
   subset_args <- as.list(arg_values)
   if (.mode == "ideal") {
-    if (type != "q") {
+    if (type %in% c("d", "p")) {
       discrete <- input_short_table[i, discrete]
-      x_int <- x_limits[1]:x_limits[2]
+      distribution <- input_short_table[i, distribution]
+      x_int <- (max(0, x_limits[1])):x_limits[2]
+      if (distribution %in% 
+          c("beta", "chisq", "exp", "f", "gamma", "lnorm", "weibull"
+          )) {
+        x_limits[1] <- 0
+      } 
       x_seq <- seq(
         x_limits[1], x_limits[2], 
         length.out = fallback(
@@ -1343,7 +1356,7 @@ get_distribution_data <- function(
           x <- x_seq
         }
         first_arg_list <- list(x = x)
-      } else {
+      } else if (type == "p") {
         if (discrete) {
           x <- c(rbind(x_int[1:length(x_int)], x_int[2:(length(x_int) + 1)], NA))
           y_x <- c(rbind(x_int, x_int, NA))
@@ -1353,7 +1366,7 @@ get_distribution_data <- function(
           first_arg_list <- list(q = x)
         }
       }
-    } else {
+    } else if (type == "q") {
       x <- seq(0, 1, length.out = 100)
       first_arg_list <- list(p = x)
     }
@@ -1368,6 +1381,12 @@ get_distribution_data <- function(
   } else if (.mode == "rsr") {
     subset_rsr_table <- input_rsr_table[index == i]
     n_sided <- subset_rsr_table[name == "n_sided", value]
+    distribution <- input_short_table[i, distribution]
+    if (distribution %in% 
+        c("beta", "chisq", "exp", "f", "gamma", "lnorm", "weibull"
+        )) {
+      x_limits[1] <- 0
+    } 
     if (n_sided == "one_left") {
       alpha <- 1 - as.numeric(subset_rsr_table[name == "alpha", value])
     } else if (n_sided == "one_right") {
@@ -1377,11 +1396,9 @@ get_distribution_data <- function(
       alpha <- c(alpha_input / 2, 1 - alpha_input / 2)
     }
     alpha_quantiles <- do.call(
-      what = paste0("q", input_short_table[i, distribution]),
+      what = paste0("q", distribution),
       args = c(list(p = alpha), subset_args)
     )
-    alpha_quantiles <- alpha_quantiles[alpha_quantiles > x_limits[1] & 
-                                         alpha_quantiles < x_limits[2]]
     a <- alpha_quantiles[1]
     x_1 <- x_limits[1]
     x_2 <- x_limits[2]
@@ -1417,6 +1434,8 @@ get_distribution_data <- function(
         area_info <- FALSE
       }
     }
+    alpha_quantiles <- alpha_quantiles[alpha_quantiles > x_limits[1] & 
+                                         alpha_quantiles < x_limits[2]]
     x_limits <- c(x_limits[1], alpha_quantiles, x_limits[2])
     x_diffs <- diff(x_limits)
     total_diff <- x_limits[length(x_limits)] - x_limits[1]

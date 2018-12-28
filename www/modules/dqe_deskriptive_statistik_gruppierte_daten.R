@@ -1,107 +1,21 @@
 #' @export
-dqe_deskriptive_statistik_gruppierte_daten_ui <- function(id) {
-  ns <- shiny::NS(id)
-
-  shiny::tabsetPanel(
-    id = ns("tabset"),
-    shiny::tabPanel(
-      title = "",
-      value = ns("tabset_default"),
-      htmltools::div(
-        id = ns("gruppierte_daten"),
-        shiny::fluidRow(
-          shiny::column(
-            width = 4,
-            shiny::fluidRow(
-              shiny::column(
-                width = 6,
-                shiny::selectInput(
-                  inputId = ns("input_type"),
-                  label = "Datenquelle",
-                  choices = list("Zufallszahlen" = "random",
-                                 "Daten" = "data_storage"),
-                  selected = "random"
-                )
-              )
-            ),
-            htmltools::div(
-              id = ns("input_type_input")
-            ),
-            shiny::fluidRow(
-              shiny::column(
-                width = 6,
-                shiny::actionButton(
-                  inputId = ns("update"),
-                  label = "Aktualisiere"
-                )
-              )
-            )
-          ),
-          shiny::column(
-            width = 8,
-            shiny::fluidRow(
-              DT::dataTableOutput(
-                outputId = ns("tabellierte_haeufigkeitsverteilung")
-              )
-            )
-          )
-        ),
-        shiny::fluidRow(
-          shiny::fluidRow(
-            shiny::column(
-              width = 6,
-              shiny::plotOutput(
-                outputId = ns("histogramm_absolut")
-              )
-            ),
-            shiny::column(
-              width = 6,
-              shiny::plotOutput(
-                outputId = ns("histogramm_relativ")
-              )
-            )
-          ),
-          shiny::fluidRow(
-            shiny::column(
-              width = 6,
-              shiny::plotOutput(
-                outputId = ns("verteilungsfunktion")
-              )
-            ),
-            shiny::column(
-              width = 6
-            )
-          )
-        )
-      )
-    )
-  )
-}
-
-#' @export
 dqe_deskriptive_statistik_gruppierte_daten_box <- function(id) {
   ns <- NS(id)
 
   tagList(
-    shiny::fluidRow(
-      shiny::column(
-        width = 6,
-        shiny::selectInput(
-          inputId = ns("input_type"),
-          label = "Datenquelle",
-          choices = list("Zufallszahlen" = "random",
-                         "Daten" = "data_storage"),
-          selected = "random"
-        )
-      )
+    selectInput(
+      inputId = ns("input_type"),
+      label = "Datenquelle",
+      choices = list("Zufallszahlen" = "random",
+                     "Daten" = "data")
     ),
-    htmltools::div(
-      id = ns("input_type_input")
+    uiOutput(
+      outputId = ns("specific_type_input")
     ),
-    shiny::fluidRow(
-      shiny::column(
+    fluidRow(
+      column(
         width = 6,
-        shiny::actionButton(
+        actionButton(
           inputId = ns("update"),
           label = "Aktualisiere"
         )
@@ -117,16 +31,77 @@ dqe_deskriptive_statistik_gruppierte_daten <- function(
   self <- node$new("gruppierte_daten", parent, session)
 
   ns <- session$ns
+  
+  rvs <- reactiveValues(
+    counter = 0
+  )
+  
+  output$specific_type_input <- renderUI({
+    if (input$input_type == "random") {
+      ui <- div(
+        fluidRow(
+          column(
+            width = 6,
+            selectInput(
+              inputId = ns("random_type"),
+              label = label_lang(
+                de = "Typ",
+                en = "Type"
+              ),
+              choices = label_lang_list(
+                de = c("Integer", "Stetig"),
+                en = c("Integer", "Continous"),
+                value = c("integer", "continous")
+              )
+            )
+          ),
+          column(
+            width = 6,
+            sliderInput(
+              inputId = ns("min_max"),
+              label = label_lang(
+                de = "Min und Max",
+                en = "Min and max"
+              ),
+              value = c(0, 10),
+              min = 0,
+              max = 100
+            )
+          )
+        ),
+        fluidRow(
+          column(
+            width = 6,
+            numericInput(
+              inputId = ns("laenge"),
+              label = label_lang(
+                de = "Anzahl",
+                en = "Count"
+              ),
+              value = 10,
+              min = 1,
+              max = 100
+            )
+          )
+        )
+      )
+    } else if (input$input_type == "data") {
+      ui <- data_selector_default_ui(
+        id = ns("id_data_selector"),
+        type = "group_dataset_column"
+      )
+    }
+  })
 
-  k <- shiny::reactive({
+  k <- reactive({
     return(nclass.Sturges(req(x_data())))
   })
 
-  min_x_data <- shiny::reactive({
+  min_x_data <- reactive({
     return(min(req(x_data()), na.rm = TRUE))
   })
 
-  max_x_data <- shiny::reactive({
+  max_x_data <- reactive({
     return(max(req(x_data()), na.rm = TRUE))
   })
 
@@ -202,25 +177,22 @@ dqe_deskriptive_statistik_gruppierte_daten <- function(
     return(plot)
   })
 
-  rvs <- reactiveValues()
-
   x_data <- reactive({
-    req(input$laenge, input$minmax)
-    if (input$input_type == "random") {
-      x_data <- floor(runif(n = input$laenge,
-                            min = input$minmax[[1]],
-                            max = input$minmax[[2]] + 1))
-    } else if (input$input_type == "data_storage") {
-      select_data <- call_select_data()$values
-      data_storage <- get(x = paste(select_data$data_type, sep = "_"),
-                          pos = .data)
-      x_data <- data_storage[[select_data$data$selected]][[select_data$data$column$selected_1]]
-    }
-    print(x_data)
+    rvs$counter
+    isolate({
+      if (input$input_type == "random") {
+        x_data <- floor(runif(n = fallback(input$laenge, 10),
+                              min = fallback(input$min_max[1], 0),
+                              max = fallback(input$min_max[2] + 1, 11)))
+      } else if (input$input_type == "data") {
+        x_data <- selected_col()
+      }
+    })
     return(x_data)
   })
 
   observeEvent(input$update, {
+    rvs$counter <- rvs$counter + 1
     .values$viewer$data$append_tab(
       tab = tabPanel(
         title = "Tabellierte Häufigkeitsverteilung",
@@ -245,77 +217,11 @@ dqe_deskriptive_statistik_gruppierte_daten <- function(
     )
   })
 
-  # Spezifischer Input für gruppierte Daten
-  rvs_specific_input <- reactiveValues()
-
-  observeEvent(input$input_type, {
-    # IDs
-    insertDivId <- "input_type_input"
-    uiDivId <- paste("specific_input", input$input_type, sep = "_")
-    # Neues UI-Element erzeugen, falls es noch nicht existiert
-    if (!input$input_type %in% names(rvs_specific_input)) {
-      rvs_specific_input[[input$input_type]] <- 1
-      uiDivClass <- "specific_input_class"
-      if (input$input_type == "random") {
-        ui_element <- div(
-          id = ns(uiDivId),
-          class = ns(uiDivClass),
-          fluidRow(
-            column(
-              width = 6,
-              sliderInput(
-                inputId = ns("minmax"),
-                label = "Min und Max",
-                value = c(0, 10),
-                min = 0,
-                max = 100
-              )
-            ),
-            column(
-              width = 6,
-              numericInput(
-                inputId = ns("laenge"),
-                label = "Anzahl",
-                value = 10,
-                min = 1,
-                max = 100
-              )
-            )
-          )
-        )
-      } else if (input$input_type == "data_storage") {
-        ui_element <- div(
-          id = ns(uiDivId),
-          class = ns(uiDivClass),
-          select_data_ui(id = ns("id_gruppierte_daten_select_data"))
-        )
-      }
-      # Insert UI-Element
-      insertUI(
-        selector = paste0("#", ns(insertDivId)),
-        where = "beforeEnd",
-        ui = ui_element
-      )
-    }
-    shinyjs::hide(
-      selector = paste(".", ns("specific_input_class"), sep = "")
-    )
-    shinyjs::show(
-      selector = paste("#", ns(uiDivId), sep = "")
-    )
-  })
-
-  call_select_data <- callModule(module = select_data,
-                                 id = "id_gruppierte_daten_select_data",
-                                 data_rvs = .data,
-                                 .values = .values,
-                                 parent = self,
-                                 tabset_data = tibble(
-                                   id = c("tabset", "tabset"),
-                                   session = c(session, session),
-                                   type = c("append_new_tab", "append_current_tab"),
-                                   position = c(1, 2),
-                                   label = c("Im neuen Tab anzeigen", "Im gegenwärtigen Tab anzeigen")
-                                 )
+  selected_col <- callModule(
+    module = data_selector,
+    id = "id_data_selector",
+    .data = .data,
+    .values = .values,
+    parent = self
   )
 }

@@ -1,40 +1,100 @@
 #' @export
-module_data_datasets_ui <- function(id, .language) {
+data_selector_extended_ui <- function(id) {
   ns <- NS(id)
 
-  shiny::tagList(
-    uiOutput(
-      outputId = ns("select_group")
-    ),
-    uiOutput(
-      outputId = ns("select_dataset")
-    ),
-    tags$span(
-      uiOutput(
-        outputId = ns("view_dataset")
+  tagList(
+    fluidRow(
+      column(
+        width = 6,
+        uiOutput(
+          outputId = ns("select_group")
+        )
       ),
-      uiOutput(
-        outputId = ns("switch_group")
+      column(
+        width = 6,
+        uiOutput(
+          outputId = ns("select_dataset")
+        )
+      )
+    ),
+    fluidRow(
+      column(
+        width = 6,
+        uiOutput(
+          outputId = ns("view_dataset")
+        )
+      ),
+      column(
+        width = 6,
+        uiOutput(
+          outputId = ns("switch_group")
+        )
       )
     )
   )
 }
 
-module_data_datasets <- function(input, output, session, .data, .values, parent, ...) {
+data_selector_default_ui <- function(id, type) {
+  ns <- NS(id)
+  
+  if (type == "group_dataset") {
+    ui <- tagList(
+      fluidRow(
+        column(
+          width = 6,
+          uiOutput(
+            outputId = ns("select_group")
+          )
+        ),
+        column(
+          width = 6,
+          uiOutput(
+            outputId = ns("select_dataset")
+          )
+        )
+      )
+    )
+  } else if (type == "group_dataset_column") {
+    ui <- fluidRow(
+      column(
+        width = 4,
+        uiOutput(
+          outputId = ns("select_group")
+        )
+      ),
+      column(
+        width = 4,
+        uiOutput(
+          outputId = ns("select_dataset")
+        )
+      ),
+      column(
+        width = 4,
+        uiOutput(
+          outputId = ns("select_column")
+        )
+      )
+    )
+  }
+}
 
-  self <- node$new("data_datasets", parent, session)
+data_selector <- function(input, output, session, .data, .values, parent, ...) {
+
+  self <- node$new("data_selector", parent, session)
 
   ns <- session$ns
   .language <- .values$.language
 
   output$select_group <- renderUI({
+    choices = .values$.data$groups
     selectInput(
       inputId = ns("select_group"),
       label = label_lang(
         de = "Wähle Gruppe",
         en = "Select group"
       ),
-      choices = .values$.data$groups
+      choices = choices,
+      selected = fallback(input$select_group, choices[1])
     )
   })
 
@@ -48,7 +108,23 @@ module_data_datasets <- function(input, output, session, .data, .values, parent,
         de = "Wähle Datensatz",
         en = "Select dataset"
       ),
-      choices = choices
+      choices = choices,
+      selected = fallback(input$select_dataset, choices[1])
+    )
+  })
+  
+  output$select_column <- renderUI({
+    req(input$select_group, input$select_dataset)
+    choices = .data$get_dataset_columns(input$select_group, input$select_dataset)
+    req(length(choices) != 0)
+    selectInput(
+      inputId = ns("select_column"),
+      label = label_lang(
+        de = "Wähle Spalte",
+        en = "Select column"
+      ),
+      choices = choices,
+      selected = fallback(input$select_column, choices[1])
     )
   })
 
@@ -166,4 +242,14 @@ module_data_datasets <- function(input, output, session, .data, .values, parent,
       choices = .data$get_datasets_names(input$select_group)
     )
   })
+  
+  selected <- reactive({
+    if (is.null(input$select_column)) {
+      return(.data$get_dataset(input$select_group, input$select_dataset))
+    } else {
+      return(.data$get_column(input$select_group, input$select_dataset, input$select_column))
+    }
+  })
+  
+  return(selected)
 }

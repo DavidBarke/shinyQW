@@ -18,9 +18,8 @@ module_data_tabPanel <- function(id, .language) {
         de = "Datensätze",
         en = "Data sets"
       ),
-      module_data_datasets_ui(
-        id = ns("id_datasets"),
-        .language = .language
+      data_selector_extended_ui(
+        id = ns("id_datasets")
       )
     )
   )

@@ -8,8 +8,14 @@ data_R6 <- R6::R6Class(
     add_dataset = function(group, name, value) {
       private$datasets[[group]][[name]] <- value
     },
+    get_column = function(group, name, colname) {
+      self$get_dataset(group, name)[[colname]]
+    },
     get_dataset = function(group, name) {
       private$datasets[[group]][[name]]
+    },
+    get_dataset_columns = function(group, name) {
+      names(self$get_dataset(group, name))
     },
     get_datasets_names = function(group) {
       names(private$datasets[[group]])

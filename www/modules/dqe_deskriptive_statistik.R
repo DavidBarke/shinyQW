@@ -103,8 +103,7 @@ dqe_deskriptive_statistik_tabPanel <- function(id, .language) {
     tabPanel(
       title = "Sortierte Daten",
       dqe_deskriptive_statistik_sortierte_daten_box(
-        id = ns("id_dqe_deskriptive_statistik_sortierte_daten"),
-        .language = .language
+        id = ns("id_dqe_deskriptive_statistik_sortierte_daten")
       )
     ),
     tabPanel(
