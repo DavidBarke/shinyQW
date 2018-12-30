@@ -3,9 +3,11 @@ data_R6 <- R6::R6Class(
   "data",
   public = list(
     add_group = function(group) {
+      req(group)
       private$datasets[[group]] <- reactiveValues()
     },
     add_dataset = function(group, name, value) {
+      req(name)
       private$datasets[[group]][[name]] <- value
     },
     get_column = function(group, name, colname) {
@@ -36,8 +38,7 @@ data_R6 <- R6::R6Class(
   ),
   private = list(
     datasets = list(
-      user_data_storage = reactiveValues(),
-      permanent_data_storage = reactiveValues(
+      "Predefined Datasets" = reactiveValues(
         mtcars = mtcars,
         iris = iris,
         cars = cars

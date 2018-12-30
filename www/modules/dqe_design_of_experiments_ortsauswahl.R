@@ -67,45 +67,9 @@ dqe_design_of_experiments_projekt_ortsauswahl <- function(
   input, output, session, .data, .values, parent, ...
 ) {
 
-  user_data_storage <- .data$user_data_storage
-
   self <- node$new("ortsauswahl", parent, session)
 
   ns <- session$ns
-
-  # Reactives
-
-  data <- reactive({
-    if (length_data_storage() != 0) {
-      data <- user_data_storage[[input$select_data]]
-    }
-  })
-
-  length_data_storage <- reactive({
-    return(length(names(user_data_storage)))
-  })
-
-  # Output
-
-  output$select_data <- renderUI({
-    selectInput(
-      inputId = ns("select_data"),
-      label = "Wähle Datensatz",
-      choices = names(user_data_storage),
-      selected = if ("Ortsauswahl" %in% names(user_data_storage)) {names(user_data_storage)[str_detect(names(user_data_storage), "Ortsauswahl")]}
-    )
-  })
-
-  # Struktur der Daten
-  # Spalten: Wurf, Ort, Datum, Abwurfhoehe, Flugdauer
-
-  # Übersicht
-
-  output$show_data <- DT::renderDataTable({
-    if (length_data_storage() != 0) {
-      datatable(data())
-    }
-  })
 
   # Kennzahlen für Orte
 

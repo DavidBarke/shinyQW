@@ -260,8 +260,7 @@ server <- function(input, output, session) {
         en = "Descriptive Statistics"
       ),
       tabPanel_list = dqe_deskriptive_statistik_tabPanel(
-        id = "id_deskriptive_statistik",
-        .language = .language
+        id = "id_deskriptive_statistik"
       )
     ),
     actionButton_id = "tab_deskriptive_statistik_btn",

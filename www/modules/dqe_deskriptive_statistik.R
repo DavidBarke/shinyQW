@@ -96,24 +96,43 @@ dqe_deskriptive_statistik_box <- function(id) {
 #' regarding descriptive statistics.
 #'
 #' @export
-dqe_deskriptive_statistik_tabPanel <- function(id, .language) {
+dqe_deskriptive_statistik_tabPanel <- function(id) {
   ns <- NS(id)
 
   list(
     tabPanel(
-      title = "Sortierte Daten",
+      title = label_lang(
+        de = "Übersicht",
+        en = "Overview"
+      ),
+      value = "overview",
+      dqe_deskriptive_statistik_uebersicht_box(
+        id = ns("id_deskriptive_statistik_uebersicht")
+      )
+    ),
+    tabPanel(
+      title = label_lang(
+        de = "Sortierte Daten",
+        en = "Sorted data"
+      ),
+      value = "sorted_data",
       dqe_deskriptive_statistik_sortierte_daten_box(
         id = ns("id_dqe_deskriptive_statistik_sortierte_daten")
       )
     ),
     tabPanel(
-      title = "Gruppierte Daten",
+      title = label_lang(
+        de = "Gruppierte Daten",
+        en = "Grouped data"
+      ),
+      value = "grouped_data",
       dqe_deskriptive_statistik_gruppierte_daten_box(
         id = ns("id_dqe_deskriptive_statistik_gruppierte_daten")
       )
     ),
     tabPanel(
       title = "Boxplot",
+      value = "boxplot",
       dqe_deskriptive_statistik_boxplot_ui(
         id = ns("id_dqe_deskriptive_statistik_boxplot")
       )
@@ -132,24 +151,32 @@ dqe_deskriptive_statistik <- function(
 # SORTIERTE DATEN -----------------------------------------------------------------------
 
   # TODO: call_multiple_modules anwenden
-  call_dqe_deskriptive_statistik_sortierte_daten <- callModule(module = dqe_deskriptive_statistik_sortierte_daten,
-                               id = "id_dqe_deskriptive_statistik_sortierte_daten",
-                               .data = .data,
-                               .values = .values,
-                               parent = self)
-  call_dqe_deskriptive_statistik_gruppierte_daten <- callModule(module = dqe_deskriptive_statistik_gruppierte_daten,
-                               id = "id_dqe_deskriptive_statistik_gruppierte_daten",
-                               .data = .data,
-                               .values = .values,
-                               parent = self)
-  call_dqe_deskriptive_statistik_boxplot <- callModule(module = dqe_deskriptive_statistik_boxplot,
-                               id = "id_dqe_deskriptive_statistik_boxplot",
-                               .data = .data,
-                               .values = .values,
-                               parent = self)
-  # call_dqe_deskriptive_statistik_theorie <- callModule(module = dqe_deskriptive_statistik_theorie,
-  #                              id = "id_dqe_deskriptive_statistik_theorie",
-  #                              .data = .data,
-  #                              .values = .values,
-  #                              parent = self)
+  call_dqe_deskriptive_statistik_uebersicht <- callModule(
+    module = dqe_deskriptive_statistik_uebersicht,
+    id = "id_dqe_deskriptive_statistik_uebersicht",
+    .data = .data,
+    .values = .values,
+    parent = self
+  )
+  call_dqe_deskriptive_statistik_sortierte_daten <- callModule(
+    module = dqe_deskriptive_statistik_sortierte_daten,
+    id = "id_dqe_deskriptive_statistik_sortierte_daten",
+    .data = .data,
+    .values = .values,
+    parent = self
+  )
+  call_dqe_deskriptive_statistik_gruppierte_daten <- callModule(
+    module = dqe_deskriptive_statistik_gruppierte_daten,
+    id = "id_dqe_deskriptive_statistik_gruppierte_daten",
+    .data = .data,
+    .values = .values,
+    parent = self
+  )
+  call_dqe_deskriptive_statistik_boxplot <- callModule(
+    module = dqe_deskriptive_statistik_boxplot,
+    id = "id_dqe_deskriptive_statistik_boxplot",
+    .data = .data,
+    .values = .values,
+    parent = self
+  )
 }

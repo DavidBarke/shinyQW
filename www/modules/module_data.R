@@ -42,7 +42,7 @@ module_data <- function(input, output, session, .data, .values, parent, ...) {
   )
 
   callModule(
-    module = module_data_datasets,
+    module = data_selector,
     id = "id_datasets",
     .data = .data,
     .values = .values,
