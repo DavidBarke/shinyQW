@@ -114,6 +114,14 @@ content_tabBox_R6 <- R6::R6Class(
         class = "ui-sortable-handle",
         ui
       )
+    },
+    
+    update_tab = function(selected) {
+      updateTabsetPanel(
+        session = private$session,
+        inputId = private$id,
+        selected = selected
+      )
     }
   ),
   private = list(

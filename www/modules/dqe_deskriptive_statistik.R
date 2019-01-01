@@ -107,7 +107,7 @@ dqe_deskriptive_statistik_tabPanel <- function(id) {
       ),
       value = "overview",
       dqe_deskriptive_statistik_uebersicht_box(
-        id = ns("id_deskriptive_statistik_uebersicht")
+        id = ns("id_dqe_deskriptive_statistik_uebersicht")
       )
     ),
     tabPanel(

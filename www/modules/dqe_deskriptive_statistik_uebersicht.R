@@ -36,12 +36,22 @@ dqe_deskriptive_statistik_uebersicht <- function(
   ns <- session$ns
   
   observeEvent(input$open_application, {
+    content_element_id <- "tab_deskriptive_statistik_element"
     if (input$select_application == "sorted_data") {
-      
+      .values$viewer$content$update_tab(
+        content_element_id = content_element_id,
+        selected = "sorted_data"
+      )
     } else if (input$select_application == "grouped_data") {
-
+      .values$viewer$content$update_tab(
+        content_element_id = content_element_id,
+        selected = "grouped_data"
+      )
     } else if (input$select_application == "boxplot") {
-      
+      .values$viewer$content$update_tab(
+        content_element_id = content_element_id,
+        selected = "boxplot"
+      )
     }
   })
   

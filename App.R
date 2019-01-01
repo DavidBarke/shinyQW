@@ -253,7 +253,7 @@ server <- function(input, output, session) {
 # CONNECT TABLIST WITH ACTIONBUTTONS
 
   content_list$add_element_actionButton(
-    content_element = content_dialog_R6$new(
+    content_element = content_tabBox(
       id = "tab_deskriptive_statistik_element",
       title = label_lang(
         de = "Deskriptive Statistik",
