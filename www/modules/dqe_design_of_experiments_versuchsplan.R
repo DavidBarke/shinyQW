@@ -1,161 +1,28 @@
 #' @export
-dqe_design_of_experiments_projekt_versuchsplan_ui <- function(id) {
+dqe_design_of_experiments_projekt_versuchsplan_box <- function(id) {
   ns <- NS(id)
-
-  sidebarLayout(
-    sidebarPanel(
-      uiOutput(
-        outputId = ns("select_data")
-      ),
-      uiOutput(
-        outputId = ns("select_factors")
-      ),
-      uiOutput(
-        outputId = ns("interaction_ui")
-      ),
-      uiOutput(
-        outputId = ns("pareto_ui")
-      ),
-      uiOutput(
-        outputId = ns("contour_ui")
-      ),
-      uiOutput(
-        outputId = ns("uebersicht_ui")
-      ),
-      textInput(
-        inputId = ns("toleranzbreite"),
-        label = "Toleranzbreite in s:",
-        value = 0.5
-      ),
-      uiOutput(
-        outputId = ns("erklaert")
-      )
+  
+  tagList(
+    ui <- data_selector_default_ui(
+      id = ns("id_data_selector"),
+      type = "group_dataset"
     ),
-    mainPanel(
-      tabsetPanel(
-        id = ns("tabset_main_versuchsplan"),
-        tabPanel(
-          title = "David"
-        ),
-        tabPanel(
-          title = "Übersicht",
-          DT::dataTableOutput(
-            outputId = ns("show_data")
-          )
-        ),
-        tabPanel(
-          title = "Zusammenfassungen",
-          tabsetPanel(
-            id = ns("tabset_kennzahlen"),
-            tabPanel(
-              title = "Kennzahlen",
-              DT::dataTableOutput(
-                outputId = ns("show_kennzahlen")
-              )
-            ),
-            tabPanel(
-              title = "Lineares Modell",
-              fluidRow(
-                column(
-                  width = 6,
-                  verbatimTextOutput(
-                    outputId = ns("summary_linear_model")
-                  )
-                ),
-                column(
-                  width = 6,
-                  DT::dataTableOutput(
-                    outputId = ns("zuordnung_1")
-                  )
-                )
-              ),
-              textOutput(
-                outputId = ns("data_3")
-              )
-            )
-          )
-        ),
-        tabPanel(
-          title = "Visualisierungen",
-          tabsetPanel(
-            id = ns("tabset_visualisierungen"),
-            tabPanel(
-              title = "Histogramm",
-              plotlyOutput(
-                outputId = ns("histogramm")
-              )
-            ),
-            tabPanel(
-              title = "Effect Plot",
-              plotlyOutput(
-                outputId = ns("effect_plot")
-              ),
-              DT::dataTableOutput(
-                outputId = ns("faktorstufen")
-              )
-            ),
-            tabPanel(
-              title = "Interaction Plot",
-              fluidRow(
-                plotlyOutput(
-                  outputId = ns("interaction_plot")
-                )
-              )
-            ),
-            tabPanel(
-              title = "Pareto Plot",
-              plotlyOutput(
-                outputId = ns("pareto_plot")
-              ),
-              DT::dataTableOutput(
-                outputId = ns("zuordnung_2")
-              )
-            ),
-            tabPanel(
-              title = "Contour Plots",
-              tabsetPanel(
-                id = ns("tabset_contour_plots"),
-                tabPanel(
-                  title = "2D",
-                  plotlyOutput(
-                    outputId = ns("contour_plot_2D")
-                  )
-                ),
-                tabPanel(
-                  title = "3D",
-                  plotlyOutput(
-                    outputId = ns("contour_plot_3D")
-                  )
-                )
-              )
-            ),
-            tabPanel(
-              title = "Residuenanalyse",
-              tabsetPanel(
-                id = ns("tabset_residuen"),
-                tabPanel(
-                  title = "Residuen des linearen Modells",
-                  plotlyOutput(
-                    outputId = ns("residual_plot")
-                  )
-                ),
-                tabPanel(
-                  title = "Normal Q-Q Plot",
-                  plotlyOutput(
-                    outputId = ns("normal_qq_plot")
-                  )
-                ),
-                tabPanel(
-                  title = "Residuen der Centerpoints",
-                  plotlyOutput(
-                    outputId = ns("residual_centerpoints")
-                  )
-                )
-              )
-            )
-          )
+    fluidRow(
+      column(
+        width = 6,
+        uiOutput(
+          outputId = ns("select_factors")
+        )
+      ),
+      column(
+        width = 6,
+        selectInput(
+          inputId = ns("select_appication")
         )
       )
+    ),
+    uiOutput(
+      outputId = ns("specific_input")
     )
   )
 }
@@ -164,23 +31,14 @@ dqe_design_of_experiments_projekt_versuchsplan_ui <- function(id) {
 dqe_design_of_experiments_projekt_versuchsplan <- function(
   input, output, session, .data, .values, parent, ...
 ) {
-
-  user_data_storage <- .data$user_data_storage
-
   self <- node$new("versuchsplan", parent, session)
 
   ns <- session$ns
 
   # Reactives
 
-  data <- reactive({
-    if (length_data_storage() != 0) {
-      data <- user_data_storage[[input$select_data]]
-    }
-  })
-
   data_ohne_centerpoints <- reactive({
-    data_1 <- data()
+    data_1 <- selected_data()
     i <- which(names(data_1) %in% factor_names())[1]
     max <- max(data_1[,i])
     min <- min(data_1[,i])
@@ -188,17 +46,12 @@ dqe_design_of_experiments_projekt_versuchsplan <- function(
     data_1 <- data_1[which(data_1[,i] != mean),]
   })
 
-  map_range_1 <- function(values, max, min) {
-    diff <- max - min
-    return((values - mean(c(max, min))) / (0.5 * diff))
-  }
-
   data_mapped <- reactive({
-    data_1 <- data()
+    data_1 <- selected_data()
     for (i in which(names(data_1) %in% factor_names())) {
       max <- max(data_1[,i])
       min <- min(data_1[,i])
-      data_1[,i] <- map_range_1(data_1[,i], max, min)
+      data_1[,i] <- maprange(data_1[,i], min, max, 0, 1)
     }
     return(data_1)
   })
@@ -215,10 +68,6 @@ dqe_design_of_experiments_projekt_versuchsplan <- function(
     i <- which(names(data_1) %in% factor_names())[1]
     data_1 <- data_1[which(data_1[,i] == 0),]
     return(data_1)
-  })
-
-  length_data_storage <- reactive({
-    return(length(names(user_data_storage)))
   })
 
   length_select_factors <- reactive({
@@ -263,16 +112,20 @@ dqe_design_of_experiments_projekt_versuchsplan <- function(
   })
 
   selected_factors <- reactive({
-    if (length_data_storage() != 0 && length_select_factors() != 0) {
-      data <- factors()
-      which <- which(data$Faktor %in% input$select_factors)
-      data <- data[which,]
-      data$Label <- as.character(data$Label)
-      return(data)
-    }
+    data <- factors()
+    which <- which(data$Faktor %in% input$select_factors)
+    data <- data[which,]
+    data$Label <- as.character(data$Label)
+    return(data)
   })
 
   # Output
+  
+  output$specific_input <- renderUI({
+    switch(input$select_application, {
+      "pareto" = 
+    })
+  })
 
   output$select_data <- renderUI({
     selectInput(
@@ -358,31 +211,27 @@ dqe_design_of_experiments_projekt_versuchsplan <- function(
   ## Kennzahlen
 
   output$show_kennzahlen <- DT::renderDataTable({
-    if (length_data_storage() != 0) {
-      data <- data() %>%
-        group_by(Ort) %>%
-        summarise(`Durchschnittliche Flugdauer` = mean(Flugdauer),
-                  `Standardabweichung` = sqrt((n() - 1)/(n())) * sd(Flugdauer),
-                  `cp-Wert` = 0.5 / (6 * sqrt((n() - 1) / (n())) * sd(Flugdauer)))
-      data <- datatable(data)
-    }
+    data <- selected_data() %>%
+      group_by(Ort) %>%
+      summarise(`Durchschnittliche Flugdauer` = mean(Flugdauer),
+                `Standardabweichung` = sqrt((n() - 1)/(n())) * sd(Flugdauer),
+                `cp-Wert` = 0.5 / (6 * sqrt((n() - 1) / (n())) * sd(Flugdauer)))
+    data <- datatable(data)
   })
 
   ## Lineares Modell
 
   output$summary_linear_model <- renderPrint({
-    if (length_data_storage() != 0) {
-      if (!is.null(input$select_factors)) {
-        lm_1 <- lm_1()
-        s <- summary(lm_1)
-        factors_df <- factors()
-        effect_names <- row.names(s$coefficients)
-        for (i in 1:length(factors_df$Faktor)) {
-          effect_names <- str_replace_all(effect_names, factors_df$Faktor[i], factors_df$Label[i])
-        }
-        row.names(s$coefficients) <- effect_names
-        print(s)
+    if (!is.null(input$select_factors)) {
+      lm_1 <- lm_1()
+      s <- summary(lm_1)
+      factors_df <- factors()
+      effect_names <- row.names(s$coefficients)
+      for (i in 1:length(factors_df$Faktor)) {
+        effect_names <- str_replace_all(effect_names, factors_df$Faktor[i], factors_df$Label[i])
       }
+      row.names(s$coefficients) <- effect_names
+      print(s)
     }
   })
 
@@ -423,8 +272,8 @@ dqe_design_of_experiments_projekt_versuchsplan <- function(
 
   ## Effect Plot
 
-  output$effect_plot <- renderPlotly({
-    if (length_data_storage() != 0 && length_select_factors() != 0) {
+  effect_plot <- reactive({
+    if (length_select_factors() != 0) {
       factors <- input$select_factors
       data <- data_transform() %>%
         dplyr::select(one_of(factors), Flugdauer) %>%
@@ -450,15 +299,13 @@ dqe_design_of_experiments_projekt_versuchsplan <- function(
   })
 
   output$faktorstufen <- DT::renderDataTable({
-    if (length_data_storage() != 0) {
-      factors <- input$select_factors
-      factors_max <- c("Fluegellaenge", "Koerperlaenge", "Einschnitt", "Papierstaerke")
-      low <- c("60 mm", "50 mm", "0 mm", "80 g/mm^2")
-      high <- c("90 mm", "100 mm", "60 mm", "120 g/mm^2")
-      data <- data.frame(Faktor = factors_max, High = high, Low = low)
-      values <- which(data$Faktor %in% factors)
-      data[values,]
-    }
+    factors <- input$select_factors
+    factors_max <- c("Fluegellaenge", "Koerperlaenge", "Einschnitt", "Papierstaerke")
+    low <- c("60 mm", "50 mm", "0 mm", "80 g/mm^2")
+    high <- c("90 mm", "100 mm", "60 mm", "120 g/mm^2")
+    data <- data.frame(Faktor = factors_max, High = high, Low = low)
+    values <- which(data$Faktor %in% factors)
+    data[values,]
   })
 
   ## Interaction Plot
@@ -504,7 +351,7 @@ dqe_design_of_experiments_projekt_versuchsplan <- function(
                       selected = selected)
   })
 
-  output$interaction_plot <- renderPlotly({
+  interaction_plot <- reactive({
     vp_means_interaction <- data_transform() %>%
       group_by_(input$interaktion_faktor_1, input$interaktion_faktor_2) %>%
       summarise(mean = mean(Flugdauer)) %>%
@@ -546,8 +393,8 @@ dqe_design_of_experiments_projekt_versuchsplan <- function(
     }
   })
 
-  output$pareto_plot <- renderPlotly({
-    if (length_data_storage() != 0 && length_select_factors() != 0) {
+  pareto_plot <- reactive({
+    if (length_select_factors() != 0) {
       lm_1 <- lm_1()
       erklaert <- erklaert()
       alpha <- as.numeric(input$pareto_signifikanzniveau)
@@ -587,74 +434,70 @@ dqe_design_of_experiments_projekt_versuchsplan <- function(
 
   ### 2D
 
-  output$contour_plot_2D <- renderPlotly({
-    if (length_data_storage() != 0) {
-      data_1 <- data()
-      lm_2 <- lm_contour()
-      x_seq <- seq(-1, 1, by = 0.01)
-      y_seq <- seq(-1, 1, by = 0.01)
-      df_seq <- expand.grid(x_seq, y_seq)
-      names(df_seq) <- c(input$contour_faktor_1, input$contour_faktor_2)
-      df_seq$predict <- predict(lm_2, df_seq)
-      plot <- plotly::plot_ly(data = df_seq, x = df_seq[[input$contour_faktor_1]], y = df_seq[[input$contour_faktor_2]], z = ~predict,
-                     type = "contour",
-                     colorbar = list(
-                       thickness = 60,
-                       tickmode = "array",
-                       tickvals = c(100, 500)
-                     )
-      ) %>%
-        plotly::layout(
-          xaxis = list(
-            title = input$contour_faktor_1,
-            tickmode = "array",
-            tickvals = c(-1, 1)
-          ),
-          yaxis = list(
-            title = input$contour_faktor_2,
-            tickmode = "array",
-            tickvals = c(-1, 1)
-          )
+  contour_plot_2D <- reactive({
+    data_1 <- selected_data()
+    lm_2 <- lm_contour()
+    x_seq <- seq(-1, 1, by = 0.01)
+    y_seq <- seq(-1, 1, by = 0.01)
+    df_seq <- expand.grid(x_seq, y_seq)
+    names(df_seq) <- c(input$contour_faktor_1, input$contour_faktor_2)
+    df_seq$predict <- predict(lm_2, df_seq)
+    plot <- plotly::plot_ly(data = df_seq, x = df_seq[[input$contour_faktor_1]], y = df_seq[[input$contour_faktor_2]], z = ~predict,
+                            type = "contour",
+                            colorbar = list(
+                              thickness = 60,
+                              tickmode = "array",
+                              tickvals = c(100, 500)
+                            )
+    ) %>%
+      plotly::layout(
+        xaxis = list(
+          title = input$contour_faktor_1,
+          tickmode = "array",
+          tickvals = c(-1, 1)
+        ),
+        yaxis = list(
+          title = input$contour_faktor_2,
+          tickmode = "array",
+          tickvals = c(-1, 1)
         )
-      return(plot)
-    }
+      )
+    return(plot)
   })
 
   ### 3D
 
-  output$contour_plot_3D <- renderPlotly({
-    if (length_data_storage() != 0) {
-      lm_2 <- lm_contour()
-      x_seq <- seq(-1, 1, by = 0.05)
-      y_seq <- seq(-1, 1, by = 0.05)
-      df_seq <- expand.grid(x_seq, y_seq)
-      names(df_seq) <- c(input$contour_faktor_1, input$contour_faktor_2)
-      df_seq$predict <- predict(lm_2, df_seq)
-      formel_2 <- paste(input$contour_faktor_2, " ~ ", input$contour_faktor_1, sep = "")
-      m_lm <- reshape2::acast(df_seq, formula = formel_2, value.var = "predict")
-      plot <- plotly::plot_ly(type = "surface", x = x_seq, y = y_seq, z = m_lm, colors = "Blues", name = "Aktivität") %>%
-        plotly::layout(
-          scene = list(
-            xaxis = list(
-              title = input$contour_faktor_1
-            ),
-            yaxis = list(
-              title = input$contour_faktor_2
-            ),
-            zaxis = list(
-              title = erklaert()
-            ),
-            camera = list(
-              eye = list(
-                x = 1*1.5,
-                y = 0.75*1.5,
-                z = 0.75*1.5
-              )
+  contour_plot_3D <- reactive({
+    lm_2 <- lm_contour()
+    x_seq <- seq(-1, 1, by = 0.05)
+    y_seq <- seq(-1, 1, by = 0.05)
+    df_seq <- expand.grid(x_seq, y_seq)
+    names(df_seq) <- c(input$contour_faktor_1, input$contour_faktor_2)
+    df_seq$predict <- predict(lm_2, df_seq)
+    formel_2 <- paste(input$contour_faktor_2, " ~ ", input$contour_faktor_1, sep = "")
+    m_lm <- reshape2::acast(df_seq, formula = formel_2, value.var = "predict")
+    plot <- plotly::plot_ly(type = "surface", x = x_seq, y = y_seq, z = m_lm, colors = "Blues", name = "Aktivität") %>%
+      plotly::layout(
+        scene = list(
+          xaxis = list(
+            title = input$contour_faktor_1
+          ),
+          yaxis = list(
+            title = input$contour_faktor_2
+          ),
+          zaxis = list(
+            title = erklaert()
+          ),
+          camera = list(
+            eye = list(
+              x = 1*1.5,
+              y = 0.75*1.5,
+              z = 0.75*1.5
             )
           )
         )
-      return(plot)
-    }
+      )
+    return(plot)
   })
 
   ### UI
@@ -721,8 +564,8 @@ dqe_design_of_experiments_projekt_versuchsplan <- function(
 
   ### Residual Plot
 
-  output$residual_plot <- renderPlotly({
-    if (length_data_storage() != 0 && length_select_factors() != 0) {
+  residual_plot <- reactive({
+    if (length_select_factors() != 0) {
       lm_1 <- lm_1()
       predicted <- lm_1$fitted.values
       residuals <- lm_1$residuals
@@ -735,7 +578,7 @@ dqe_design_of_experiments_projekt_versuchsplan <- function(
     }
   })
 
-  output$normal_qq_plot <- renderPlotly({
+  normal_qq_plot <- reactive({
     lm_1 <- lm_1()
     residuals <- lm_1$residuals
     ordered_residuals <- residuals[order(residuals)]
@@ -754,7 +597,7 @@ dqe_design_of_experiments_projekt_versuchsplan <- function(
     return(plot)
   })
 
-  output$residual_centerpoints <- renderPlotly({
+  residual_centerpoints <- reactive({
     lm_1 <- lm_1()
     data <- data_centerpoints()
     intercept <- unname(lm_1$coefficients[which(names(lm_1$coefficients) == "(Intercept)")])
@@ -766,4 +609,12 @@ dqe_design_of_experiments_projekt_versuchsplan <- function(
     plot <- ggplotly(plot)
     return(plot)
   })
+  
+  selected_data <- callModule(
+    module = data_selector,
+    id = "id_data_selector",
+    .data = .data,
+    .values = .values,
+    parent = self
+  )
 }

@@ -210,3 +210,7 @@ fallback <- function(x, y) {
     return(x)
   }
 }
+
+maprange <- function(x, pmin, pmax, nmin, nmax) {
+  nmin + ((x - pmin) / (pmax - pmin)) * (nmax - nmin)
+}

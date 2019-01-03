@@ -23,6 +23,7 @@ sourceDirectory(path = "www/modules", encoding = "UTF-8", modifiedOnly = FALSE)
 # Globals ----------------------------------------------------------------------
 
 .language = "de"
+options(DT.options = list(scrollX = TRUE))
 
 tabList <- tabList_R6$new(id = "placeholder", sortable = TRUE)
 

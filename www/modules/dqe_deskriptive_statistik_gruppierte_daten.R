@@ -136,7 +136,8 @@ dqe_deskriptive_statistik_gruppierte_daten <- function(
 
   output$tabellierte_haeufigkeitsverteilung <- DT::renderDataTable({
     req(x_data())
-    data <- DT::datatable(tabellierte_haeufigkeitsverteilung())
+    data <- DT::datatable(tabellierte_haeufigkeitsverteilung(),
+                          options = list(scrollX = TRUE))
     return(data)
   })
 
@@ -197,9 +198,17 @@ dqe_deskriptive_statistik_gruppierte_daten <- function(
       tab = tabPanel(
         title = "Tabellierte Häufigkeitsverteilung",
         DT::dataTableOutput(
-          outputId = ns("tabellierte_haeufigkeitsverteilung")
+          outputId = ns("tabellierte_haeufigkeitsverteilung"),
+          width = "auto"
         ),
-        value = ns("Tabellierte_Häufigkeitsverteilung")
+        actionButton(
+          inputId = ns("show_plot"),
+          label = label_lang(
+            de = "Zugehöriger Plot",
+            en = "Affiliated plot"
+          )
+        ),
+        value = ns("tabled_frequency_distribution")
       )
     )
     # .values$viewer$plot$appendPlot(
@@ -208,11 +217,61 @@ dqe_deskriptive_statistik_gruppierte_daten <- function(
     # )
     .values$viewer$plot$append_tab(
       tab = tabPanel(
-        title = "Grafische Häufigkeitsverteilung",
+        title = label_lang(
+          de = "Grafische Häufigkeitsverteilung",
+          en = "Graphical frequency distribution"
+        ),
         plotOutput(
           outputId = ns("plot_group")
         ),
-        value = ns("Grafische_Häufigkeitsverteilung")
+        actionButton(
+          inputId = ns("show_table"),
+          label = label_lang(
+            de = "Zugehörige Daten",
+            en = "Affiliated data"
+          )
+        ),
+        value = ns("graphical_frequency_distribution")
+      )
+    )
+  })
+  
+  observeEvent(input$show_table, {
+    .values$viewer$data$append_tab(
+      tab = tabPanel(
+        title = "Tabellierte Häufigkeitsverteilung",
+        fluidRow(
+          column(
+            width = 12,
+            DT::dataTableOutput(
+              outputId = ns("tabellierte_haeufigkeitsverteilung"),
+              width = "auto"
+            )
+          )
+        ),
+        value = ns("tabled_frequency_distribution")
+      )
+    )
+  })
+  
+  observeEvent(input$show_plot, {
+    .values$viewer$plot$append_tab(
+      tab = tabPanel(
+        title = label_lang(
+          de = "Grafische Häufigkeitsverteilung",
+          en = "Graphical frequency distribution"
+        ),
+        plotOutput(
+          outputId = ns("plot_group")
+        ),
+        actionButton(
+          inputId = ns("show_table"),
+          label = label_lang(
+            de = "Zugehörige Daten",
+            en = "Affiliated data"
+          )
+        ),
+        value = ns("graphical_frequency_distribution")
       )
     )
   })
