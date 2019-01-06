@@ -1,3 +1,9 @@
+versuchsplan <- tibble(
+  x = runif(10, 0, 1),
+  y = sample(c(-1, 1), 10, TRUE),
+  z = sample(c(-1, 1), 10, TRUE)
+)
+
 #' @export
 data_R6 <- R6::R6Class(
   "data",
@@ -14,7 +20,7 @@ data_R6 <- R6::R6Class(
       self$get_dataset(group, name)[[colname]]
     },
     get_dataset = function(group, name) {
-      private$datasets[[group]][[name]]
+      req(private$datasets[[group]][[name]])
     },
     get_dataset_columns = function(group, name) {
       names(self$get_dataset(group, name))
@@ -41,7 +47,8 @@ data_R6 <- R6::R6Class(
       "Predefined Datasets" = reactiveValues(
         mtcars = mtcars,
         iris = iris,
-        cars = cars
+        cars = cars,
+        Versuchsplan = versuchsplan
       )
     )
   )

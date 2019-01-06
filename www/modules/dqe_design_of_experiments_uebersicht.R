@@ -20,7 +20,7 @@ dqe_design_of_experiments_uebersicht_box <- function(id) {
 dqe_design_of_experiments_uebersicht <- function(
   input, output, session, .data, .values, parent, ...
 ) {
-  self <- node$new("design_of_experiments_uebersicht", session, parent)
+  self <- node$new("design_of_experiments_uebersicht", parent, session)
   
   ns <- session$ns
   

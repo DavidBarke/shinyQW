@@ -64,23 +64,23 @@ dqe_design_of_experiments_tabPanel <- function(id) {
         de = "Versuchsplan",
         en = "Experimental design"
       ),
-      dqe_design_of_experiments_projekt_versuchsplan_box(
-        id = ns("id_dqe_design_of_experiments_projekt_versuchsplan")
+      dqe_design_of_experiments_versuchsplan_box(
+        id = ns("id_dqe_design_of_experiments_versuchsplan")
       )
-    ),
-    tabPanel(
-      title = "Steepest Ascent",
-      dqe_design_of_experiments_projekt_steepest_ascent_ui(
-        id = ns("id_dqe_design_of_experiments_projekt_steepest_ascent")
-      )
-    )
+    )#,
+    # tabPanel(
+    #   title = "Steepest Ascent",
+    #   dqe_design_of_experiments_projekt_steepest_ascent_ui(
+    #     id = ns("id_dqe_design_of_experiments_projekt_steepest_ascent")
+    #   )
+    # )
   )
 }
 
 #' @export
 dqe_design_of_experiments <- function(input, output, session, .data, .values,
                                       parent, ...) {
-
+  
   self <- node$new("design_of_experiments", parent, session)
 
   ns <- session$ns
@@ -89,23 +89,31 @@ dqe_design_of_experiments <- function(input, output, session, .data, .values,
 
 # CALL MODULES --------------------------------------------------------------------------
 
-  themen <- c("ortsauswahl", "standardisierung", "versuchsplan", "steepest_ascent")
+  # themen <- c("ortsauswahl", "standardisierung", "versuchsplan", "steepest_ascent")
 
-    call_multiple_modules_2(module_templates = themen,
-                            glue_module = list(x1 = "{prefix}", x2 = "{template}"),
-                            glue_id = list(x1 = "id", x2 = "{prefix}", x3 = "{template}"),
-                            glue_reactive = list(x1 = "call", x2 = "{prefix}", x3 = "{template}"),
-                            glue_list = list(prefix = "dqe_design_of_experiments_projekt"),
-                            .data = .data,
-                            .values = .values,
-                            session_tree = session_tree,
-                            parent = self)
+    # call_multiple_modules_2(module_templates = themen,
+    #                         glue_module = list(x1 = "{prefix}", x2 = "{template}"),
+    #                         glue_id = list(x1 = "id", x2 = "{prefix}", x3 = "{template}"),
+    #                         glue_reactive = list(x1 = "call", x2 = "{prefix}", x3 = "{template}"),
+    #                         glue_list = list(prefix = "dqe_design_of_experiments_projekt"),
+    #                         .data = .data,
+    #                         .values = .values,
+    #                         session_tree = session_tree,
+    #                         parent = self)
+  
+  callModule(
+    module = dqe_design_of_experiments_versuchsplan,
+    id = "id_dqe_design_of_experiments_versuchsplan",
+    .data = .data,
+    .values = .values,
+    parent = self
+  )
     
-    callModule(
-      module = dqe_design_of_experiments_uebersicht,
-      id = "id_dqe_design_of_experiments_uebersicht",
-      .data = .data,
-      .values = .values,
-      parent = self
-    )
+  callModule(
+    module = dqe_design_of_experiments_uebersicht,
+    id = "id_dqe_design_of_experiments_uebersicht",
+    .data = .data,
+    .values = .values,
+    parent = self
+  )
 }

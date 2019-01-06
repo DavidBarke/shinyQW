@@ -124,7 +124,7 @@ call_multiple_modules_2 <- function(module_templates,
     }
     # Modul unter Verwendung der Objektnamen aufrufen
     module <- get(name_module)
-    assign(name_reactive, shiny::callModule(
+    assign(name_reactive, callModule(
       module = get(name_module),
       id = name_id,
       ...

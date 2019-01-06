@@ -1,301 +1,268 @@
 #' @export
-dqe_design_of_experiments_projekt_versuchsplan_box <- function(id) {
+dqe_design_of_experiments_versuchsplan_box <- function(id) {
   ns <- NS(id)
   
   tagList(
-    ui <- data_selector_default_ui(
+    data_selector_default_ui(
       id = ns("id_data_selector"),
       type = "group_dataset"
     ),
     fluidRow(
       column(
-        width = 6,
+        width = 8,
         uiOutput(
           outputId = ns("select_factors")
         )
       ),
       column(
-        width = 6,
-        selectInput(
-          inputId = ns("select_appication")
+        width = 4,
+        uiOutput(
+          outputId = ns("column_warnings")
         )
       )
     ),
-    uiOutput(
-      outputId = ns("specific_input")
+    fluidRow(
+      column(
+        width = 6,
+        selectInput(
+          inputId = ns("select_plot_type"),
+          label = label_lang(
+            de = "Wähle Plot",
+            en = "Select plot"
+          ),
+          choices = label_lang_list(
+            de = c("Paretoplot", "Effektplot", "Interaktionsplot", "Contourplot"),
+            en = c("Pareto plot", "Effect plot", "Interaction plot", "Contour plot"),
+            value = c("pareto", "effect", "interaction", "contour")
+          )
+        )
+      ),
+      column(
+        width = 6,
+        actionButton(
+          inputId = ns("add_plot"),
+          label = label_lang(
+            de = "Neuer Plot",
+            en = "Add plot"
+          )
+        )
+      )
     )
   )
 }
 
 #' @export
-dqe_design_of_experiments_projekt_versuchsplan <- function(
+dqe_design_of_experiments_versuchsplan <- function(
   input, output, session, .data, .values, parent, ...
 ) {
   self <- node$new("versuchsplan", parent, session)
 
   ns <- session$ns
+  
+  rvs <- reactiveValues(
+    wrong_column_format = TRUE
+  )
+  
+  warnings <- reactiveValues(
+    wrong_format_factor = FALSE,
+    wrong_format_factors = character(),
+    wrong_format_target = FALSE
+  )
+  
+  output$select_factors <- renderUI({
+    names_selected_data <- names(selected_data())
+    choices_factors <- setdiff(names_selected_data, input$selected_target)
+    tagList(
+      selectizeInput(
+        inputId = ns("selected_factors"),
+        label = label_lang(
+          de = "Faktoren",
+          en = "Factor variables"
+        ),
+        choices = choices_factors,
+        selected = fallback(input$selected_factors, choices_factors[1]),
+        multiple = TRUE
+      ),
+      selectInput(
+        inputId = ns("selected_target"),
+        label = label_lang(
+          de = "Zielgröße",
+          en = "Target variable"
+        ),
+        choices = names_selected_data,
+        selected = fallback(input$selected_target, names_selected_data[1])
+      )
+    )
+  })
+  
+  output$column_warnings <- renderUI({
+    warning <- character()
+    if (warnings$wrong_format_factor) {
+      warning <- paste(warning, label_lang(
+        de = "Faktoren dürfen höchstens drei Ausprägungen (Hoch, Tief, '0') haben.",
+        en = "Warning"
+      ))
+    }
+    if (warnings$wrong_format_target) {
+      warning <- paste(warning, label_lang(
+        de = "Zielgröße muss numerische Werte annehmen",
+        en = "Target variable must be numeric"
+      ))
+    }
+    div(
+      class = "warning",
+      warning
+    )
+  })
 
   # Reactives
-
-  data_ohne_centerpoints <- reactive({
-    data_1 <- selected_data()
-    i <- which(names(data_1) %in% factor_names())[1]
-    max <- max(data_1[,i])
-    min <- min(data_1[,i])
-    mean <- mean(c(max, min))
-    data_1 <- data_1[which(data_1[,i] != mean),]
-  })
-
-  data_mapped <- reactive({
-    data_1 <- selected_data()
-    for (i in which(names(data_1) %in% factor_names())) {
-      max <- max(data_1[,i])
-      min <- min(data_1[,i])
-      data_1[,i] <- maprange(data_1[,i], min, max, 0, 1)
-    }
-    return(data_1)
-  })
-
-  data_transform <- reactive({
-    data_1 <- data_mapped()
-    i <- which(names(data_1) %in% factor_names())[1]
-    data_1 <- data_1[-which(data_1[,i] == 0),]
-    return(data_1)
-  })
-
-  data_centerpoints <- reactive({
-    data_1 <- data_mapped()
-    i <- which(names(data_1) %in% factor_names())[1]
-    data_1 <- data_1[which(data_1[,i] == 0),]
-    return(data_1)
-  })
-
-  length_select_factors <- reactive({
-    return(length(input$select_factors))
-  })
-
-  erklaert <- reactive({
-    erklaert <- input$erklaert
-    return(erklaert)
-  })
-
-  lm_1 <- reactive({
-    erklaert <- erklaert()
-    factors <- factors()
-    selected <- filter(factors, Faktor %in% input$select_factors)
-    factors_letters <- selected$Label
-    data_3 <- filter_all(data_transform(), all_vars(. != 0)) %>%
-      dplyr::select(one_of(c(input$select_factors, erklaert)))
-    anzahl <- max(2, length(factors_letters))
-    formel <- as.formula(paste(erklaert, " ~ . ^ ", anzahl, sep = ""))
-    lm_1 <- lm(formel, data = data_3)
-    lm_1$call <- formel
-    return(lm_1)
-  })
-
-  lm_coefficients <- reactive({
-    lm_coefficients <- lm_1()$coefficients
-    return(lm_coefficients)
-  })
-
-  factors <- reactive({
-    factors <- c("Fluegellaenge", "Koerperlaenge", "Einschnitt", "Papierstaerke")
-    letters <- as.character(LETTERS[1:length(factors)])
-    data <- data.frame(Faktor = factors, Label = letters)
-    data$Label <- as.character(data$Label)
-    return(data)
-  })
-
-  factor_names <- reactive({
-    factor_names <- c("Fluegellaenge", "Koerperlaenge", "Einschnitt", "Papierstaerke")
-    return(factor_names)
-  })
-
-  selected_factors <- reactive({
-    data <- factors()
-    which <- which(data$Faktor %in% input$select_factors)
-    data <- data[which,]
-    data$Label <- as.character(data$Label)
-    return(data)
-  })
-
-  # Output
   
-  output$specific_input <- renderUI({
-    switch(input$select_application, {
-      "pareto" = 
-    })
+  selected_factor_data <- reactive({
+    data <- as.tibble(selected_data())
+    data[, names(data) %in% input$selected_factors]
   })
-
-  output$select_data <- renderUI({
-    selectInput(
-      inputId = ns("select_data"),
-      label = "Wähle Datensatz",
-      choices = names(user_data_storage),
-      selected = if ("Versuchsplan" %in% names(user_data_storage)) {names(user_data_storage)[str_detect(names(user_data_storage), "Versuchsplan")]}
-    )
-  })
-
-  output$select_factors <- renderUI({
-    if (input$tabset_main_versuchsplan == "Kennzahlen" || input$tabset_visualisierungen != "Interaction Plot" && input$tabset_visualisierungen != "Contour Plots") {
-      factors <- c("Fluegellaenge", "Koerperlaenge", "Einschnitt", "Papierstaerke")
-      selectizeInput(
-        inputId = ns("select_factors"),
-        label = "Wähle zu berücksichtigende Faktoren:",
-        choices = factors,
-        selected = factors,
-        multiple = TRUE
-      )
-    }
-  })
-
-  output$erklaert <- renderUI({
-    tagList(
-      selectInput(
-        inputId = ns("erklaert"),
-        label = "Zielgröße",
-        choices = names(data()),
-        selected = "Flugdauer"
-      )
-    )
-  })
-
-  output$zuordnung_1 <- DT::renderDataTable({
-    datatable(selected_factors())
-  })
-
-  output$zuordnung_2 <- DT::renderDataTable({
-    datatable(selected_factors())
-  })
-
-  # Struktur der Daten
-  # Spalten: Wurf, Ort, Datum, Abwurfhoehe, Flugdauer, Fluegellaenge, Koerperlaenge, Einschnitt, Papierart
-
-  # Übersicht
-
-  output$show_data <- DT::renderDataTable({
-    if (input$include_centerpoints) {
-      if (input$kodierte_werte) {
-        return(data_mapped())
-      } else {
-        return(data())
-      }
+  
+  selected_target_data <- reactive({
+    data <- as.tibble(selected_data())
+    if (!is.numeric(data[[input$selected_target]])) {
+      warnings$wrong_format_target <- TRUE
     } else {
-      if (input$kodierte_werte) {
-        return(data_transform())
+      warnings$wrong_format_target <- FALSE
+    }
+    data[, input$selected_target]
+  })
+  
+  selected_factor_data_mapped <- reactive({
+    data <- selected_factor_data()
+    wrong_format_factor <- FALSE
+    for (i in seq_along(data)) {
+      if (length(unique(data[[i]])) > 3) {
+        wrong_format_factor <- TRUE
+        wrong_format_factors <- c(warnings$wrong_format_factors, names(data)[i])
+        break
       } else {
-        return(data_ohne_centerpoints())
+        max <- max(data[,i])
+        min <- min(data[,i])
+        data[,i] <- maprange(data[,i], min, max, -1, 1)
       }
     }
-  })
-
-  output$uebersicht_ui <- renderUI({
-    if (input$tabset_main_versuchsplan == "Übersicht") {
-      tagList(
-        checkboxInput(
-          inputId = ns("kodierte_werte"),
-          label = "Kodierte Werte",
-          value = FALSE
-        ),
-        checkboxInput(
-          inputId = ns("include_centerpoints"),
-          label = "Mit Centerpoints",
-          value = TRUE
-        )
-      )
+    warnings$wrong_format_factor <- wrong_format_factor
+    if (!wrong_format_factor) {
+      wrong_format_factors <- character()
     }
+    data
   })
-
-  # Zusammenfassungen
-
-  ## Kennzahlen
-
-  output$show_kennzahlen <- DT::renderDataTable({
-    data <- selected_data() %>%
-      group_by(Ort) %>%
-      summarise(`Durchschnittliche Flugdauer` = mean(Flugdauer),
-                `Standardabweichung` = sqrt((n() - 1)/(n())) * sd(Flugdauer),
-                `cp-Wert` = 0.5 / (6 * sqrt((n() - 1) / (n())) * sd(Flugdauer)))
-    data <- datatable(data)
+  
+  combined_data <- reactive({
+    data <- bind_cols(
+      selected_target_data(),
+      selected_factor_data_mapped()
+    )
   })
+  
+  count_selected_factors <- reactive({
+    length(input$selected_factors)
+  })
+  
+  lm_data <- reactive({
+    combined_data()
+  })
+  
+  lm_formula <- reactive({
+    anzahl <- max(2, count_selected_factors)
+    as.formula(paste0(input$selected_target, " ~ . ^ ", anzahl))
+  })
+  
+  lm_coefficients <- reactive({
+    linear_model()$coefficients
+  })
+  
+  linear_model <- reactive({
+    linear_model <- lm(lm_formula(), lm_data())
+    linear_model$call <- lm_formula()
+    linear_model
+  })
+  
+  # 
+  # factors <- reactive({
+  #   factors <- c("Fluegellaenge", "Koerperlaenge", "Einschnitt", "Papierstaerke")
+  #   letters <- as.character(LETTERS[1:length(factors)])
+  #   data <- data.frame(Faktor = factors, Label = letters)
+  #   data$Label <- as.character(data$Label)
+  #   return(data)
+  # })
+  # 
+  # selected_factors <- reactive({
+  #   data <- factors()
+  #   which <- which(data$Faktor %in% input$select_factors)
+  #   data <- data[which,]
+  #   data$Label <- as.character(data$Label)
+  #   return(data)
+  # })
 
   ## Lineares Modell
 
-  output$summary_linear_model <- renderPrint({
-    if (!is.null(input$select_factors)) {
-      lm_1 <- lm_1()
-      s <- summary(lm_1)
-      factors_df <- factors()
-      effect_names <- row.names(s$coefficients)
-      for (i in 1:length(factors_df$Faktor)) {
-        effect_names <- str_replace_all(effect_names, factors_df$Faktor[i], factors_df$Label[i])
-      }
-      row.names(s$coefficients) <- effect_names
-      print(s)
-    }
-  })
-
-  output$vereinfachtes_modell <- renderUI({
-    checkboxInput(
-      inputId = ns("vereinfachtes_modell"),
-      label = "Vereinfachtes Modell"
-    )
-  })
+  # output$summary_linear_model <- renderPrint({
+  #   if (!is.null(input$select_factors)) {
+  #     lm_1 <- lm_1()
+  #     s <- summary(lm_1)
+  #     factors_df <- factors()
+  #     effect_names <- row.names(s$coefficients)
+  #     for (i in 1:length(factors_df$Faktor)) {
+  #       effect_names <- str_replace_all(effect_names, factors_df$Faktor[i], factors_df$Label[i])
+  #     }
+  #     row.names(s$coefficients) <- effect_names
+  #     print(s)
+  #   }
+  # })
+  # 
+  # output$vereinfachtes_modell <- renderUI({
+  #   checkboxInput(
+  #     inputId = ns("vereinfachtes_modell"),
+  #     label = "Vereinfachtes Modell"
+  #   )
+  # })
 
   # Visualisierungen
-
-  ## Histogramm
-
-  output$histogramm <- renderPlotly({
-    toleranzbreite <- as.numeric(input$toleranzbreite)
-    flugdauer <- data()$Flugdauer
-    k <- floor(sqrt(length(flugdauer)))
-    mean_flugdauer <- mean(flugdauer)
-    sd_flugdauer <- sd(flugdauer)
-    min <- min(flugdauer, na.rm = TRUE)
-    max <- max(flugdauer, na.rm = TRUE)
-    R <- max - min
-    b <- R / k
-    breaks <- min + 0:k * b
-    data_norm <- data.frame(x = seq(min, max, length.out = 100)) %>%
-      mutate(y = dnorm(x = x, mean = mean_flugdauer, sd = sd_flugdauer))
-    plot <- ggplot(data = data.frame(Flugdauer = flugdauer)) +
-      geom_histogram(mapping = aes(x = Flugdauer, y = ..density..), breaks = breaks, closed = "left", col = "mediumblue", fill = "lightblue") +
-      geom_vline(xintercept = mean_flugdauer - toleranzbreite/2, col = "red", linetype = "dashed") +
-      geom_vline(xintercept = mean_flugdauer + toleranzbreite/2, col = "red", linetype = "dashed") +
-      geom_line(data = data_norm, mapping = aes(x = x, y = y)) +
-      labs(x = "Flugdauer", y = "Relative Häufigkeitsdichte") +
-      theme_bw()
-    plot <- ggplotly(plot)
-    return(plot)
+  
+  ## Handling
+  
+  observeEvent(input$add_plot, {
+    output[[input$select_plot_type %_% "plot"]] <- switch(
+      input$select_plot_type,
+      "pareto" = renderPlotly({
+        
+      }),
+      "effect" = renderPlotly({
+        effect_plot()
+      }),
+      "interaction" = renderPlotly({
+        
+      }),
+      "contour" = renderPlotly({
+        
+      })
+    )
+    .values$viewer$plot$append_tab(
+      tab = tabPanel(
+        title = label_lang(
+          de = "Plot",
+          en = "Plot"
+        ),
+        value = ns(input$select_plot_type %_% "plot"),
+        plotlyOutput(
+          outputId = ns(input$select_plot_type %_% "plot")
+        )
+      )
+    )
   })
-
+  
   ## Effect Plot
 
   effect_plot <- reactive({
-    if (length_select_factors() != 0) {
-      factors <- input$select_factors
-      data <- data_transform() %>%
-        dplyr::select(one_of(factors), Flugdauer) %>%
-        dplyr::filter_all(all_vars(. != 0))
-      means_plus <- c()
-      means_minus <- c()
-      for (i in 1:length(factors)) {
-        plus <- filter_(data, paste(factors[i], "== 1", sep = ""))
-        means_plus[i] <- mean(plus$Flugdauer)
-        minus <- filter_(data, paste(factors[i], "== -1", sep = ""))
-        means_minus[i] <- mean(minus$Flugdauer)
-      }
-      df <- data.frame(Faktoren = factors, Oben = means_plus, Unten = means_minus)
-      plot <- ggplot(data = df) +
-        facet_grid(facets = . ~ Faktoren) +
-        geom_segment(mapping = aes(x = -1, xend = 1, y = Unten, yend = Oben)) +
-        scale_x_continuous(name = "", breaks = c(-1, 1), minor_breaks = NULL, expand = c(0, 0)) +
-        scale_y_continuous(name = "Durchschnittliche Flugdauer") +
-        theme_bw()
-      plot <- ggplotly(plot)
-      return(plot)
-    }
+    effect_plot <- doe_effect_plot(
+      data = combined_data()
+    )
   })
 
   output$faktorstufen <- DT::renderDataTable({
