@@ -44,10 +44,12 @@ data_R6 <- R6::R6Class(
   ),
   private = list(
     datasets = list(
-      "Predefined Datasets" = reactiveValues(
+      "R-Datensätze" = reactiveValues(
         mtcars = mtcars,
         iris = iris,
-        cars = cars,
+        cars = cars
+      ),
+      "DQE-Beispieldatensätze" = reactiveValues(
         Versuchsplan = versuchsplan
       )
     )

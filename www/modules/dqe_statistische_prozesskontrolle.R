@@ -8,7 +8,10 @@ dqe_statistische_prozesskontrolle_tabPanel <- function(id) {
         de = "Qualitätsregelkarten",
         en = "Quality control charts"
       ),
-      value = "qualitaetsregelkarten"
+      value = "qualitaetsregelkarten",
+      dqe_statistische_prozesskontrolle_qualitaetsregelkarten_box(
+        id = ns("id_dqe_statistische_prozesskontrolle_qualitaetsregelkarten")
+      )
     )
   )
 }
@@ -20,4 +23,12 @@ dqe_statistische_prozesskontrolle <- function(
   self <- node$new("statistische_prozesskontrolle", parent, session)
 
   ns <- session$ns
+  
+  callModule(
+    module = dqe_statistische_prozesskontrolle_qualitaetsregelkarten,
+    id = "id_dqe_statistische_prozesskontrolle_qualitaetsregelkarten",
+    .data = .data,
+    .values = .values,
+    parent = self
+  )
 }

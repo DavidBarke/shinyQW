@@ -244,11 +244,13 @@ data_selector <- function(input, output, session, .data, .values, parent, ...) {
   })
   
   selected <- reactive({
+    req(input$select_group, input$select_dataset)
     if (is.null(input$select_column)) {
-      return(.data$get_dataset(input$select_group, input$select_dataset))
+      val <- .data$get_dataset(input$select_group, input$select_dataset)
     } else {
-      return(.data$get_column(input$select_group, input$select_dataset, input$select_column))
+      val <- .data$get_column(input$select_group, input$select_dataset, input$select_column)
     }
+    val
   })
   
   return(selected)

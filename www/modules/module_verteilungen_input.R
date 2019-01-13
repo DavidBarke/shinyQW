@@ -19,13 +19,8 @@ module_verteilungen_input_header <- function(id) {
     ),
     column(
       width = 6,
-      selectInput(
-        inputId = ns("select_input_table"),
-        label = label_lang(
-          de = "Wähle Tabelle",
-          en = "Select table"
-        ),
-        choices = NULL
+      uiOutput(
+        outputId = ns("select_input_table")
       )
     )
   )
@@ -103,6 +98,26 @@ module_verteilungen_input <- function(
     .mode = .mode
   )
   
+  output$select_input_table <- renderUI({
+    n_table <- rvs$n_table
+    if (n_table > 0) {
+      ui <- selectInput(
+        inputId = ns("select_input_table"),
+        label = label_lang(
+          de = "Wähle Tabelle",
+          en = "Select table"
+        ),
+        choices = label_lang_list(
+          de = paste("Tabelle", seq_len(n_table), sep = " "),
+          en = paste("Table", seq_len(n_table), sep = " "),
+          value = seq_len(n_table)
+        ),
+        selected = n_table
+      )
+      return(ui)
+    }
+  })
+  
   observeEvent(input$add_table, {
     # Anpassen der rvs
     rvs$n_table <- rvs$n_table + 1
@@ -121,17 +136,6 @@ module_verteilungen_input <- function(
       envir = .envir,
       "trigger_x_limits" %_% n_table,
       reactiveVal(0)
-    )
-    # Anpassen der Tabellenauswahl
-    updateSelectInput(
-      session = session,
-      inputId = "select_input_table",
-      choices = label_lang_list(
-        de = paste("Tabelle", seq_len(n_table), sep = " "),
-        en = paste("Table", seq_len(n_table), sep = " "),
-        value = seq_len(n_table)
-      ),
-      selected = n_table
     )
     # Einfügen in die Liste der möglichen Tabellen
     insertUI(
