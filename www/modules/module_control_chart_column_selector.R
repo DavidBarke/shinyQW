@@ -15,13 +15,19 @@ control_chart_column_selector_ui <- function(id) {
 }
 
 control_chart_column_selector <- function(
-  input, output, session, .data, .values, parent, selected_data, ...
+  input, output, session, .data, .values, parent, selected_data, 
+  unique_suffix = NULL, ...
 ) {
-  self <- node$new("control_chart_column_selector", parent, session)
+  self <- node$new(
+    paste0("control_chart_column_selector", unique_suffix), 
+    parent, 
+    session
+  )
   
   ns <- session$ns
   
   output$select_columns <- renderUI({
+    choices = names(selected_data())
     fluidRow(
       column(
         width = 4,
@@ -31,7 +37,8 @@ control_chart_column_selector <- function(
             de = "Stichprobenwerte",
             en = "Sample values"
           ),
-          choices = names(selected_data())
+          choices = choices,
+          selected = fallback(input$col_numeric, choices[1])
         )
       ),
       column(
@@ -42,7 +49,8 @@ control_chart_column_selector <- function(
             de = "Stichprobe",
             en = "Sample"
           ),
-          choices = names(selected_data())
+          choices = choices,
+          selected = fallback(input$col_sample, choices[1])
         )
       ),
       column(
@@ -53,7 +61,8 @@ control_chart_column_selector <- function(
             de = "Phase",
             en = "Phase"
           ),
-          choices = names(selected_data())
+          choices = choices,
+          selected = fallback(input$col_phase, choices[1])
         )
       )
     )

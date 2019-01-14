@@ -14,6 +14,7 @@ library(patchwork)
 library(readr)
 library(data.table)
 library(listviewer)
+library(qcc)
 
 # SOURCE -----------------------------------------------------------------------
 # Damit nicht nach jeder Veränderung shinyQW neu gebuilded werden muss

@@ -189,6 +189,10 @@ multiple_menuItem <- function(struct, menuItem_args = NULL,
 #' @export
 label_lang <- function(...) {
   label_list <- list(...)
+  # Wird in endgültiger Version entfernt
+  if (!exists(".language")) {
+    return(label_list[[1]])
+  }
   label <- label_list[[get(".language", envir = parent.frame())]]
   return(label)
 }

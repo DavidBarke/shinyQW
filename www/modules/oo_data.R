@@ -13,19 +13,23 @@ data_R6 <- R6::R6Class(
       private$datasets[[group]] <- reactiveValues()
     },
     add_dataset = function(group, name, value) {
-      req(name)
+      req(group, name, value)
       private$datasets[[group]][[name]] <- value
     },
     get_column = function(group, name, colname) {
+      req(group, name, colname)
       self$get_dataset(group, name)[[colname]]
     },
     get_dataset = function(group, name) {
-      req(private$datasets[[group]][[name]])
+      req(group, name)
+      private$datasets[[group]][[name]]
     },
     get_dataset_columns = function(group, name) {
+      req(group, name)
       names(self$get_dataset(group, name))
     },
     get_datasets_names = function(group) {
+      req(group)
       names(private$datasets[[group]])
     },
     get_group_names = function() {
@@ -50,7 +54,8 @@ data_R6 <- R6::R6Class(
         cars = cars
       ),
       "DQE-Beispieldatensätze" = reactiveValues(
-        Versuchsplan = versuchsplan
+        Versuchsplan = versuchsplan,
+        SPC = pistonrings
       )
     )
   )

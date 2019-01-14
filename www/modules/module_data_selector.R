@@ -78,9 +78,11 @@ data_selector_default_ui <- function(id, type) {
   }
 }
 
-data_selector <- function(input, output, session, .data, .values, parent, ...) {
-
-  self <- node$new("data_selector", parent, session)
+data_selector <- function(
+  input, output, session, .data, .values, parent, unique_suffix = NULL, ...
+) {
+  
+  self <- node$new(paste0("data_selector", unique_suffix), parent, session)
 
   ns <- session$ns
   .language <- .values$.language
@@ -99,7 +101,7 @@ data_selector <- function(input, output, session, .data, .values, parent, ...) {
   })
 
   output$select_dataset <- renderUI({
-    req(input$select_group)
+    # req(input$select_group)
     choices = .data$get_datasets_names(input$select_group)
     req(length(choices) != 0)
     selectInput(
