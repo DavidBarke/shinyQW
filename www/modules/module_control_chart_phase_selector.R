@@ -71,5 +71,17 @@ control_chart_phase_selector <- function(
     ui
   })
   
-  return()
+  trial_names <- reactive({
+    phases <- phases()
+    length_phases <- length(phases)
+    trial_names <- character()
+    for (i in seq_len(length_phases)) {
+      if (input[["select_phase" %_% i]] == "trial") {
+        trial_names <- c(trial_names, phases[i])
+      }
+    }
+    trial_names
+  })
+  
+  return(trial_names)
 }

@@ -70,7 +70,7 @@ control_chart_column_selector <- function(
   
   selected_cols <- reactive({
     list(
-      numeric = input$col_numeric,
+      value = input$col_numeric,
       sample = input$col_sample,
       phase = input$col_phase
     )
