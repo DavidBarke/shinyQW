@@ -21,6 +21,15 @@ module_data_tabPanel <- function(id, .language) {
       data_selector_extended_ui(
         id = ns("id_datasets")
       )
+    ),
+    tabPanel(
+      title = label_lang(
+        de = "Speichern und Laden",
+        en = "Save and Load"
+      ),
+      module_data_save_load_ui(
+        id = ns("id_module_data_save_load")
+      )
     )
   )
 }
@@ -44,6 +53,14 @@ module_data <- function(input, output, session, .data, .values, parent, ...) {
   callModule(
     module = data_selector,
     id = "id_datasets",
+    .data = .data,
+    .values = .values,
+    parent = self
+  )
+  
+  callModule(
+    module = module_data_save_load,
+    id = "id_module_data_save_load",
     .data = .data,
     .values = .values,
     parent = self

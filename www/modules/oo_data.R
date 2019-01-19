@@ -4,17 +4,48 @@ versuchsplan <- tibble(
   z = sample(c(-1, 1), 10, TRUE)
 )
 
+data_check <- function(data, check) {
+  NULL
+}
+
+data_container_R6 <- R6Class(
+  classname = "data_container",
+  public = list(
+    initialize = function(data, check) {
+      private$dataset <- reactiveVal(data)
+      private$check <- data_check(data, check)
+    },
+    
+    get_dataset = function() {
+      private$dataset()
+    },
+    
+    update_dataset = function(new_dataset) {
+      private$dataset(new_dataset)
+    }
+  ),
+  private = list(
+    dataset = NULL,
+    check = NULL
+  )
+)
+
 #' @export
 data_R6 <- R6::R6Class(
   "data",
   public = list(
     add_group = function(group) {
       req(group)
-      private$datasets[[group]] <- reactiveValues()
+      private$data_containers[[group]] <- list()
     },
-    add_dataset = function(group, name, value) {
-      req(group, name, value)
-      private$datasets[[group]][[name]] <- value
+    add_dataset = function(group, name, dataset) {
+      req(group, name, dataset)
+      if (is.null(private$data_containers[[group]][[name]])) {
+        data_container <- data_container_R6$new(dataset, check = NULL)
+        private$data_containers[[group]][[name]] <- data_container
+      } else {
+        private$data_containers[[group]][[name]]$update_dataset(dataset)
+      }
     },
     get_column = function(group, name, colname) {
       req(group, name, colname)
@@ -22,7 +53,7 @@ data_R6 <- R6::R6Class(
     },
     get_dataset = function(group, name) {
       req(group, name)
-      private$datasets[[group]][[name]]
+      data <- private$data_containers[[group]][[name]]$get_dataset()
     },
     get_dataset_columns = function(group, name) {
       req(group, name)
@@ -30,10 +61,10 @@ data_R6 <- R6::R6Class(
     },
     get_datasets_names = function(group) {
       req(group)
-      names(private$datasets[[group]])
+      names(private$data_containers[[group]])
     },
     get_group_names = function() {
-      names(private$datasets)
+      names(private$data_containers)
     },
     switch_group = function(name, group_old, group_new, remove = TRUE) {
       dataset <- self$get_dataset(group_old, name)
@@ -43,19 +74,20 @@ data_R6 <- R6::R6Class(
       }
     },
     remove_dataset = function(group, name) {
-      rm(pos = .subset2(private$datasets[[group]], "impl")$.values, list = name)
+      rm(pos = private$data_containers[[group]], list = name)
     }
   ),
   private = list(
-    datasets = list(
-      "R-Datensätze" = reactiveValues(
-        mtcars = mtcars,
-        iris = iris,
-        cars = cars
+    data_containers = list(
+      "R-Datensätze" = list(
+        mtcars = data_container_R6$new(mtcars),
+        iris = data_container_R6$new(iris),
+        diamonds = data_container_R6$new(diamonds),
+        cars = data_container_R6$new(cars)
       ),
-      "DQE-Beispieldatensätze" = reactiveValues(
-        Versuchsplan = versuchsplan,
-        SPC = pistonrings
+      "DQE-Datensätze" = list(
+        Versuchsplan = data_container_R6$new(versuchsplan),
+        SPC = data_container_R6$new(pistonrings)
       )
     )
   )

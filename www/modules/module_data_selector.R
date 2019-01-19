@@ -85,7 +85,10 @@ data_selector <- function(
   self <- node$new(paste0("data_selector", unique_suffix), parent, session)
 
   ns <- session$ns
-  .language <- .values$.language
+  
+  rvs <- reactiveValues(
+    view_dataset_counter = 0
+  )
 
   output$select_group <- renderUI({
     choices = .values$.data$groups
@@ -144,28 +147,64 @@ data_selector <- function(
   })
 
   observeEvent(input$view_dataset, {
+    rvs$view_dataset_counter <- rvs$view_dataset_counter + 1
+    view_dataset_counter <- rvs$view_dataset_counter
+    selected_group <- input$select_group
+    selected_dataset <- input$select_dataset
     tab_values <- .values$viewer$data$get("tab_values")
     .values$viewer$data$append_tab(
       tab = tabPanel(
-        title = paste0(input$select_group, ": ", input$select_dataset),
-        DT::dataTableOutput(
-          outputId = ns(input$select_group %_% input$select_dataset)
+        title = paste0(selected_group, ": ", selected_dataset),
+        fluidRow(
+          column(
+            width = 3,
+            downloadButton(
+              outputId = ns("csv_download" %_% view_dataset_counter),
+              label = "CSV"
+            )
+          ),
+          column(
+            width = 3,
+            downloadButton(
+              outputId = ns("xlsx_download" %_% view_dataset_counter),
+              label = "Excel-CSV"
+            )
+          )
         ),
-        value = ns(input$select_group %_% input$select_dataset)
+        DT::dataTableOutput(
+          outputId = ns("view_dataset" %_% view_dataset_counter)
+        ),
+        value = ns(selected_group %_% selected_dataset)
       )
     )
-    output[[input$select_group %_% input$select_dataset]] <- DT::renderDataTable({
-      isolate(
-        DT::datatable(
-          .data$get_dataset(input$select_group, input$select_dataset),
-          extensions = "Buttons",
-          options = list(
-            dom = "Bfrtip",
-            buttons = c("copy", "csv", "excel", "pdf", "print")
-          )
-        )
-      )
+    
+    output[["view_dataset" %_% view_dataset_counter]] <- DT::renderDataTable({
+      # Verweis auf selected_group und selected_dataset anstelle der Inputs, um
+      # die Reaktivität aufzulösen
+      datatable(.data$get_dataset(selected_group, selected_dataset))
     })
+    
+    root_filepath <- selected_group %_% selected_dataset %_% Sys.Date()
+    
+    output[["csv_download" %_% view_dataset_counter]] <- downloadHandler(
+      filename = function() {
+        paste0(root_filepath, ".csv")
+      },
+      content = function(file) {
+        write_csv(.data$get_dataset(selected_group, selected_dataset), file)
+      },
+      contentType = "text/csv"
+    )
+    
+    output[["xlsx_download" %_% view_dataset_counter]] <- downloadHandler(
+      filename = function() {
+        paste0(root_filepath, ".csv")
+      },
+      content = function(file) {
+        write_excel_csv(.data$get_dataset(selected_group, selected_dataset), file)
+      },
+      contentType = "text/csv"
+    )
   })
 
 

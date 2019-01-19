@@ -60,12 +60,12 @@ module_verteilungen_input <- function(
   # definiert wird
   diskrete_verteilungen <- label_lang_list(
     de = c("Binomialverteilung", "Geometrische Verteilung",
-           "Hypergeometrische Verteilung", "Multinomialverteilung",
+           "Hypergeometrische Verteilung",
            "Negative Binomialverteilung", "Poissonverteilung"),
     en = c("Binomial distribution", "Geometric Distribution",
-           "Hypergeometric distribution", "Multinomial distribution",
+           "Hypergeometric distribution",
            "Negative binomial distribution", "Poisson distribution"),
-    value = c("binom", "geom", "hyper", "multinom", "nbinom", "pois")
+    value = c("binom", "geom", "hyper", "nbinom", "pois")
   )
   
   stetige_verteilungen <- label_lang_list(
