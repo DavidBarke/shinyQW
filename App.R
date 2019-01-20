@@ -18,7 +18,6 @@ library(qcc)
 data("pistonrings")
 
 # SOURCE -----------------------------------------------------------------------
-# Damit nicht nach jeder Veränderung shinyQW neu gebuilded werden muss
 # Es ist wichtig, dass modifiedOnly = FALSE ist!
 sourceDirectory(path = "www/modules", encoding = "UTF-8", modifiedOnly = FALSE)
 
@@ -33,7 +32,10 @@ content_list <- content_list_R6$new(id = "content", sortable = TRUE)
 
 viewer_data <- tabBox_R6$new(
   id = "viewer_data",
-  title = "Daten",
+  title = label_lang(
+    de = "Daten",
+    en = "Data"
+  ),
   width = 12
 )
 
@@ -309,6 +311,21 @@ server <- function(input, output, session) {
       )
     ),
     actionButton_id = "tab_verteilungsmodelle_btn",
+    actionButton_session = session
+  )
+  
+  content_list$add_element_actionButton(
+    content_element = content_tabBox(
+      id = "tab_wahrscheinlichkeitsrechnung_element",
+      title = label_lang(
+        de = "Wahrscheinlichkeitsrechnung",
+        en = "Probability theory"
+      ),
+      tabPanel_list = dqe_wahrscheinlichkeitsrechnung_tabPanel(
+        id = "id_wahrscheinlichkeitsrechnung"
+      )
+    ),
+    actionButton_id = "tab_wahrscheinlichkeitsrechnung_btn",
     actionButton_session = session
   )
 
