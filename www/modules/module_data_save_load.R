@@ -40,24 +40,43 @@ module_data_save_load <- function(
     },
     content = function(file) {
       files <- character()
+      object_information <- list()
       groups <- .data$get_group_names()
       
+      # Create .rds-file for every dataset
       for (group in groups) {
         datasets <- .data$get_datasets_names(group)
+        object_information[[group]] <- list()
         for (dataset in datasets) {
           data <- .data$get_dataset(group, dataset)
-          filepath <- paste0("www/output/", group, "-", dataset, "-", Sys.Date(), ".rds")
+          object_information[[group]][[dataset]] <- .data$get_object_information(
+            group, dataset
+          )
+          filepath <- paste0(
+            "www/output/", group, "-", dataset, "-", Sys.Date(), ".rds"
+          )
           write_rds(data, filepath)
           files <- append(files, filepath)
         }
       }
       
+      # Create one .rds-file for metadata object information
+      object_information_filepath <- paste0(
+        "www/output/object_information-", Sys.Date(), ".rds"
+      )
+      write_rds(object_information, object_information_filepath)
+      files <- append(files, object_information_filepath)
+      
+      # Create zip-folder
       zip(file, files)
     },
     contentType = "application/zip"
   )
   
   observeEvent(input$load_data, {
+    req(input$load_data$type == "application/x-zip-compressed")
+    datapath <- input$load_data$datapath
+    unzip(datapath, exdir = "www/upload")
     
   })
 }
