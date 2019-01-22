@@ -105,9 +105,19 @@ dqe_deskriptive_statistik_tabPanel <- function(id) {
         de = "Übersicht",
         en = "Overview"
       ),
-      value = "overview",
+      value = ns("overview"),
       dqe_deskriptive_statistik_uebersicht_box(
         id = ns("id_dqe_deskriptive_statistik_uebersicht")
+      )
+    ),
+    tabPanel(
+      title = label_lang(
+        de = "Statistische Kennzahlen",
+        en = "Summary statistics"
+      ),
+      value = ns("summary_statistics"),
+      dqe_deskriptive_statistik_kennzahlen_ui(
+        id = ns("id_dqe_deskriptive_statistik_kennzahlen")
       )
     ),
     tabPanel(
@@ -115,7 +125,7 @@ dqe_deskriptive_statistik_tabPanel <- function(id) {
         de = "Sortierte Daten",
         en = "Sorted data"
       ),
-      value = "sorted_data",
+      value = ns("sorted_data"),
       dqe_deskriptive_statistik_sortierte_daten_box(
         id = ns("id_dqe_deskriptive_statistik_sortierte_daten")
       )
@@ -125,14 +135,14 @@ dqe_deskriptive_statistik_tabPanel <- function(id) {
         de = "Gruppierte Daten",
         en = "Grouped data"
       ),
-      value = "grouped_data",
+      value = ns("grouped_data"),
       dqe_deskriptive_statistik_gruppierte_daten_box(
         id = ns("id_dqe_deskriptive_statistik_gruppierte_daten")
       )
     ),
     tabPanel(
       title = "Boxplot",
-      value = "boxplot",
+      value = ns("boxplot"),
       dqe_deskriptive_statistik_boxplot_ui(
         id = ns("id_dqe_deskriptive_statistik_boxplot")
       )
@@ -158,6 +168,15 @@ dqe_deskriptive_statistik <- function(
     .values = .values,
     parent = self
   )
+  
+  call_dqe_deskriptive_statistik_kennzahlen <- callModule(
+    module = dqe_deskriptive_statistik_kennzahlen,
+    id = "id_dqe_deskriptive_statistik_kennzahlen",
+    .data = .data,
+    .values = .values,
+    parent = self
+  )
+  
   call_dqe_deskriptive_statistik_sortierte_daten <- callModule(
     module = dqe_deskriptive_statistik_sortierte_daten,
     id = "id_dqe_deskriptive_statistik_sortierte_daten",
@@ -165,6 +184,7 @@ dqe_deskriptive_statistik <- function(
     .values = .values,
     parent = self
   )
+  
   call_dqe_deskriptive_statistik_gruppierte_daten <- callModule(
     module = dqe_deskriptive_statistik_gruppierte_daten,
     id = "id_dqe_deskriptive_statistik_gruppierte_daten",
@@ -172,6 +192,7 @@ dqe_deskriptive_statistik <- function(
     .values = .values,
     parent = self
   )
+  
   call_dqe_deskriptive_statistik_boxplot <- callModule(
     module = dqe_deskriptive_statistik_boxplot,
     id = "id_dqe_deskriptive_statistik_boxplot",
@@ -179,4 +200,5 @@ dqe_deskriptive_statistik <- function(
     .values = .values,
     parent = self
   )
+  
 }

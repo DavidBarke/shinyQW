@@ -34,10 +34,22 @@ data_selector_extended_ui <- function(id) {
   )
 }
 
-data_selector_default_ui <- function(id, type) {
+data_selector_default_ui <- function(
+  id, type = "placeholder", column = c("no", "single", "multiple")
+) {
   ns <- NS(id)
   
+  column <- match.arg(column)
+  
+  # BACKWARDS COMPATIBILITY
   if (type == "group_dataset") {
+    column <- "no"
+  }
+  if (type == "group_dataset_column") {
+    column <- "single"
+  }
+  
+  if (column == "no") {
     ui <- tagList(
       fluidRow(
         column(
@@ -54,7 +66,7 @@ data_selector_default_ui <- function(id, type) {
         )
       )
     )
-  } else if (type == "group_dataset_column") {
+  } else if (column == "single") {
     ui <- fluidRow(
       column(
         width = 4,
@@ -75,11 +87,34 @@ data_selector_default_ui <- function(id, type) {
         )
       )
     )
+  } else if (column == "multiple") {
+    ui <- fluidRow(
+      column(
+        width = 4,
+        uiOutput(
+          outputId = ns("select_group")
+        )
+      ),
+      column(
+        width = 4,
+        uiOutput(
+          outputId = ns("select_dataset")
+        )
+      ),
+      column(
+        width = 4,
+        uiOutput(
+          outputId = ns("select_columns")
+        )
+      )
+    )
   }
+  ui
 }
 
 data_selector <- function(
-  input, output, session, .data, .values, parent, unique_suffix = NULL, ...
+  input, output, session, .data, .values, parent, unique_suffix = NULL, 
+  column = c("no", "single", "multiple"), ...
 ) {
   
   self <- node$new(paste0("data_selector", unique_suffix), parent, session)
@@ -130,6 +165,22 @@ data_selector <- function(
       ),
       choices = choices,
       selected = fallback(input$select_column, choices[1])
+    )
+  })
+  
+  output$select_columns <- renderUI({
+    req(input$select_group, input$select_dataset)
+    choices = .data$get_dataset_columns(input$select_group, input$select_dataset)
+    req(length(choices) != 0)
+    selectInput(
+      inputId = ns("select_columns"),
+      label = label_lang(
+        de = "Wähle Spalten",
+        en = "Select columns"
+      ),
+      choices = choices,
+      selected = fallback(input$select_columns, choices[1]),
+      multiple = TRUE
     )
   })
 

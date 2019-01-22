@@ -90,7 +90,7 @@ dqe_wahrscheinlichkeitsrechnung_systemzuverlaessigkeit <- function(
           prob_row_boxes <- tagList()
           for (j in seq_len(rvs[["n_box" %_% n_table]][i])) {
             prob_row_boxes[[j]] <- column(
-              width = 2,
+              width = 4,
               numericInput(
                 inputId = ns("prob_box" %_% n_table %_% i %_% j),
                 label = paste0("Prob ", i, "-", j),
@@ -106,11 +106,11 @@ dqe_wahrscheinlichkeitsrechnung_systemzuverlaessigkeit <- function(
           }
           prob_rows[[i]] <- fluidRow(
             column(
-              width = 10,
+              width = 9,
               fluidRow(prob_row_boxes)
             ),
             column(
-              width = 2,
+              width = 3,
               fluidRow(
                 column(
                   width = 6,
