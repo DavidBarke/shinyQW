@@ -75,8 +75,7 @@ dqe_statistische_prozesskontrolle_qualitaetsregelkarten <- function(
       if (input$select_input_table == n_table) {
         ui <- tagList(
           data_selector_default_ui(
-            id = ns("id_data_selector" %_% n_table),
-            type = "group_dataset"
+            id = ns("id_data_selector" %_% n_table)
           ),
           control_chart_column_selector_ui(
             id = ns("id_control_chart_column_selector" %_% n_table)

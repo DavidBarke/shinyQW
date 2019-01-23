@@ -55,7 +55,7 @@ data_R6 <- R6::R6Class(
     },
     
     get_column = function(group, name, colname) {
-      req(group, name, colname)
+      # No req required, as a non-existing colname will return null
       self$get_dataset(group, name)[[colname]]
     },
     

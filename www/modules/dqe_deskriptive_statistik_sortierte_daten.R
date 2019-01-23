@@ -101,7 +101,7 @@ dqe_deskriptive_statistik_sortierte_daten <- function(
     } else if (input$input_type == "data") {
       ui <- data_selector_default_ui(
         id = ns("id_data_selector"),
-        type = "group_dataset_column"
+        column = "single"
       )
     }
   })
@@ -125,7 +125,7 @@ dqe_deskriptive_statistik_sortierte_daten <- function(
           raw_data <- floor(raw_data)
         }
       } else if (input$input_type == "data") {
-        raw_data <- selected_col()
+        raw_data <- selected_col()$col_val
       }
     })
     return(raw_data)

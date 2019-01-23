@@ -35,19 +35,11 @@ data_selector_extended_ui <- function(id) {
 }
 
 data_selector_default_ui <- function(
-  id, type = "placeholder", column = c("no", "single", "multiple")
+  id, column = c("no", "single", "multiple")
 ) {
   ns <- NS(id)
   
   column <- match.arg(column)
-  
-  # BACKWARDS COMPATIBILITY
-  if (type == "group_dataset") {
-    column <- "no"
-  }
-  if (type == "group_dataset_column") {
-    column <- "single"
-  }
   
   if (column == "no") {
     ui <- tagList(
@@ -113,8 +105,7 @@ data_selector_default_ui <- function(
 }
 
 data_selector <- function(
-  input, output, session, .data, .values, parent, unique_suffix = NULL, 
-  column = c("no", "single", "multiple"), ...
+  input, output, session, .data, .values, parent, unique_suffix = NULL, ...
 ) {
   
   self <- node$new(paste0("data_selector", unique_suffix), parent, session)
@@ -337,12 +328,16 @@ data_selector <- function(
   
   selected <- reactive({
     req(input$select_group, input$select_dataset)
-    if (is.null(input$select_column)) {
-      val <- .data$get_dataset(input$select_group, input$select_dataset)
-    } else {
-      val <- .data$get_column(input$select_group, input$select_dataset, input$select_column)
-    }
-    val
+    list(
+      group = input$select_group,
+      data_name = input$select_dataset,
+      data_val = .data$get_dataset(input$select_group, input$select_dataset),
+      col_name = input$select_column,
+      col_val = .data$get_column(
+        input$select_group, input$select_dataset, input$select_column
+      ),
+      col_names = input$select_columns
+    )
   })
   
   return(selected)

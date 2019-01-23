@@ -3,8 +3,7 @@ dqe_deskriptive_statistik_uebersicht_box <- function(id) {
   
   tagList(
     data_selector_default_ui(
-      id = ns("id_data_selector"),
-      type = "group_dataset"
+      id = ns("id_data_selector")
     ),
     selectInput(
       inputId = ns("select_application"),

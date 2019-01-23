@@ -88,7 +88,7 @@ dqe_deskriptive_statistik_gruppierte_daten <- function(
     } else if (input$input_type == "data") {
       ui <- data_selector_default_ui(
         id = ns("id_data_selector"),
-        type = "group_dataset_column"
+        column = "single"
       )
     }
   })
@@ -186,7 +186,7 @@ dqe_deskriptive_statistik_gruppierte_daten <- function(
                               min = fallback(input$min_max[1], 0),
                               max = fallback(input$min_max[2] + 1, 11)))
       } else if (input$input_type == "data") {
-        x_data <- selected_col()
+        x_data <- selected_col()$col_val
       }
     })
     return(x_data)
