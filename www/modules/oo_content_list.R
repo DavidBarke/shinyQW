@@ -32,7 +32,7 @@ content_list_R6 <- R6::R6Class(
         )
       } else {
         element_container_id = content_element$get("container_id")
-        shinyjs::show(
+        show(
           selector = paste0("#", element_container_id)
         )
       }
@@ -76,6 +76,13 @@ content_list_R6 <- R6::R6Class(
         )
       }
     },
+    
+    add_element_by_id = function(content_element_id) {
+      content_element <- self$get_content_element_by_id(
+        content_element_id
+      )
+      self$add_element(content_element)
+    },
 
     append_tab = function(content_element_id, tab, select = FALSE) {
       content_element <- self$get_content_element_by_id(
@@ -96,7 +103,7 @@ content_list_R6 <- R6::R6Class(
     hide_element = function(content_element) {
       if (content_element$get("id") %in% private$element_id) {
         element_container_id <- content_element$get("container_id")
-        shinyjs::hide(
+        hide(
           selector = paste0("#", element_container_id)
         )
       }

@@ -206,13 +206,17 @@ ui <- dashboardPage(
         width  = 6,
         tabList$container(),
         content_list$container()
-      ), # column
+      ),
       column(
         width = 6,
         viewer_data$tabBox(collapsible = TRUE),
         viewer_plot$tabBox(collapsible = TRUE)
-      ) # column
-    ) # fluidRow
+      )
+    ),
+    actionButton(
+      "show_show",
+      label = "Show"
+    )
   )
 )
 
@@ -221,6 +225,12 @@ ui <- dashboardPage(
 server <- function(input, output, session) {
 
   self <- node$new("app", session = session)
+  
+  observeEvent(input$show_show, {
+    show(
+      selector = paste("#element_container_tab_deskriptive_statistik_element")
+    )
+  })
 
 # SET SESSION ------------------------------------------------------------------
 
@@ -236,7 +246,9 @@ server <- function(input, output, session) {
 
   .values <- list(
     session = reactiveValues(
-      tree = self
+      tree = self,
+      # COMPROMISE SOLUTION, NEEDED FOR shinyjs::show IN NESTED MODULES
+      app = session
     ),
     viewer = reactiveValues(
       data = viewer_data,
