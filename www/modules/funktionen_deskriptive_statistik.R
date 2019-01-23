@@ -31,7 +31,7 @@ histogram <- function(data, frequency_density = c("absolute", "relative"),
                 fill = fill,
                 alpha = alpha) +
       scale_x_continuous(breaks = breaks_x, labels = breaks_x) +
-      scale_y_continuous(breaks = breaks_y, labels = breaks_y) +
+      scale_y_continuous(breaks = breaks_y, minor_breaks = NULL, labels = breaks_y) +
       labs(x = "", y = y_label) +
       theme_bw()
   return(plot)
