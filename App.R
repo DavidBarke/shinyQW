@@ -1,6 +1,8 @@
 library(shiny)
 library(shinydashboard)
 library(shinyAce)
+# Requires the current version of shinyjs on Github (due to the bug with the
+# use of selector in modules)
 library(shinyjs)
 library(shinyjqui)
 library(colourpicker)
@@ -212,10 +214,6 @@ ui <- dashboardPage(
         viewer_data$tabBox(collapsible = TRUE),
         viewer_plot$tabBox(collapsible = TRUE)
       )
-    ),
-    actionButton(
-      "show_show",
-      label = "Show"
     )
   )
 )
@@ -225,12 +223,6 @@ ui <- dashboardPage(
 server <- function(input, output, session) {
 
   self <- node$new("app", session = session)
-  
-  observeEvent(input$show_show, {
-    show(
-      selector = paste("#element_container_tab_deskriptive_statistik_element")
-    )
-  })
 
 # SET SESSION ------------------------------------------------------------------
 

@@ -35,9 +35,23 @@ dqe_deskriptive_statistik_kennzahlen <- function(
   
   .envir <- environment()
   
+  statistics_choices <- label_lang_list(
+    de = c(
+      "Mittelwert", "Median", "Standardabweichung", "Varianz", "IQR",
+      "Spannweite", "Minimum", "Maximum"
+    ),
+    en = c(
+      "Mean", "Median", "Standard deviation", "Variance", "IQR", 
+      "Range", "Minmum", "Maximum"
+    ),
+    value = c(
+      "mean", "median", "sd", "var", "IQR", "range", "min", "max"
+    )
+  )
+  
   rvs <- reactiveValues(
     n_table = 0,
-    trigger_select_input_table_update = NULL
+    selected_statistics = list()
   )
   
   output$select_input_table <- renderUI({
@@ -63,6 +77,7 @@ dqe_deskriptive_statistik_kennzahlen <- function(
   observeEvent(input$add_table, {
     rvs$n_table <- rvs$n_table + 1
     n_table <- rvs$n_table
+    rvs$selected_statistics[[n_table]] <- as.character(statistics_choices)
     
     insertUI(
       selector = paste0("#", ns("input_tables")),
@@ -134,26 +149,18 @@ dqe_deskriptive_statistik_kennzahlen <- function(
             en = "Summary statistics"
           ),
           value = ns("summary_statistics" %_% n_table),
-          fluidRow(
-            column(
-              width = 3,
-              actionButton(
-                inputId = ns("belonging_input_table" %_% n_table),
-                label = label_lang(
-                  de = "Zugehörige Input-Tabelle",
-                  en = "Belonging input table"
-                )
-              )
-            ),
-            column(
-              width = 3,
-              actionButton(
-                inputId = ns("modal_select_statistics" %_% n_table),
-                label = label_lang(
-                  de = "Wähle Kennzahlen",
-                  en = "Select statistics"
-                )
-              )
+          actionButton(
+            inputId = ns("belonging_input_table" %_% n_table),
+            label = label_lang(
+              de = "Zugehörige Input-Tabelle",
+              en = "Belonging input table"
+            )
+          ),
+          actionButton(
+            inputId = ns("modal_select_statistics" %_% n_table),
+            label = label_lang(
+              de = "Wähle Kennzahlen",
+              en = "Select statistics"
             )
           ),
           dataTableOutput(
@@ -164,25 +171,56 @@ dqe_deskriptive_statistik_kennzahlen <- function(
       )
     })
     
-    observeEvent(input[["belonging_input_table" %_% n_table]], {
-      # VERY UGLY, A POSSIBLE BUG IN SHINYJS DOES'NT ALLOW SELECTORS FROM NESTED
-      # SESSIONS
-      withReactiveDomain(
-        domain = .values$session$app,
-        shinyjs::show(
-          selector = paste0("#element_container_tab_deskriptive_statistik_element")
-        )
-      )
-      rvs$trigger_select_input_table_update <- list(n_table = n_table, runif(1))
+    output[["summary_statistics_datatable" %_% n_table]] <- renderDataTable({
+      data_selector_return <- get("data_selector_reactive" %_% n_table)()
+      data <- data_selector_return$data_val
+      
+      selected_statistics <- rvs$selected_statistics[[n_table]]
+      
+      
     })
-  })
-  
-  observeEvent(rvs$trigger_select_input_table_update, {
-    print("Selecting")
-    updateSelectInput(
-      session = session,
-      inputId = "select_input_table",
-      selected = rvs$trigger_select_input_table_update$n_table
-    )
+    
+    observeEvent(input[["belonging_input_table" %_% n_table]], {
+      .values$viewer$content$add_element_by_id(
+        "tab_deskriptive_statistik_element"
+      )
+      updateSelectInput(
+        session = session,
+        inputId = "select_input_table",
+        selected = n_table
+      )
+    })
+    
+    observeEvent(input[["modal_select_statistics" %_% n_table]], {
+      showModal(modalDialog(
+        title = label_lang(
+          de = "Wähle Kennzahlen",
+          en = "Select statistics"
+        ),
+        easyClose = TRUE,
+        checkboxGroupInput(
+          inputId = ns("select_statistics" %_% n_table),
+          label = NULL,
+          choices = statistics_choices,
+          selected = fallback(
+            rvs$selected_statistics[[n_table]],
+            statistics_choices
+          )
+        ),
+        footer = actionButton(
+          inputId = ns("apply_select_statistics" %_% n_table),
+          label = label_lang(
+            de = "Anwenden",
+            en = "Apply"
+          )
+        )
+      ))
+    })
+    
+    observeEvent(input[["apply_select_statistics" %_% n_table]], {
+      rvs$selected_statistics[[n_table]] <- input[["select_statistics" %_% n_table]]
+      removeModal()
+    })
+    
   })
 }
