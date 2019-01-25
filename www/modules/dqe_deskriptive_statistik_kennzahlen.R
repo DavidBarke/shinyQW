@@ -70,7 +70,8 @@ dqe_deskriptive_statistik_kennzahlen <- function(
   
   rvs <- reactiveValues(
     n_table = 0,
-    selected_statistics = list()
+    selected_statistics = list(),
+    transpose_datatable = logical()
   )
   
   output$select_input_table <- renderUI({
@@ -97,6 +98,7 @@ dqe_deskriptive_statistik_kennzahlen <- function(
     rvs$n_table <- rvs$n_table + 1
     n_table <- rvs$n_table
     rvs$selected_statistics[[n_table]] <- as.character(statistics_choices)
+    rvs$transpose_datatable[n_table] <- FALSE
     
     insertUI(
       selector = paste0("#", ns("input_tables")),
@@ -176,10 +178,10 @@ dqe_deskriptive_statistik_kennzahlen <- function(
             )
           ),
           actionButton(
-            inputId = ns("modal_select_statistics" %_% n_table),
+            inputId = ns("modal_settings" %_% n_table),
             label = label_lang(
-              de = "Wähle Kennzahlen",
-              en = "Select statistics"
+              de = "Einstellungen",
+              en = "Settings"
             )
           ),
           dataTableOutput(
@@ -197,6 +199,8 @@ dqe_deskriptive_statistik_kennzahlen <- function(
       # Handles switching of dataset
       req(summary_column %in% names(data))
       
+      # group_by_columns needs to be predefined for the gathering
+      group_by_columns <- character()
       if (input[["group_by_column" %_% n_table]]) {
         group_by_columns <- data_selector_return$col_names()
         # Handles switching of dataset
@@ -216,6 +220,25 @@ dqe_deskriptive_statistik_kennzahlen <- function(
       
       data <- summarise(data, !!!q)
       
+      key <- label_lang(
+        de = "Statistik",
+        en = "Statistic"
+      )
+      
+      value <- label_lang(
+        de = "Wert",
+        en = "Value"
+      )
+      
+      if (!rvs$transpose_datatable[n_table]) {
+        data <- gather(
+          data,
+          key = !!key,
+          value = !!value,
+          -!!group_by_columns
+        )
+      }
+      
       data <- datatable(data)
       data <- formatRound(data, seq_along(data))
     })
@@ -231,27 +254,41 @@ dqe_deskriptive_statistik_kennzahlen <- function(
       )
     })
     
-    observeEvent(input[["modal_select_statistics" %_% n_table]], {
+    observeEvent(input[["modal_settings" %_% n_table]], {
       showModal(modalDialog(
         title = label_lang(
-          de = "Wähle Kennzahlen",
-          en = "Select statistics"
+          de = "Einstellungen",
+          en = "Settings"
         ),
         easyClose = TRUE,
         checkboxGroupInput(
           inputId = ns("select_statistics" %_% n_table),
           label = NULL,
-          choices = statistics_choices,
-          selected = fallback(
-            rvs$selected_statistics[[n_table]],
-            statistics_choices
-          )
+          choices = as.character(statistics_choices),
+          selected = rvs$selected_statistics[[n_table]]
         ),
-        footer = actionButton(
-          inputId = ns("apply_select_statistics" %_% n_table),
+        checkboxInput(
+          inputId = ns("transpose_datatable" %_% n_table),
           label = label_lang(
-            de = "Anwenden",
-            en = "Apply"
+            de = "Transponiere Tabelle",
+            en = "Transpose table"
+          ),
+          value = fallback(rvs$transpose_datatable[n_table], FALSE)
+        ),
+        footer = tagList(
+          actionButton(
+            inputId = ns("apply_all_select_statistics" %_% n_table),
+            label = label_lang(
+              de = "Auf alle anwenden",
+              en = "Apply "
+            )
+          ),
+          actionButton(
+            inputId = ns("apply_select_statistics" %_% n_table),
+            label = label_lang(
+              de = "Anwenden",
+              en = "Apply"
+            )
           )
         )
       ))
@@ -259,6 +296,19 @@ dqe_deskriptive_statistik_kennzahlen <- function(
     
     observeEvent(input[["apply_select_statistics" %_% n_table]], {
       rvs$selected_statistics[[n_table]] <- input[["select_statistics" %_% n_table]]
+      rvs$transpose_datatable[n_table] <- input[["transpose_datatable" %_% n_table]]
+      removeModal()
+    })
+    
+    observeEvent(input[["apply_all_select_statistics" %_% n_table]], {
+      # Rep could work too
+      for (i in seq_along(rvs$selected_statistics)) {
+        rvs$selected_statistics[[i]] <- input[["select_statistics" %_% n_table]]
+      }
+      rvs$transpose_datatable <- rep(
+        input[["transpose_datatable" %_% n_table]],
+        rvs$n_table
+      )
       removeModal()
     })
     
