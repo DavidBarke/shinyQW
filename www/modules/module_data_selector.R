@@ -34,8 +34,17 @@ data_selector_extended_ui <- function(id) {
   )
 }
 
+# TODO: Beliebige Zusammenstellungen aus Datensätzen und Spalten
+data_selector_custom_ui <- function(
+  id, layout = list(
+    
+  )
+) {
+  
+}
+
 data_selector_default_ui <- function(
-  id, column = c("no", "single", "multiple")
+  id, column = c("no", "single", "multiple", "single+multiple")
 ) {
   ns <- NS(id)
   
@@ -97,6 +106,37 @@ data_selector_default_ui <- function(
         width = 4,
         uiOutput(
           outputId = ns("select_columns")
+        )
+      )
+    )
+  } else if (column == "single+multiple") {
+    ui <- tagList(
+      fluidRow(
+        column(
+          width = 6,
+          uiOutput(
+            outputId = ns("select_group")
+          )
+        ),
+        column(
+          width = 6,
+          uiOutput(
+            outputId = ns("select_dataset")
+          )
+        )
+      ),
+      fluidRow(
+        column(
+          width = 6,
+          uiOutput(
+            outputId = ns("select_column")
+          )
+        ),
+        column(
+          width = 6,
+          uiOutput(
+            outputId = ns("select_columns")
+          )
         )
       )
     )
@@ -326,19 +366,17 @@ data_selector <- function(
     )
   })
   
-  selected <- reactive({
-    req(input$select_group, input$select_dataset)
-    list(
-      group = input$select_group,
-      data_name = input$select_dataset,
-      data_val = .data$get_dataset(input$select_group, input$select_dataset),
-      col_name = input$select_column,
-      col_val = .data$get_column(
-        input$select_group, input$select_dataset, input$select_column
-      ),
-      col_names = input$select_columns
-    )
-  })
-  
-  return(selected)
+  # Module returns a list of reactive, so that col_val is only evaluated in a
+  # context, in which input$select_column exists (Remember the lazy evaluation
+  # of a reactive).
+  return(list(
+    group = reactive({input$select_group}),
+    data_name = reactive({input$select_dataset}),
+    data_val = reactive({.data$get_dataset(input$select_group, input$select_dataset)}),
+    col_name = reactive({input$select_column}),
+    col_val = reactive({.data$get_column(
+      input$select_group, input$select_dataset, input$select_column
+    )}),
+    col_names = reactive({input$select_columns})
+  ))
 }

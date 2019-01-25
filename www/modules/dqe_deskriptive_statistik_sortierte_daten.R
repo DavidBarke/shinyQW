@@ -105,14 +105,6 @@ dqe_deskriptive_statistik_sortierte_daten <- function(
       )
     }
   })
-  
-  selected_col <- callModule(
-    module = data_selector,
-    id = "id_data_selector",
-    .data = .data,
-    .values = .values,
-    parent = self
-  )
 
   raw_data <- reactive({
     rvs$counter
@@ -125,7 +117,7 @@ dqe_deskriptive_statistik_sortierte_daten <- function(
           raw_data <- floor(raw_data)
         }
       } else if (input$input_type == "data") {
-        raw_data <- selected_col()$col_val
+        raw_data <- selected_col$col_val()
       }
     })
     return(raw_data)
@@ -240,4 +232,12 @@ dqe_deskriptive_statistik_sortierte_daten <- function(
       )
     return(plot)
   })
+  
+  selected_col <- callModule(
+    module = data_selector,
+    id = "id_data_selector",
+    .data = .data,
+    .values = .values,
+    parent = self
+  )
 }

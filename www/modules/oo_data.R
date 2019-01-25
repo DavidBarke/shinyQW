@@ -56,12 +56,14 @@ data_R6 <- R6::R6Class(
     
     get_column = function(group, name, colname) {
       # No req required, as a non-existing colname will return null
+      print(paste(
+        "Gruppe:", group, "Name:", name, "Colname", colname
+      ))
       self$get_dataset(group, name)[[colname]]
     },
     
     get_dataset = function(group, name) {
-      req(group, name)
-      data <- private$data_containers[[group]][[name]]$get_dataset()
+      data <- req(private$data_containers[[group]][[name]])$get_dataset()
     },
     
     get_dataset_columns = function(group, name) {

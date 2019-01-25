@@ -38,15 +38,34 @@ dqe_deskriptive_statistik_kennzahlen <- function(
   statistics_choices <- label_lang_list(
     de = c(
       "Mittelwert", "Median", "Standardabweichung", "Varianz", "IQR",
-      "Spannweite", "Minimum", "Maximum"
+      "Minimum", "Maximum", "Spannweite"
     ),
     en = c(
-      "Mean", "Median", "Standard deviation", "Variance", "IQR", 
-      "Range", "Minmum", "Maximum"
+      "Mean", "Median", "Standard deviation", "Variance", "IQR",
+      "Minmum", "Maximum", "Range"
     ),
     value = c(
-      "mean", "median", "sd", "var", "IQR", "range", "min", "max"
+      "mean", "median", "sd", "var", "IQR", "min", "max", "range"
     )
+  )
+  
+  to_lang_staticstic_choices <- label_lang_convert_fun(
+    value = c("mean", "median", "sd", "var", "IQR", "min", "max", "range"),
+    de = c("Mittelwert", "Median", "Standardabweichung", "Varianz", "IQR", 
+           "Minimum", "Maximum", "Spannweite"),
+    en = c("Mean", "Median", "Standard deviation", "Variance", "IQR",
+           "Minimum", "Maximum", "Spannweite")
+  )
+  
+  statistics_choices_fun <- list(
+    mean = mean,
+    median = median,
+    sd = sd,
+    var = var,
+    IQR = IQR,
+    min = min,
+    max = max,
+    range = function(x) {max(x) - min(x)}
   )
   
   rvs <- reactiveValues(
@@ -117,12 +136,12 @@ dqe_deskriptive_statistik_kennzahlen <- function(
       if (input[["group_by_column" %_% n_table]]) {
         ui <- data_selector_default_ui(
           id = ns("id_data_selector" %_% n_table),
-          column = "multiple"
+          column = "single+multiple"
         )
       } else {
         ui <- data_selector_default_ui(
           id = ns("id_data_selector" %_% n_table),
-          column = "no"
+          column = "single"
         )
       }
       return(ui)
@@ -130,7 +149,7 @@ dqe_deskriptive_statistik_kennzahlen <- function(
     
     assign(
       envir = .envir,
-      "data_selector_reactive" %_% n_table,
+      "data_selector_return" %_% n_table,
       callModule(
         module = data_selector,
         id = "id_data_selector" %_% n_table,
@@ -172,12 +191,33 @@ dqe_deskriptive_statistik_kennzahlen <- function(
     })
     
     output[["summary_statistics_datatable" %_% n_table]] <- renderDataTable({
-      data_selector_return <- get("data_selector_reactive" %_% n_table)()
-      data <- data_selector_return$data_val
+      data_selector_return <- get("data_selector_return" %_% n_table)
+      data <- data_selector_return$data_val()
+      summary_column <- data_selector_return$col_name()
+      # Handles switching of dataset
+      req(summary_column %in% names(data))
+      
+      if (input[["group_by_column" %_% n_table]]) {
+        group_by_columns <- data_selector_return$col_names()
+        # Handles switching of dataset
+        req(group_by_columns %in% names(data))
+        data <- group_by_at(data, group_by_columns)
+      }
       
       selected_statistics <- rvs$selected_statistics[[n_table]]
       
+      q <- list()
       
+      for (stat in selected_statistics) {
+        fun <- statistics_choices_fun[[stat]]
+        name <- to_lang_staticstic_choices(stat)
+        q[[name]] <- quo((!!fun)(!!sym(summary_column)))
+      }
+      
+      data <- summarise(data, !!!q)
+      
+      data <- datatable(data)
+      data <- formatRound(data, seq_along(data))
     })
     
     observeEvent(input[["belonging_input_table" %_% n_table]], {

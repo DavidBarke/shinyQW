@@ -78,8 +78,7 @@ dqe_deskriptive_statistik_box <- function(id) {
         width = 12
       ),
       dqe_deskriptive_statistik_tabPanel(
-        id = id,
-        .language = .language
+        id = id
       )
     )
   )

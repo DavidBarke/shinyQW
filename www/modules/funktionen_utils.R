@@ -193,7 +193,7 @@ label_lang <- function(...) {
   if (!exists(".language")) {
     return(label_list[[1]])
   }
-  label <- label_list[[get(".language", envir = parent.frame())]]
+  label <- label_list[[.language]]
   return(label)
 }
 
@@ -204,6 +204,22 @@ label_lang_list <- function(..., value) {
   label_list <- as.list(value)
   names(label_list) <- label
   label_list
+}
+
+label_lang_convert_fun <- function(value, ...) {
+  label <- label_lang(...)
+  stopifnot(length(label) == length(value))
+  names(label) <- value
+  function(x) {
+    unname(label[[x]])
+  }
+}
+
+convert_fun <- function(old, new) {
+  names(new) <- old
+  function(x) {
+    new[[x]]
+  }
 }
 
 #' @export
