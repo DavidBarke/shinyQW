@@ -71,7 +71,8 @@ dqe_deskriptive_statistik_kennzahlen <- function(
   rvs <- reactiveValues(
     n_table = 0,
     selected_statistics = list(),
-    transpose_datatable = logical()
+    transpose_datatable = logical(),
+    remove_na = logical()
   )
   
   output$select_input_table <- renderUI({
@@ -275,6 +276,14 @@ dqe_deskriptive_statistik_kennzahlen <- function(
           ),
           value = fallback(rvs$transpose_datatable[n_table], FALSE)
         ),
+        checkboxInput(
+          inputId = ns("remove_na" %_% n_table),
+          label = label_lang(
+            de = "Gegenwärtig nicht funktional",
+            en = "Currently defunct"
+          ),
+          value = fallback(rvs$remove_na[n_table], TRUE)
+        ),
         footer = tagList(
           actionButton(
             inputId = ns("apply_all_select_statistics" %_% n_table),
@@ -297,6 +306,7 @@ dqe_deskriptive_statistik_kennzahlen <- function(
     observeEvent(input[["apply_select_statistics" %_% n_table]], {
       rvs$selected_statistics[[n_table]] <- input[["select_statistics" %_% n_table]]
       rvs$transpose_datatable[n_table] <- input[["transpose_datatable" %_% n_table]]
+      rvs$remove_na[n_table] <- input[["remove_na" %_% n_table]]
       removeModal()
     })
     
@@ -307,6 +317,10 @@ dqe_deskriptive_statistik_kennzahlen <- function(
       }
       rvs$transpose_datatable <- rep(
         input[["transpose_datatable" %_% n_table]],
+        rvs$n_table
+      )
+      rvs$remove_na <- rep(
+        input[["remove_na" %_% n_table]],
         rvs$n_table
       )
       removeModal()
