@@ -33,11 +33,20 @@ data_import <- function(
   .max_step <- 3
   
   rvs <- reactiveValues(
+    # Step contains the current open step of the import process, allowed_steps
+    # saves which steps are currently accesible by the user
     step = 1,
     allowed_steps = 1,
+    
     ending = character(),
+    # Ending_supported and live_data_supported guarantee that in the first step
+    # the ending of the uploaded file is appropriate and in the second step the
+    # real import with the specified parameters works
     ending_supported = FALSE,
     live_data_supported = TRUE,
+    
+    # A change from execute_import to TRUE starts the process of adding the
+    # live_data to the .data object
     excecute_import = FALSE
   )
   
@@ -55,8 +64,7 @@ data_import <- function(
     if (rvs$step < .max_step && (rvs$step + 1) %in% rvs$allowed_steps) {
       ui <- actionButton(
         inputId = ns("next_step"),
-        label = ">"#,
-        #class = "pull-right"
+        label = ">"
       )
       return(ui)
     }
@@ -102,9 +110,8 @@ data_import <- function(
     }
   })
   
-  file_ending <- reactive({
-    file_input <- req(input$file_input)
-    datapath <- file_input$datapath
+  file_ending <- eventReactive(input$file_input, {
+    datapath <- input$file_input$datapath
     ending <- stringr::str_extract(datapath, "\\.\\w+$")
     if (ending %in% c(".csv", ".xls", ".xlsx")) {
       rvs$ending_supported <- TRUE
@@ -167,13 +174,6 @@ data_import <- function(
             de = "Vorschau",
             en = "Preview"
           )
-        ),
-        actionButton(
-          inputId = ns("open_import_modal"),
-          label = label_lang(
-            de = "Importiere",
-            en = "Import"
-          )
         )
       )
       return(ui)
@@ -225,17 +225,25 @@ data_import <- function(
   })
   
   output$preview_datatable <- renderDataTable({
-    live_data()
+    data()
   })
   
-  live_data <- reactive({
+  import_return <- reactive({
     if (rvs$ending_supported) {
       ending <- str_replace(rvs$ending, "\\.", "")
       if (ending %in% c("xls", "xlsx")) {
         ending <- "excel"
       }
-      live_data <- get(paste0("import_", ending))()
+      import_return <- get(paste0("import_", ending))
+      print(import_return)
     }
+  })
+  
+  data <- reactive({
+    rvs$live_data_supported <- FALSE
+    req(import_return()$error() == FALSE)
+    rvs$live_data_supported <- TRUE
+    import_return()$data()
   })
   
   observeEvent(rvs$live_data_supported, {
@@ -300,16 +308,35 @@ data_import <- function(
       }
     }
     if (length(groups_with_same_name) > 0) {
+      if (length(groups_with_same_name) == 1) {
+        group_string <- label_lang(
+          de = "In der folgenden Gruppe",
+          en = "In the following group"
+        )
+      } else {
+        group_string <- label_lang(
+          de = "In den folgenden Gruppen",
+          en = "In the following groups"
+        )
+      }
       showModal(modalDialog(
         title = label_lang(
           de = "Bestätigung des Namens des Datensatzes",
           en = "Confirmation of dataset name"
         ),
-        paste0(
-          group_string, 
-          " existiert bereits ein Datensatz mit dem Namen ",
-          input$dataset_name,
-          ":"
+        label_lang(
+          de = paste0(
+            group_string, 
+            " existiert bereits ein Datensatz mit dem Namen ",
+            input$dataset_name,
+            ":"
+          ),
+          en = paste0(
+            group_string,
+            " already exists a dataset with the name ",
+            input$data_set_name,
+            ":"
+          )
         ),
         groups_with_same_name,
         footer = tagList(
@@ -334,6 +361,7 @@ data_import <- function(
   
   observeEvent(input$overwrite_datasets, {
     rvs$execute_import <- TRUE
+    removeModal()
   })
   
   observeEvent(rvs$execute_import, {
@@ -341,7 +369,7 @@ data_import <- function(
       rvs$execute_import <- FALSE
       groups <- input$dataset_groups
       for (group in groups) {
-        .data$add_dataset(group, input$dataset_name, live_data())
+        .data$add_dataset(group, input$dataset_name, data())
       }
     }
   })

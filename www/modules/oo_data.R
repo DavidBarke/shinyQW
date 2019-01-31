@@ -104,8 +104,6 @@ data_R6 <- R6::R6Class(
         Versuchsplan = data_container_R6$new(versuchsplan),
         SPC = data_container_R6$new(pistonrings)
       )
-    ),
-    
-    
+    )
   )
 )

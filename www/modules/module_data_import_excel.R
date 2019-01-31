@@ -24,8 +24,8 @@ data_import_excel_ui <- function(id) {
         de = "Überspringe Zeilen",
         en = "Skip rows"
       ),
-      value = 1,
-      min = 1
+      value = 0,
+      min = 0
     ),
     numericInput(
       inputId = ns("n_max"),
@@ -47,19 +47,35 @@ data_import_excel <- function(
   
   ns <- session$ns
   
+  rvs <- reactiveValues(
+    error = FALSE
+  )
+  
   live_data <- reactive({
-    read_excel(
-      path = datapath(),
-      sheet = NULL,
-      range = NULL,
-      col_names = input$col_names,
-      col_types = NULL,
-      na = "",
-      trim_ws = input$trim_ws,
-      skip = input$skip,
-      n_max = input$n_max
-    )
+    data <- tryCatch({
+      read_excel(
+        path = datapath(),
+        sheet = NULL,
+        range = NULL,
+        col_names = input$col_names,
+        col_types = NULL,
+        na = "",
+        trim_ws = input$trim_ws,
+        skip = input$skip,
+        n_max = input$n_max
+      )
+    },
+    error = function(e) {
+      rvs$error <- TRUE
+    })
   })
   
-  return(live_data)
+  error <- reactive({
+    rvs$error
+  })
+  
+  return(list(
+    data = live_data,
+    error = error
+  ))
 }

@@ -55,10 +55,13 @@ data_import_csv <- function(
   
   ns <- session$ns
   
+  rvs <- reactiveValues(
+    error = FALSE
+  )
+  
   live_data <- reactive({
-    path <- datapath()
     data <- read_delim(
-      datapath,
+      datapath(),
       delim = input$delim,
       col_names = input$col_names,
       trim_ws = input$trim_ws,
@@ -67,5 +70,12 @@ data_import_csv <- function(
     )
   })
   
-  return(live_data) 
+  error <- reactive({
+    rvs$error
+  })
+  
+  return(list(
+    data = live_data,
+    error = error
+  ))
 }
