@@ -100,6 +100,7 @@ dqe_deskriptive_statistik_kennzahlen <- function(
     n_table <- rvs$n_table
     rvs$selected_statistics[[n_table]] <- as.character(statistics_choices)
     rvs$transpose_datatable[n_table] <- FALSE
+    rvs$remove_na[n_table] <- TRUE
     
     insertUI(
       selector = paste0("#", ns("input_tables")),

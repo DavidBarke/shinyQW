@@ -14,6 +14,7 @@ library(R.utils)
 library(DT)
 library(patchwork)
 library(readr)
+library(readxl)
 library(data.table)
 library(listviewer)
 library(qcc)
@@ -333,42 +334,60 @@ server <- function(input, output, session) {
     actionButton_session = session
   )
 
+  # content_list$add_element_actionButton(
+  #   content_element = content_dialog_R6$new(
+  #     id = "tab_import_element",
+  #     title = "Import",
+  #     tabPanel(
+  #       title = label_lang(
+  #         de = "Datenauswahl",
+  #         en = "File Input"
+  #       ),
+  #       value = "file_input",
+  #       import_ui(
+  #         id = "id_import",
+  #         .language = .language
+  #       )
+  #     ),
+  #     tabPanel(
+  #       title = label_lang(
+  #         de = "Einstellungen",
+  #         en = "Settings"
+  #       ),
+  #       value = "settings",
+  #       import_ui_specific(
+  #         id = "id_import",
+  #         .language = .language
+  #       )
+  #     ),
+  #     tabPanel(
+  #       title = label_lang(
+  #         de = "Datenimport",
+  #         en = "Import"
+  #       ),
+  #       value = "import"
+  #     ),
+  #     footer = import_ui_preview(
+  #       id = "id_import",
+  #       .language = .language
+  #     )
+  #   ),
+  #   actionButton_id = "tab_import_btn",
+  #   actionButton_session = session
+  # )
+  
   content_list$add_element_actionButton(
-    content_element = content_dialog_R6$new(
+    content_element = content_tabBox(
       id = "tab_import_element",
       title = "Import",
       tabPanel(
         title = label_lang(
-          de = "Datenauswahl",
-          en = "File Input"
+          de = "Standard",
+          en = "Default"
         ),
-        value = "file_input",
-        import_ui(
-          id = "id_import",
-          .language = .language
+        data_import_ui(
+          id = "id_data_import"
         )
-      ),
-      tabPanel(
-        title = label_lang(
-          de = "Einstellungen",
-          en = "Settings"
-        ),
-        value = "settings",
-        import_ui_specific(
-          id = "id_import",
-          .language = .language
-        )
-      ),
-      tabPanel(
-        title = label_lang(
-          de = "Datenimport",
-          en = "Import"
-        ),
-        value = "import"
-      ),
-      footer = import_ui_preview(
-        id = "id_import",
-        .language = .language
       )
     ),
     actionButton_id = "tab_import_btn",
@@ -450,9 +469,17 @@ server <- function(input, output, session) {
     parent = self
   )
 
+  # call_import <- callModule(
+  #   module = import,
+  #   id = "id_import",
+  #   .data = .data,
+  #   .values = .values,
+  #   parent = self
+  # )
+  
   call_import <- callModule(
-    module = import,
-    id = "id_import",
+    module = data_import,
+    id = "id_data_import",
     .data = .data,
     .values = .values,
     parent = self

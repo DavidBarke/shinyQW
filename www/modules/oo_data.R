@@ -55,10 +55,6 @@ data_R6 <- R6::R6Class(
     },
     
     get_column = function(group, name, colname) {
-      # No req required, as a non-existing colname will return null
-      print(paste(
-        "Gruppe:", group, "Name:", name, "Colname", colname
-      ))
       self$get_dataset(group, name)[[colname]]
     },
     
@@ -108,6 +104,8 @@ data_R6 <- R6::R6Class(
         Versuchsplan = data_container_R6$new(versuchsplan),
         SPC = data_container_R6$new(pistonrings)
       )
-    )
+    ),
+    
+    
   )
 )

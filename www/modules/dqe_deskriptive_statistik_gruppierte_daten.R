@@ -196,7 +196,10 @@ dqe_deskriptive_statistik_gruppierte_daten <- function(
     rvs$counter <- rvs$counter + 1
     .values$viewer$data$append_tab(
       tab = tabPanel(
-        title = "Tabellierte Häufigkeitsverteilung",
+        title = label_lang(
+          de = "Tabellierte Häufigkeitsverteilung",
+          en = "Tabulared frequency table"
+        ),
         DT::dataTableOutput(
           outputId = ns("tabellierte_haeufigkeitsverteilung"),
           width = "auto"
@@ -211,10 +214,6 @@ dqe_deskriptive_statistik_gruppierte_daten <- function(
         value = ns("tabled_frequency_distribution")
       )
     )
-    # .values$viewer$plot$appendPlot(
-    #   title = "Grafik",
-    #   plot_reactive = plot_group
-    # )
     .values$viewer$plot$append_tab(
       tab = tabPanel(
         title = label_lang(
