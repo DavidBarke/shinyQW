@@ -38,10 +38,27 @@ data_container_R6 <- R6Class(
 #' @export
 data_R6 <- R6::R6Class(
   "data",
+  lock_objects = FALSE,
   public = list(
+    initialize = function() {
+      self$get_group_names <- reactive({
+        self$trigger_group_names()
+        names(private$data_containers)
+      })
+      self$trigger_group_names <- reactiveVal(0)
+      
+      self$datasets_names <- reactive({
+        self$trigger_datasets_names()
+        names(private$data_containers[[self$selected_group()]])
+      })
+      self$trigger_datasets_names <- reactiveVal(0)
+      self$selected_group <- reactiveVal(character())
+    },
+    
     add_group = function(group) {
       req(group)
       private$data_containers[[group]] <- list()
+      self$trigger_group_names(self$trigger_group_names() + 1)
     },
     
     add_dataset = function(group, name, dataset) {
@@ -49,6 +66,7 @@ data_R6 <- R6::R6Class(
       if (is.null(private$data_containers[[group]][[name]])) {
         data_container <- data_container_R6$new(dataset, check = NULL)
         private$data_containers[[group]][[name]] <- data_container
+        self$trigger_datasets_names(self$trigger_datasets_names() + 1)
       } else {
         private$data_containers[[group]][[name]]$update_dataset(dataset)
       }
@@ -69,11 +87,8 @@ data_R6 <- R6::R6Class(
     
     get_datasets_names = function(group) {
       req(group)
-      names(private$data_containers[[group]])
-    },
-    
-    get_group_names = function() {
-      names(private$data_containers)
+      self$selected_group(group)
+      self$datasets_names()
     },
     
     get_object_information = function(group, name) {
@@ -89,7 +104,8 @@ data_R6 <- R6::R6Class(
     },
     
     remove_dataset = function(group, name) {
-      rm(pos = private$data_containers[[group]], list = name)
+      private$data_containers[[group]][[name]] <- NULL
+      self$trigger_datasets_names(self$trigger_datasets_names() + 1)
     }
   ),
   private = list(

@@ -235,7 +235,6 @@ data_import <- function(
         ending <- "excel"
       }
       import_return <- get(paste0("import_", ending))
-      print(import_return)
     }
   })
   
@@ -371,6 +370,7 @@ data_import <- function(
       for (group in groups) {
         .data$add_dataset(group, input$dataset_name, data())
       }
+      rvs$step == 1
     }
   })
   

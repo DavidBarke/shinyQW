@@ -157,7 +157,7 @@ data_selector <- function(
   )
 
   output$select_group <- renderUI({
-    choices = .values$.data$groups
+    choices = .data$get_group_names()
     selectInput(
       inputId = ns("select_group"),
       label = label_lang(
@@ -317,7 +317,7 @@ data_selector <- function(
             de = "Wähle Gruppe",
             en = "Select group"
           ),
-          choices = setdiff(.values$.data$groups, input$select_group)
+          choices = setdiff(.data$get_group_names(), input$select_group)
         ),
         tags$span(
           actionButton(

@@ -36,16 +36,15 @@ module_data_groups <- function(input, output, session, .data, .values, parent, .
   self <- node$new("data_groups", parent, session)
 
   ns <- session$ns
-  .language <- .values$.language
 
   output$select_groups <- renderUI({
-    selectizeInput(
+    selectInput(
       inputId = ns("select_groups"),
       label = label_lang(
         de = "Wähle eine oder mehrere Gruppen",
         en = "Select one or more groups"
       ),
-      choices = .values$.data$groups,
+      choices = .data$get_group_names(),
       multiple = TRUE
     )
   })
@@ -53,12 +52,6 @@ module_data_groups <- function(input, output, session, .data, .values, parent, .
   observeEvent(input$add_group, {
     if (!input$new_group %in% .values$.data$groups) {
       .data$add_group(input$new_group)
-      .values$.data$groups <- c(.values$.data$groups, input$new_group)
-      updateSelectizeInput(
-        session = session,
-        inputId = "select_groups",
-        choices = .values$.data$groups
-      )
     } else {
       updateTextInput(
         session = session,

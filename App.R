@@ -253,10 +253,6 @@ server <- function(input, output, session) {
       ggplot2 = reactiveValues(),
       plotly = reactiveValues(),
       dqe = reactiveValues()
-    ),
-    .language = .language,
-    .data = reactiveValues(
-      groups = .data$get_group_names()
     )
   )
 
